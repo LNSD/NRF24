@@ -65,6 +65,7 @@ NRF24::NRF24(uint8_t csn, uint8_t ce, uint8_t irq):
 void NRF24::configure()
 {
     // SPI configure
+    SPI.begin();
     SPI.beginTransaction(SPISettings((uint32_t) 1000000, MSBFIRST, SPI_MODE0));
 
     // Interface configure
@@ -79,6 +80,7 @@ void NRF24::configure()
 void NRF24::configure(NRF24Config config)
 {
     // SPI configure
+    SPI.begin();
     SPI.beginTransaction(SPISettings((uint32_t) 1000000, MSBFIRST, SPI_MODE0));
 
     // Interface configure
@@ -130,8 +132,8 @@ uint8_t NRF24::spi_transfer(uint8_t c)
 
 /**
  * Low-level SPI write wrapper
- * @param  buf     Array of data to be transferred
- * @param  count   Array data length
+ * @param  buf Array of data to be transferred
+ * @param  count Array data length
  */
 void NRF24::spi_transfer(void *buf, size_t count)
 {
@@ -157,9 +159,7 @@ uint8_t NRF24::read_register(uint8_t reg)
 {
     uint8_t cmd[2] = {R_REGISTER | (REGISTER_MASK & reg), 0xff};
 
-    csn(LOW);
     spi_transfer(cmd, 2);
-    csn(HIGH);
 
     return cmd[1];
 }
@@ -179,10 +179,8 @@ void NRF24::read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
         buf[i] = 0xff;
     }
 
-    csn(LOW);
-    spi_transfer(&cmd, 1);
+    spi_transfer(cmd);
     spi_transfer(buf, len);
-    csn(HIGH);
 }
 
 /**
@@ -194,9 +192,7 @@ void NRF24::write_register(uint8_t reg, uint8_t value)
 {
     uint8_t cmd[2] = {W_REGISTER | (REGISTER_MASK & reg), value};
 
-    csn(LOW);
-    spi_transfer((uint8_t*)cmd, 2);
-    csn(HIGH);
+    spi_transfer(cmd, 2);
 }
 
 /**
@@ -205,14 +201,12 @@ void NRF24::write_register(uint8_t reg, uint8_t value)
  * @param buf Array of data to write
  * @param len Array length
  */
-void NRF24::write_register_multi(uint8_t reg, const uint8_t* buf, uint8_t len)
+void NRF24::write_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
 {
     uint8_t cmd = W_REGISTER | (REGISTER_MASK & reg);
 
-    csn(LOW);
-    spi_transfer(&cmd, 1);
-    spi_transfer((uint8_t*)buf, len);
-    csn(HIGH);
+    spi_transfer(cmd);
+    spi_transfer(buf, len);
 }
 
 //endregion
