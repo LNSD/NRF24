@@ -73,21 +73,6 @@ void NRF24::configure()
     csn(HIGH);
 }
 
-/**
- * Setups the hardware
- * @param config nRF24 configuration
- */
-void NRF24::configure(NRF24Config config)
-{
-    // SPI configure
-    SPI.begin();
-    SPI.beginTransaction(SPISettings((uint32_t) 1000000, MSBFIRST, SPI_MODE0));
-
-    // Interface configure
-    ce(LOW);
-    csn(HIGH);
-}
-
 //endregion
 
 /**

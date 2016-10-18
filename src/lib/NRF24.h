@@ -8,7 +8,6 @@
 #endif
 
 #include "NRF24L01.h"
-#include "NRF24Config.h"
 
 class NRF24
 {
@@ -17,7 +16,6 @@ public:
     NRF24(uint8_t csn, uint8_t ce);              // Hardware SPI
 	NRF24(uint8_t csn, uint8_t c, uint8_t irq);  // Hardware SPI + IRQ
 	void configure();
-    void configure(NRF24Config config);
 
     // Register read and write functions
     uint8_t read_register(uint8_t reg);
