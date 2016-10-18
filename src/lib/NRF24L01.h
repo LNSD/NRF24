@@ -54,7 +54,7 @@
 #define RF_DR_LOW   5
 #define PLL_LOCK    4
 #define RF_DR_HIGH  3
-#define RF_PWR      6
+#define RF_PWR      1
 #define RX_DR       6
 #define TX_DS       5
 #define MAX_RT      4

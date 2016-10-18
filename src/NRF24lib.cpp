@@ -13,7 +13,6 @@ NRF24 nRF24(CSN, CE, IRQ);
 
 void setup() {
     Serial.begin(9600);
-    nRF24.begin();
 
     Serial.println("Hello nRF24lib!");
 }
