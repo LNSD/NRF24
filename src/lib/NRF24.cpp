@@ -1,5 +1,5 @@
 #if ARDUINO >= 100
-#include "Arduino.h"
+    #include "Arduino.h"
 #else
 #include "WProgram.h"
 #endif
@@ -85,7 +85,7 @@ void NRF24::configure()
  * Low-level CSN signal enable/disable
  * @param level Output signal level
  */
-void NRF24::csn(uint8_t val)
+inline void NRF24::csn(uint8_t val)
 {
     digitalWrite(_csn, val);
 }
@@ -94,36 +94,50 @@ void NRF24::csn(uint8_t val)
  * Low-level CE signal enable/disable
  * @param level Output signal level
  */
-void NRF24::ce(uint8_t val)
+inline void NRF24::ce(uint8_t val)
 {
     digitalWrite(_ce, val);
 }
 
 /**
- * Low-level SPI write wrapper
- * @param c Byte to write to the SPI bus
+ * Low-level SPI transfer wrapper
+ * @param byte Byte to be written to the SPI bus
  * @return Data received while transaction
  */
-uint8_t NRF24::spi_transfer(uint8_t c)
+inline uint8_t NRF24::spiTransfer(uint8_t byte)
 {
     uint8_t rxValue;
 
     csn(LOW);
-    rxValue = SPI.transfer(c);
+    rxValue = SPI.transfer(byte);
     csn(HIGH);
 
     return rxValue;
 }
 
 /**
- * Low-level SPI write wrapper
- * @param  buf Array of data to be transferred
- * @param  count Array data length
+ * Low-level SPI transfer wrapper
+ * @param buf Array of data to be transferred
+ * @param count Array data length
  */
-void NRF24::spi_transfer(void *buf, size_t count)
+inline void NRF24::spiTransfer(void *buf, size_t count)
 {
     csn(LOW);
     SPI.transfer(buf, count);
+    csn(HIGH);
+}
+
+/**
+ * Low-level SPI command wrapper
+ * @param cmd Preceding SPI command
+ * @param buf Array of data to be transferred
+ * @param len Array data length
+ */
+inline void NRF24::spiCmdTransfer(uint8_t cmd, void *buf, size_t len)
+{
+    csn(LOW);
+    SPI.transfer(cmd);
+    SPI.transfer(buf, len);
     csn(HIGH);
 }
 
@@ -144,7 +158,7 @@ uint8_t NRF24::read_register(uint8_t reg)
 {
     uint8_t cmd[2] = {R_REGISTER | (REGISTER_MASK & reg), 0xff};
 
-    spi_transfer(cmd, 2);
+    spiTransfer(cmd, 2);
 
     return cmd[1];
 }
@@ -164,8 +178,7 @@ void NRF24::read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
         buf[i] = 0xff;
     }
 
-    spi_transfer(cmd);
-    spi_transfer(buf, len);
+    spiCmdTransfer(cmd, buf, len);
 }
 
 /**
@@ -177,7 +190,7 @@ void NRF24::write_register(uint8_t reg, uint8_t value)
 {
     uint8_t cmd[2] = {W_REGISTER | (REGISTER_MASK & reg), value};
 
-    spi_transfer(cmd, 2);
+    spiTransfer(cmd, 2);
 }
 
 /**
@@ -190,8 +203,7 @@ void NRF24::write_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
 {
     uint8_t cmd = W_REGISTER | (REGISTER_MASK & reg);
 
-    spi_transfer(cmd);
-    spi_transfer(buf, len);
+    spiCmdTransfer(cmd, buf, len);
 }
 
 //endregion
@@ -215,9 +227,9 @@ void NRF24::write_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
 //endregion
 
 /**
- * Util & debug functions
+ * Util functions
  */
 
-//region Util & debug functions
+//region Util functions
 
 //endregion
