@@ -62,8 +62,9 @@
 #define TX_FULL     0
 #define PLOS_CNT    4
 #define ARC_CNT     0
+#define CD_BIT      0
 #define TX_REUSE    6
-#define FIFO_FULL   5
+#define FIFO_FULL   5 // TX_FULL
 #define TX_EMPTY    4
 #define RX_FULL     1
 #define RX_EMPTY    0
@@ -91,3 +92,14 @@
 #define FLUSH_RX      		0xE2
 #define REUSE_TX_PL   		0xE3
 #define NOP           		0xFF
+
+
+/**
+ * nRF24L01P ammendments
+ */
+
+/* Memory Map */
+#define RPD         CD
+
+/* Bit Mnemonics */
+#define RPD_BIT     CD_BIT
