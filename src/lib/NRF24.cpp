@@ -154,7 +154,7 @@ inline void NRF24::spiCmdTransfer(uint8_t cmd, void *buf, size_t len)
  * @param reg Register to read
  * @return Register content
  */
-uint8_t NRF24::read_register(uint8_t reg)
+uint8_t NRF24::readRegister(uint8_t reg)
 {
     uint8_t cmd[2] = {R_REGISTER | (REGISTER_MASK & reg), 0xff};
 
@@ -169,7 +169,7 @@ uint8_t NRF24::read_register(uint8_t reg)
  * @param buf Array of data received
  * @param len Array length
 */
-void NRF24::read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
+void NRF24::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 {
     uint8_t cmd = R_REGISTER | (REGISTER_MASK & reg);
 
@@ -186,7 +186,7 @@ void NRF24::read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
  * @param reg Register to write
  * @param value Data to write
  */
-void NRF24::write_register(uint8_t reg, uint8_t value)
+void NRF24::writeRegister(uint8_t reg, uint8_t value)
 {
     uint8_t cmd[2] = {W_REGISTER | (REGISTER_MASK & reg), value};
 
@@ -199,7 +199,7 @@ void NRF24::write_register(uint8_t reg, uint8_t value)
  * @param buf Array of data to write
  * @param len Array length
  */
-void NRF24::write_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
+void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 {
     uint8_t cmd = W_REGISTER | (REGISTER_MASK & reg);
 

@@ -18,12 +18,10 @@ public:
 	void configure();
 
     // Register read and write functions
-    uint8_t read_register(uint8_t reg);
-    void read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len);
-    void write_register(uint8_t reg, uint8_t value);
-    void write_register_multi(uint8_t reg, uint8_t* buf, uint8_t len);
-
-    // Util functions
+    uint8_t readRegister(uint8_t reg);
+    void readRegister(uint8_t reg, uint8_t *buf, uint8_t len);
+    void writeRegister(uint8_t reg, uint8_t value);
+    void writeRegister(uint8_t reg, uint8_t *buf, uint8_t len);
 
 private:
 	uint8_t _sck, _mosi, _miso, _csn;
