@@ -19,41 +19,41 @@ void setup() {
     nRF24.configure();
     Serial.println("DONE");
 
-    // NRF24Debug::debugConfigRegister(nRF24.read_register(CONFIG));
-    // NRF24Debug::debugEnAARegister(nRF24.read_register(EN_AA));
-    // NRF24Debug::debugEnRxAddrRegister(nRF24.read_register(EN_RXADDR));
-    // NRF24Debug::debugSetupAWRegister(nRF24.read_register(SETUP_AW));
-    // NRF24Debug::debugSetupRetrRegister(nRF24.read_register(SETUP_RETR));
-    // NRF24Debug::debugRfChRegister(nRF24.read_register(RF_CH));
-    // NRF24Debug::debugRfSetupRegister(nRF24.read_register(RF_SETUP));
-    // NRF24Debug::debugStatusRegister(nRF24.read_register(STATUS));
-    // NRF24Debug::debugObserveTxRegister(nRF24.read_register(OBSERVE_TX));
-    // NRF24Debug::debugRPDRegister(nRF24.read_register(RPD));
+    // NRF24Debug::debugConfigRegister(nRF24.readRegister(CONFIG));
+    // NRF24Debug::debugEnAARegister(nRF24.readRegister(EN_AA));
+    // NRF24Debug::debugEnRxAddrRegister(nRF24.readRegister(EN_RXADDR));
+    // NRF24Debug::debugSetupAWRegister(nRF24.readRegister(SETUP_AW));
+    // NRF24Debug::debugSetupRetrRegister(nRF24.readRegister(SETUP_RETR));
+    // NRF24Debug::debugRfChRegister(nRF24.readRegister(RF_CH));
+    // NRF24Debug::debugRfSetupRegister(nRF24.readRegister(RF_SETUP));
+    // NRF24Debug::debugStatusRegister(nRF24.readRegister(STATUS));
+    // NRF24Debug::debugObserveTxRegister(nRF24.readRegister(OBSERVE_TX));
+    // NRF24Debug::debugRPDRegister(nRF24.readRegister(RPD));
 
     /*for (int i = 0; i < 6; ++i) {
         if (i > 1)
         {
-            NRF24Debug::debugDataPipeRxAddrRegister(nRF24.read_register(RX_ADDR_P2+i-2), i);
+            NRF24Debug::debugDataPipeRxAddrRegister(nRF24.readRegister(RX_ADDR_P2+i-2), i);
         }
         else
         {
             uint8_t buffer[5];
-            nRF24.read_register_multi(RX_ADDR_P0+i, buffer, sizeof(buffer));
+            nRF24.readRegister(RX_ADDR_P0+i, buffer, sizeof(buffer));
             NRF24Debug::debugDataPipeRxAddrRegister(buffer, i);
         }
     }*/
 
     /*uint8_t buffer[5];
-    nRF24.read_register_multi(TX_ADDR, buffer, sizeof(buffer));
+    nRF24.readRegister(TX_ADDR, buffer, sizeof(buffer));
     NRF24Debug::debugTxAddrRegister(buffer);*/
 
     /*for (int i = 0; i < 6; ++i) {
-        NRF24Debug::debugRxBytesPipeRegister(nRF24.read_register(RX_PW_P0+i), i);
+        NRF24Debug::debugRxBytesPipeRegister(nRF24.readRegister(RX_PW_P0+i), i);
     }*/
-    // NRF24Debug::debugFIFOStatusRegister(nRF24.read_register(FIFO_STATUS));
+    // NRF24Debug::debugFIFOStatusRegister(nRF24.readRegister(FIFO_STATUS));
 
-    // NRF24Debug::debugDYNPDRegister(nRF24.read_register(DYNPD));
-    // NRF24Debug::debugFeatureRegister(nRF24.read_register(FEATURE));
+    // NRF24Debug::debugDYNPDRegister(nRF24.readRegister(DYNPD));
+    // NRF24Debug::debugFeatureRegister(nRF24.readRegister(FEATURE));
 
 }
 
