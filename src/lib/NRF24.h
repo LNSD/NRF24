@@ -52,9 +52,7 @@ private:
 	// Low-level signal & SPI-specific functions
 	void csn(uint8_t val);
 	void ce(uint8_t val);
-
-	uint8_t spiTransfer(uint8_t byte);
-	void spiTransfer(void *buf, size_t count);
+    void spiCmdTransfer(uint8_t cmd);
     void spiCmdTransfer(uint8_t cmd, void *buf, size_t len);
 };
 
