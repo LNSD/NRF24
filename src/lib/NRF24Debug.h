@@ -24,10 +24,14 @@ public:
     static void debugStatusRegister(uint8_t content);
     static void debugObserveTxRegister(uint8_t content);
     static void debugRPDRegister(uint8_t content);
-    // TODO
+
+    static void debugDataPipeRxAddrRegister(uint8_t content, uint8_t pipe);
+    static void debugDataPipeRxAddrRegister(uint8_t *content, uint8_t pipe);
+    static void debugTxAddrRegister(uint8_t *content);
+
     static void debugRxBytesPipeRegister(uint8_t content, uint8_t pipe);
     static void debugFIFOStatusRegister(uint8_t content);
-    // TODO
+    
     static void debugDYNPDRegister(uint8_t content);
     static void debugFeatureRegister(uint8_t content);
 };

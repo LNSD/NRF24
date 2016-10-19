@@ -329,6 +329,52 @@ void NRF24Debug::debugRPDRegister(uint8_t content)
 }
 
 /**
+ * Parse RX_ADDR_P# register content and show debug info. Unique byte address
+ * @param content Register content
+ */
+void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t content, uint8_t pipe)
+{
+    // Debug info header
+    Serial.print(" - DEBUG: RX_ADDR_P");
+    Serial.print(pipe, DEC);
+    Serial.print(" register content: 0x");
+    Serial.println(content, HEX);
+}
+
+/**
+ * Parse RX_ADDR_P# register content and show debug info. Long address (5 bytes max)
+ * @param content Register content
+ * @param pipe Pipe number
+ */
+void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, uint8_t pipe)
+{
+    // Debug info header
+    Serial.print(" - DEBUG: RX_ADDR_P");
+    Serial.print(pipe, DEC);
+    Serial.print(" register content: ");
+
+    for (int i = 0; i < 5; ++i) {
+        Serial.print(content[i], HEX);
+        Serial.print((i != 4) ? ":":"\n");
+    }
+}
+
+/**
+ * Parse TX_ADDR register content and show debug info
+ * @param content Register content
+ */
+void NRF24Debug::debugTxAddrRegister(uint8_t *content)
+{
+    // Debug info header
+    Serial.print(" - DEBUG: TX_ADDR register content: ");
+
+    for (int i = 0; i < 5; ++i) {
+        Serial.print(content[i], HEX);
+        Serial.print((i != 4) ? ":":"\n");
+    }
+}
+
+/**
  * Parse RX_PW_P# registers content and show debug info
  * @param content Register content
  * @param pipe Pipe number
@@ -338,10 +384,8 @@ void NRF24Debug::debugRxBytesPipeRegister(uint8_t content, uint8_t pipe)
     // Debug info header
     Serial.print(" - DEBUG: RX_PW_P");
     Serial.print(pipe, DEC);
-    Serial.print(" register content (0x");
-    Serial.print(content, HEX);
-    Serial.print("): ");
-    Serial.println(content, BIN);
+    Serial.print(" register content: ");
+    Serial.println(content, DEC);
 }
 
 /**
