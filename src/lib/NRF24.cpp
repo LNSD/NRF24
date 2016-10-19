@@ -156,7 +156,7 @@ inline void NRF24::spiCmdTransfer(uint8_t cmd, void *buf, size_t len)
  */
 uint8_t NRF24::readRegister(uint8_t reg)
 {
-    uint8_t cmd[2] = {R_REGISTER | (REGISTER_MASK & reg), 0xff};
+    uint8_t cmd[2] = {R_REGISTER | (REGISTER_MASK & reg), 0xff};  // TODO Check if necessary
 
     spiTransfer(cmd, 2);
 
@@ -173,6 +173,7 @@ void NRF24::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 {
     uint8_t cmd = R_REGISTER | (REGISTER_MASK & reg);
 
+    // TODO Check if necessary
     for (int i = 0; i < len; ++i)
     {
         buf[i] = 0xff;
@@ -222,7 +223,92 @@ void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 
 //region Command functions
 
-// TODO Command functions
+/**
+ * Read RX payload width for the top R_RX_PAYLOAD in the RX FIFO
+ * @Note Flush RX FIFO if the read value is larger than 32 bytes
+ * @return RX payload width
+ */
+uint8_t NRF24::getRxPayloadLength()
+{
+    uint8_t width = 0xff; // TODO Check if necessary
+
+
+    spiCmdTransfer(R_RX_PL_WID, &width, 1);
+
+    return width;
+}
+
+/**
+ * Read RX-payload: 1 - 32 bytes. A read operation always starts at byte 0. Payload is deleted from FIFO after it is read. Used in RX mode.
+ * @param data Payload buffer
+ * @param len Payload length
+ */
+void NRF24::readRxPayload(uint8_t* data, uint8_t len)
+{
+    // TODO Check if necessary
+    for (int i = 0; i < len; ++i)
+    {
+        data[i] = 0xff;
+    }
+
+    spiCmdTransfer(R_RX_PAYLOAD, data, len);
+}
+
+/**
+ * Write TX-payload: 1 - 32 bytes. A read operation always starts at byte 0 used in TX payload.
+ * @param data Payload buffer
+ * @param len Payload length
+ */
+void NRF24::writeTxPayload(uint8_t* data, uint8_t len)
+{
+    spiCmdTransfer(W_TX_PAYLOAD, data, len);
+}
+
+/**
+ * Used in RX mode. Write Payload to be transmitted together with ACK packet on chosen pipe.
+ * @note Maximum three ACK packet payloads can be pending. Payloads with same # are handled using first in - first out principle. Write payload: 1– 32 bytes. A write operation always starts at byte 0.
+ * @param pipe Pipe where payload is written
+ * @param data Payload buffer
+ * @param len Payload length
+ */
+void NRF24::writePipeACKPayload(NRF24_RxPipe_t pipe, uint8_t* data, uint8_t len)
+{
+    spiCmdTransfer((uint8_t) (W_ACK_PAYLOAD | (pipe & 0x07)), data, len);
+}
+
+/**
+ * Used in TX mode. Disables AUTOACK on this specific packet.
+ */
+void NRF24::disableAAforPayload()
+{
+    spiTransfer(W_TX_PAYLOAD_NOACK);
+}
+
+/**
+ * Used for a PTX device. Reuse last transmitted payload.
+ * @note TX payload reuse is active until W_TX_PAYLOAD or FLUSH TX is executed. TX payload reuse must not be activated or deacti- vated during package transmission.
+ */
+void NRF24::reuseTxPayload()
+{
+    spiTransfer(REUSE_TX_PL);
+}
+
+/**
+ * Flush TX FIFO, used in TX mode.
+ */
+void NRF24::flushTXFIFO()
+{
+    spiTransfer(FLUSH_TX);
+}
+
+/**
+ * Flush RX FIFO, used in RX mode.
+ * @note Should not be executed during transmission of acknowledge, that is, acknowledge package will not be completed.
+ */
+void NRF24::flushRXFIFO()
+{
+    spiTransfer(FLUSH_RX);
+}
 
 //endregion
 
