@@ -164,8 +164,10 @@ void NRF24::read_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
         buf[i] = 0xff;
     }
 
-    spi_transfer(cmd);
-    spi_transfer(buf, len);
+    csn(LOW);
+    SPI.transfer(cmd);
+    SPI.transfer(buf, len);
+    csn(HIGH);
 }
 
 /**
@@ -190,8 +192,10 @@ void NRF24::write_register_multi(uint8_t reg, uint8_t* buf, uint8_t len)
 {
     uint8_t cmd = W_REGISTER | (REGISTER_MASK & reg);
 
-    spi_transfer(cmd);
-    spi_transfer(buf, len);
+    csn(LOW);
+    SPI.transfer(cmd);
+    SPI.transfer(buf, len);
+    csn(HIGH);
 }
 
 //endregion
