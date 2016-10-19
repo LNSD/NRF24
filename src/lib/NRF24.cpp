@@ -100,30 +100,13 @@ inline void NRF24::ce(uint8_t val)
 }
 
 /**
- * Low-level SPI transfer wrapper
- * @param byte Byte to be written to the SPI bus
- * @return Data received while transaction
+ * Low-level SPI command wrapper
+ * @param cmd SPI command
  */
-inline uint8_t NRF24::spiTransfer(uint8_t byte)
-{
-    uint8_t rxValue;
-
-    csn(LOW);
-    rxValue = SPI.transfer(byte);
-    csn(HIGH);
-
-    return rxValue;
-}
-
-/**
- * Low-level SPI transfer wrapper
- * @param buf Array of data to be transferred
- * @param count Array data length
- */
-inline void NRF24::spiTransfer(void *buf, size_t count)
+inline void NRF24::spiCmdTransfer(uint8_t cmd)
 {
     csn(LOW);
-    SPI.transfer(buf, count);
+    SPI.transfer(cmd);
     csn(HIGH);
 }
 
@@ -156,11 +139,11 @@ inline void NRF24::spiCmdTransfer(uint8_t cmd, void *buf, size_t len)
  */
 uint8_t NRF24::readRegister(uint8_t reg)
 {
-    uint8_t cmd[2] = {R_REGISTER | (REGISTER_MASK & reg), 0xff};  // TODO Check if necessary
+    uint8_t data;
 
-    spiTransfer(cmd, 2);
+    spiCmdTransfer(R_REGISTER | (REGISTER_MASK & reg), &data, 1);
 
-    return cmd[1];
+    return data;
 }
 
 /**
@@ -171,15 +154,7 @@ uint8_t NRF24::readRegister(uint8_t reg)
 */
 void NRF24::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 {
-    uint8_t cmd = R_REGISTER | (REGISTER_MASK & reg);
-
-    // TODO Check if necessary
-    for (int i = 0; i < len; ++i)
-    {
-        buf[i] = 0xff;
-    }
-
-    spiCmdTransfer(cmd, buf, len);
+    spiCmdTransfer(R_REGISTER | (REGISTER_MASK & reg), buf, len);
 }
 
 /**
@@ -189,9 +164,9 @@ void NRF24::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
  */
 void NRF24::writeRegister(uint8_t reg, uint8_t value)
 {
-    uint8_t cmd[2] = {W_REGISTER | (REGISTER_MASK & reg), value};
+    //uint8_t data = value; TODO check if this is necessary
 
-    spiTransfer(cmd, 2);
+    spiCmdTransfer(W_REGISTER | (REGISTER_MASK & reg), &value, 1);
 }
 
 /**
@@ -202,9 +177,7 @@ void NRF24::writeRegister(uint8_t reg, uint8_t value)
  */
 void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 {
-    uint8_t cmd = W_REGISTER | (REGISTER_MASK & reg);
-
-    spiCmdTransfer(cmd, buf, len);
+    spiCmdTransfer(W_REGISTER | (REGISTER_MASK & reg), buf, len);
 }
 
 //endregion
@@ -230,8 +203,7 @@ void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
  */
 uint8_t NRF24::getRxPayloadLength()
 {
-    uint8_t width = 0xff; // TODO Check if necessary
-
+    uint8_t width;
 
     spiCmdTransfer(R_RX_PL_WID, &width, 1);
 
@@ -245,12 +217,6 @@ uint8_t NRF24::getRxPayloadLength()
  */
 void NRF24::readRxPayload(uint8_t* data, uint8_t len)
 {
-    // TODO Check if necessary
-    for (int i = 0; i < len; ++i)
-    {
-        data[i] = 0xff;
-    }
-
     spiCmdTransfer(R_RX_PAYLOAD, data, len);
 }
 
@@ -281,7 +247,7 @@ void NRF24::writePipeACKPayload(NRF24_RxPipe_t pipe, uint8_t* data, uint8_t len)
  */
 void NRF24::disableAAforPayload()
 {
-    spiTransfer(W_TX_PAYLOAD_NOACK);
+    spiCmdTransfer(W_TX_PAYLOAD_NOACK);
 }
 
 /**
@@ -290,7 +256,7 @@ void NRF24::disableAAforPayload()
  */
 void NRF24::reuseTxPayload()
 {
-    spiTransfer(REUSE_TX_PL);
+    spiCmdTransfer(REUSE_TX_PL);
 }
 
 /**
@@ -298,7 +264,7 @@ void NRF24::reuseTxPayload()
  */
 void NRF24::flushTXFIFO()
 {
-    spiTransfer(FLUSH_TX);
+    spiCmdTransfer(FLUSH_TX);
 }
 
 /**
@@ -307,7 +273,7 @@ void NRF24::flushTXFIFO()
  */
 void NRF24::flushRXFIFO()
 {
-    spiTransfer(FLUSH_RX);
+    spiCmdTransfer(FLUSH_RX);
 }
 
 //endregion

@@ -19,18 +19,18 @@ void setup() {
     nRF24.configure();
     Serial.println("DONE");
 
-    // NRF24Debug::debugConfigRegister(nRF24.readRegister(CONFIG));
-    // NRF24Debug::debugEnAARegister(nRF24.readRegister(EN_AA));
-    // NRF24Debug::debugEnRxAddrRegister(nRF24.readRegister(EN_RXADDR));
-    // NRF24Debug::debugSetupAWRegister(nRF24.readRegister(SETUP_AW));
-    // NRF24Debug::debugSetupRetrRegister(nRF24.readRegister(SETUP_RETR));
-    // NRF24Debug::debugRfChRegister(nRF24.readRegister(RF_CH));
-    // NRF24Debug::debugRfSetupRegister(nRF24.readRegister(RF_SETUP));
-    // NRF24Debug::debugStatusRegister(nRF24.readRegister(STATUS));
-    // NRF24Debug::debugObserveTxRegister(nRF24.readRegister(OBSERVE_TX));
-    // NRF24Debug::debugRPDRegister(nRF24.readRegister(RPD));
+     NRF24Debug::debugConfigRegister(nRF24.readRegister(CONFIG));
+     NRF24Debug::debugEnAARegister(nRF24.readRegister(EN_AA));
+     NRF24Debug::debugEnRxAddrRegister(nRF24.readRegister(EN_RXADDR));
+     NRF24Debug::debugSetupAWRegister(nRF24.readRegister(SETUP_AW));
+     NRF24Debug::debugSetupRetrRegister(nRF24.readRegister(SETUP_RETR));
+     NRF24Debug::debugRfChRegister(nRF24.readRegister(RF_CH));
+     NRF24Debug::debugRfSetupRegister(nRF24.readRegister(RF_SETUP));
+     NRF24Debug::debugStatusRegister(nRF24.readRegister(STATUS));
+     NRF24Debug::debugObserveTxRegister(nRF24.readRegister(OBSERVE_TX));
+     NRF24Debug::debugRPDRegister(nRF24.readRegister(RPD));
 
-    /*for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 6; ++i) {
         if (i > 1)
         {
             NRF24Debug::debugDataPipeRxAddrRegister(nRF24.readRegister(RX_ADDR_P2+i-2), i);
@@ -41,7 +41,7 @@ void setup() {
             nRF24.readRegister(RX_ADDR_P0+i, buffer, sizeof(buffer));
             NRF24Debug::debugDataPipeRxAddrRegister(buffer, i);
         }
-    }*/
+    }
 
     /*uint8_t buffer[5];
     nRF24.readRegister(TX_ADDR, buffer, sizeof(buffer));
