@@ -367,7 +367,7 @@ NRF24::DataRate_t NRF24::getDataRate()
  * Set transceiver's RF channel
  * @param channel RF channel
  */
-void NRF24::setRFChannel(uint8_t channel)
+void NRF24::setRfChannel(uint8_t channel)
 {
     const uint8_t max_channel = 127;
     writeRegister(RF_CH, min(channel, max_channel));
@@ -377,7 +377,7 @@ void NRF24::setRFChannel(uint8_t channel)
  * Get transceiver's current RF channel
  * @return Current RF channel
  */
-uint8_t NRF24::getRFChannel()
+uint8_t NRF24::getRfChannel()
 {
     return readRegister(RF_CH);
 }
@@ -406,7 +406,7 @@ uint8_t NRF24::getAddrLength()
  * Enable RX pipe
  * @param pipe RX pipe
  */
-void NRF24::enablePipeRxAddr(NRF24_RxPipe_t pipe)
+void NRF24::enablePipeRxAddr(RxPipe_t pipe)
 {
     writeRegister(EN_RXADDR, readRegister(EN_RXADDR) | _BV(pipe));
 }
@@ -415,7 +415,7 @@ void NRF24::enablePipeRxAddr(NRF24_RxPipe_t pipe)
  * Disable RX pipe
  * @param pipe RX pipe
  */
-void NRF24::disablePipeRxAddr(NRF24_RxPipe_t pipe)
+void NRF24::disablePipeRxAddr(RxPipe_t pipe)
 {
     writeRegister(EN_RXADDR, readRegister(EN_RXADDR) & ~_BV(pipe));
 }
@@ -461,7 +461,7 @@ const uint8_t pipeRx[6] = {RX_ADDR_P0, RX_ADDR_P1, RX_ADDR_P2, RX_ADDR_P3, RX_AD
  * @param addr Pipe address
  * @param len Address length
  */
-void NRF24::setPipeRxAddr(NRF24_RxPipe_t pipe, uint8_t *addr, uint8_t len)
+void NRF24::setPipeRxAddr(RxPipe_t pipe, uint8_t *addr, uint8_t len)
 {
     if(pipe < 2)
     {
@@ -479,7 +479,7 @@ void NRF24::setPipeRxAddr(NRF24_RxPipe_t pipe, uint8_t *addr, uint8_t len)
  * @param addr Pipe address
  * @param len Address length
  */
-void NRF24::getPipeRxAddr(NRF24_RxPipe_t pipe, uint8_t *addr, uint8_t len)
+void NRF24::getPipeRxAddr(RxPipe_t pipe, uint8_t *addr, uint8_t len)
 {
     if(pipe < 2)
     {
@@ -498,7 +498,7 @@ const uint8_t pipe_payload[6] = {RX_PW_P0, RX_PW_P1, RX_PW_P2, RX_PW_P3, RX_PW_P
  * @param pipe RX pipe
  * @param size Payload size
  */
-void NRF24::setPipePayloadSize(NRF24_RxPipe_t pipe, uint8_t size)
+void NRF24::setPipePayloadSize(RxPipe_t pipe, uint8_t size)
 {
     const uint8_t max_size = 32;
     writeRegister(pipe_payload[pipe], min(size, max_size));
@@ -509,7 +509,7 @@ void NRF24::setPipePayloadSize(NRF24_RxPipe_t pipe, uint8_t size)
  * @param pipe pipe
  * @return Payload size
  */
-uint8_t NRF24::getPipePayloadSize(NRF24_RxPipe_t pipe)
+uint8_t NRF24::getPipePayloadSize(RxPipe_t pipe)
 {
     return readRegister(pipe_payload[pipe]);
 }
@@ -518,7 +518,7 @@ uint8_t NRF24::getPipePayloadSize(NRF24_RxPipe_t pipe)
  * Enable input pipe dynamic payloads
  * @param pipe RX pipe
  */
-void NRF24::enablePipeDynamicPayloads(NRF24_RxPipe_t pipe)
+void NRF24::enablePipeDynamicPayloads(RxPipe_t pipe)
 {
     uint8_t dynpd = readRegister(DYNPD);
     dynpd |= _BV(pipe);
@@ -531,7 +531,7 @@ void NRF24::enablePipeDynamicPayloads(NRF24_RxPipe_t pipe)
  * Disable input pipe dynamic payloads
  * @param pipe RX pipe
  */
-void NRF24::disablePipeDynamicPayloads(NRF24_RxPipe_t pipe)
+void NRF24::disablePipeDynamicPayloads(RxPipe_t pipe)
 {
     uint8_t dynpd = readRegister(DYNPD);
 
@@ -623,7 +623,7 @@ NRF24::CRCLength_t NRF24::getCRCConfig()
  * Enable input pipe auto ACK
  * @param pipe RX pipe
  */
-void NRF24::enablePipeAutoAck(NRF24_RxPipe_t pipe)
+void NRF24::enablePipeAutoAck(RxPipe_t pipe)
 {
     writeRegister(EN_AA, readRegister(EN_AA) | _BV(pipe));
 }
@@ -632,7 +632,7 @@ void NRF24::enablePipeAutoAck(NRF24_RxPipe_t pipe)
  * Disable input pipe auto ACK
  * @param pipe RX pipe
  */
-void NRF24::disablePipeAutoAck(NRF24_RxPipe_t pipe)
+void NRF24::disablePipeAutoAck(RxPipe_t pipe)
 {
     writeRegister(EN_AA, readRegister(EN_AA) & ~_BV(pipe));
 }
@@ -654,12 +654,12 @@ void NRF24::whichPipeAutoAckAreEnabled(bool *autoAck)
  * Set autoretransmission delay
  * @param delay Autoretransmission delay
  */
-void NRF24::setAutoRtDelay(uint8_t delay)
+void NRF24::setAutoRtDelay(uint16_t delay)
 {
     const uint8_t max_delay = 0xF;
     uint8_t setupRetr = readRegister(SETUP_RETR);
     setupRetr &= 0x0F;
-    setupRetr |= (min(delay, max_delay) << 4);
+    setupRetr |= (min(delay/250, max_delay) << 4);
 
     writeRegister(SETUP_RETR, setupRetr);
 }
@@ -793,7 +793,7 @@ void NRF24::writeTxPayload(uint8_t* data, uint8_t len)
  * @param data Payload buffer
  * @param len Payload length
  */
-void NRF24::writePipeACKPayload(NRF24_RxPipe_t pipe, uint8_t* data, uint8_t len)
+void NRF24::writePipeACKPayload(RxPipe_t pipe, uint8_t* data, uint8_t len)
 {
     spiCmdTransfer((uint8_t) (W_ACK_PAYLOAD | (pipe & 0x07)), data, len);
 }

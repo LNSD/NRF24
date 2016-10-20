@@ -19,18 +19,6 @@ typedef enum {
 } NRF24_Interrupt_t;
 
 /**
- * Pipes definition.
- */
-typedef enum {
-    NRF24_RX_P0 = 0,
-    NRF24_RX_P1 = 1,
-    NRF24_RX_P2 = 2,
-    NRF24_RX_P3 = 3,
-    NRF24_RX_P4 = 4,
-    NRF24_RX_P5 = 5
-} NRF24_RxPipe_t;
-
-/**
  * Fifo status.
  */
 typedef enum {
@@ -39,6 +27,10 @@ typedef enum {
     NRF24_FIFO_FULL
 } NRF24_FIFOStatus_t;
 
+
+/**
+ * Main NRF24 class
+ */
 class NRF24
 {
 public:
@@ -83,34 +75,41 @@ public:
         CRC_16,
         CRC_DISABLED
     } CRCLength_t;
+
+    /**
+    * RX pipes definition
+    */
+    typedef enum {
+        RX_P0 = 0,
+        RX_P1 = 1,
+        RX_P2 = 2,
+        RX_P3 = 3,
+        RX_P4 = 4,
+        RX_P5 = 5
+    } RxPipe_t;
     //endregion
 
-    //region Constructor and configure subroutines
-
+    // Constructor and configure subroutines
     NRF24(uint8_t csn, uint8_t ce);              // Hardware SPI
     NRF24(uint8_t csn, uint8_t c, uint8_t irq);  // Hardware SPI + IRQ
     void configure();
-    //endregion
+    void configure(NRF24Config configuration);
 
-    //region Register read and write functions
-
+    // Register read and write functions
     uint8_t readRegister(uint8_t reg);
     void readRegister(uint8_t reg, uint8_t *buf, uint8_t len);
     void writeRegister(uint8_t reg, uint8_t value);
     void writeRegister(uint8_t reg, uint8_t *buf, uint8_t len);
-    //endregion
 
-    //region Command functions
-
+    // Command functions
     uint8_t getRxPayloadLength();
     void readRxPayload(uint8_t* data, uint8_t len);
     void writeTxPayload(uint8_t* data, uint8_t len);
-    void writePipeACKPayload(NRF24_RxPipe_t pipe, uint8_t* data, uint8_t len);
+    void writePipeACKPayload(RxPipe_t pipe, uint8_t* data, uint8_t len);
     void disableAAforPayload();
     void reuseTxPayload();
     void flushTXFIFO();
     void flushRXFIFO();
-    //endregion
 
     //region Configuration functions. Getters and setters
 
@@ -123,29 +122,29 @@ public:
     OutputPower_t getOutputRfPower();
     void setDataRate(DataRate_t speed);
     DataRate_t getDataRate();
-    void setRFChannel(uint8_t channel);
-    uint8_t getRFChannel();
+    void setRfChannel(uint8_t channel);
+    uint8_t getRfChannel();
     void setAddrLength(uint8_t length);
     uint8_t getAddrLength();
-    void enablePipeRxAddr(NRF24_RxPipe_t pipe);
-    void disablePipeRxAddr(NRF24_RxPipe_t pipe);
+    void enablePipeRxAddr(RxPipe_t pipe);
+    void disablePipeRxAddr(RxPipe_t pipe);
     void whichRxAddrAreEnabled(bool *addr_enabled);
     void setTxAddr(uint8_t* addr, uint8_t len);
     void getTxAddr(uint8_t* addr, uint8_t len);
-    void setPipeRxAddr(NRF24_RxPipe_t pipe, uint8_t* addr, uint8_t len);
-    void getPipeRxAddr(NRF24_RxPipe_t pipe, uint8_t* addr, uint8_t len);
-    void setPipePayloadSize(NRF24_RxPipe_t pipe, uint8_t size);
-    uint8_t getPipePayloadSize(NRF24_RxPipe_t pipe);
-    void enablePipeDynamicPayloads(NRF24_RxPipe_t pipe);
-    void disablePipeDynamicPayloads(NRF24_RxPipe_t pipe);
+    void setPipeRxAddr(RxPipe_t pipe, uint8_t* addr, uint8_t len);
+    void getPipeRxAddr(RxPipe_t pipe, uint8_t* addr, uint8_t len);
+    void setPipePayloadSize(RxPipe_t pipe, uint8_t size);
+    uint8_t getPipePayloadSize(RxPipe_t pipe);
+    void enablePipeDynamicPayloads(RxPipe_t pipe);
+    void disablePipeDynamicPayloads(RxPipe_t pipe);
     void whichPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads);
     void enableCRC(CRCLength_t length);
     void disableCRC();
     CRCLength_t getCRCConfig();
-    void enablePipeAutoAck(NRF24_RxPipe_t pipe);
-    void disablePipeAutoAck(NRF24_RxPipe_t pipe);
+    void enablePipeAutoAck(RxPipe_t pipe);
+    void disablePipeAutoAck(RxPipe_t pipe);
     void whichPipeAutoAckAreEnabled(bool *autoAck);
-    void setAutoRtDelay(uint8_t delay);
+    void setAutoRtDelay(uint16_t delay);
     uint8_t getAutoRtDelay();
     void setAutoRtCount(uint8_t count);
     uint8_t getAutoRtCount();
@@ -166,6 +165,107 @@ private:
     void ce(uint8_t val);
     void spiCmdTransfer(uint8_t cmd);
     void spiCmdTransfer(uint8_t cmd, void *buf, size_t len);
+};
+
+/**
+ * NRF24 initial configuration holder class
+ */
+class NRF24Config
+{
+public:
+    NRF24Config(NRF24::TransceiverMode_t mode):
+            _mode(mode)
+    {};
+
+    NRF24Config(NRF24::TransceiverMode_t mode, NRF24::OutputPower_t level, NRF24::DataRate_t rate):
+            _mode(mode),
+            _power(level),
+            _dataRate(rate)
+    {};
+
+    void setTransceiverMode(NRF24::TransceiverMode_t mode) {
+        _mode = mode;
+    }
+
+    void setPower(NRF24::OutputPower_t power) {
+        _power = power;
+    }
+
+    void setDataRate(NRF24::DataRate_t dataRate) {
+        _dataRate = dataRate;
+    }
+
+    void setRfCh(uint8_t rfCh) {
+        _rfCh = rfCh;
+    }
+
+    void enableConstCarrier() {
+        _constCarrier = true;
+    }
+
+    void disableConstCarrier() {
+        _constCarrier = false;
+    }
+
+    void setCRC(NRF24::CRCLength_t crc) {
+        _crc = crc;
+    }
+
+    void setAddrLen(uint8_t addrLen) {
+        _addrLen = addrLen;
+    }
+
+    void enableAutoAck() {
+        _autoAck = true;
+    }
+
+    void disableAutoAck() {
+        _autoAck = false;
+    }
+
+    void setAutoRtDelay(uint16_t autoRtDelay) {
+        _autoRtDelay = autoRtDelay;
+    }
+
+    void setAutoRtCount(uint8_t autoRtCount) {
+        _autoRtCount = autoRtCount;
+    }
+
+    void enableAckPayload() {
+        _ackPayload = true;
+    }
+
+    void disableAckPayload() {
+        _ackPayload = false;
+    }
+
+    void enableDynamicAck() {
+        _dynamicAck = true;
+    }
+
+    void disableDynamicAck() {
+        _dynamicAck = false;
+    }
+
+private:
+    NRF24::TransceiverMode_t _mode = NRF24::Mode_PTX;
+    NRF24::OutputPower_t _power = NRF24::OutputPower_0dBm;
+    NRF24::DataRate_t _dataRate = NRF24::DataRate_2Mbps;
+
+    uint8_t _rfCh = 2;
+    bool _constCarrier = false;
+    NRF24::CRCLength_t _crc = NRF24::CRC_16;
+
+    uint8_t _addrLen = 5;
+
+    bool _autoAck = true;
+    uint16_t _autoRtDelay = 250;
+    uint8_t _autoRtCount = 3;
+
+    bool _ackPayload = false;
+    bool _dynamicAck = false;
+
+    friend class NRF24;
 };
 
 #endif
