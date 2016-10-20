@@ -89,11 +89,112 @@ public:
     } RxPipe_t;
     //endregion
 
+    /**
+     * NRF24 initial configuration holder class
+     */
+    class Config
+    {
+    public:
+        Config(NRF24::TransceiverMode_t mode):
+                _mode(mode)
+        {};
+
+        Config(NRF24::TransceiverMode_t mode, NRF24::OutputPower_t level, NRF24::DataRate_t rate):
+                _mode(mode),
+                _power(level),
+                _dataRate(rate)
+        {};
+
+        void setTransceiverMode(NRF24::TransceiverMode_t mode) {
+            _mode = mode;
+        }
+
+        void setPower(NRF24::OutputPower_t power) {
+            _power = power;
+        }
+
+        void setDataRate(NRF24::DataRate_t dataRate) {
+            _dataRate = dataRate;
+        }
+
+        void setRfChannel(uint8_t channel) {
+            _rfCh = channel;
+        }
+
+        void enableConstCarrier() {
+            _constCarrier = true;
+        }
+
+        void disableConstCarrier() {
+            _constCarrier = false;
+        }
+
+        void setCRC(NRF24::CRCLength_t crc) {
+            _crc = crc;
+        }
+
+        void setAddrLength(uint8_t length) {
+            _addrLen = length;
+        }
+
+        void enableAutoAck() {
+            _autoAck = true;
+        }
+
+        void disableAutoAck() {
+            _autoAck = false;
+        }
+
+        void setAutoRtDelay(uint16_t autoRtDelay) {
+            _autoRtDelay = autoRtDelay;
+        }
+
+        void setAutoRtCount(uint8_t autoRtCount) {
+            _autoRtCount = autoRtCount;
+        }
+
+        void enableAckPayload() {
+            _ackPayload = true;
+        }
+
+        void disableAckPayload() {
+            _ackPayload = false;
+        }
+
+        void enableDynamicAck() {
+            _dynamicAck = true;
+        }
+
+        void disableDynamicAck() {
+            _dynamicAck = false;
+        }
+
+    private:
+        NRF24::TransceiverMode_t _mode = NRF24::Mode_PTX;
+        NRF24::OutputPower_t _power = NRF24::OutputPower_0dBm;
+        NRF24::DataRate_t _dataRate = NRF24::DataRate_2Mbps;
+
+        uint8_t _rfCh = 2;
+        bool _constCarrier = false;
+        NRF24::CRCLength_t _crc = NRF24::CRC_8;
+
+        uint8_t _addrLen = 5;
+
+        bool _autoAck = true;
+        uint16_t _autoRtDelay = 250;
+        uint8_t _autoRtCount = 3;
+
+        bool _ackPayload = false;
+        bool _dynamicAck = false;
+
+        friend class NRF24;
+    };
+
     // Constructor and configure subroutines
     NRF24(uint8_t csn, uint8_t ce);              // Hardware SPI
     NRF24(uint8_t csn, uint8_t c, uint8_t irq);  // Hardware SPI + IRQ
     void configure();
-    void configure(NRF24Config configuration);
+    void configure(Config configuration);
 
     // Register read and write functions
     uint8_t readRegister(uint8_t reg);
@@ -167,105 +268,6 @@ private:
     void spiCmdTransfer(uint8_t cmd, void *buf, size_t len);
 };
 
-/**
- * NRF24 initial configuration holder class
- */
-class NRF24Config
-{
-public:
-    NRF24Config(NRF24::TransceiverMode_t mode):
-            _mode(mode)
-    {};
 
-    NRF24Config(NRF24::TransceiverMode_t mode, NRF24::OutputPower_t level, NRF24::DataRate_t rate):
-            _mode(mode),
-            _power(level),
-            _dataRate(rate)
-    {};
-
-    void setTransceiverMode(NRF24::TransceiverMode_t mode) {
-        _mode = mode;
-    }
-
-    void setPower(NRF24::OutputPower_t power) {
-        _power = power;
-    }
-
-    void setDataRate(NRF24::DataRate_t dataRate) {
-        _dataRate = dataRate;
-    }
-
-    void setRfCh(uint8_t rfCh) {
-        _rfCh = rfCh;
-    }
-
-    void enableConstCarrier() {
-        _constCarrier = true;
-    }
-
-    void disableConstCarrier() {
-        _constCarrier = false;
-    }
-
-    void setCRC(NRF24::CRCLength_t crc) {
-        _crc = crc;
-    }
-
-    void setAddrLen(uint8_t addrLen) {
-        _addrLen = addrLen;
-    }
-
-    void enableAutoAck() {
-        _autoAck = true;
-    }
-
-    void disableAutoAck() {
-        _autoAck = false;
-    }
-
-    void setAutoRtDelay(uint16_t autoRtDelay) {
-        _autoRtDelay = autoRtDelay;
-    }
-
-    void setAutoRtCount(uint8_t autoRtCount) {
-        _autoRtCount = autoRtCount;
-    }
-
-    void enableAckPayload() {
-        _ackPayload = true;
-    }
-
-    void disableAckPayload() {
-        _ackPayload = false;
-    }
-
-    void enableDynamicAck() {
-        _dynamicAck = true;
-    }
-
-    void disableDynamicAck() {
-        _dynamicAck = false;
-    }
-
-private:
-    NRF24::TransceiverMode_t _mode = NRF24::Mode_PTX;
-    NRF24::OutputPower_t _power = NRF24::OutputPower_0dBm;
-    NRF24::DataRate_t _dataRate = NRF24::DataRate_2Mbps;
-
-    uint8_t _rfCh = 2;
-    bool _constCarrier = false;
-    NRF24::CRCLength_t _crc = NRF24::CRC_16;
-
-    uint8_t _addrLen = 5;
-
-    bool _autoAck = true;
-    uint16_t _autoRtDelay = 250;
-    uint8_t _autoRtCount = 3;
-
-    bool _ackPayload = false;
-    bool _dynamicAck = false;
-
-    friend class NRF24;
-};
 
 #endif

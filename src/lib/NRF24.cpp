@@ -73,6 +73,66 @@ void NRF24::configure()
     csn(HIGH);
 }
 
+/**
+ * Setups hardware
+ * @param configuration NRF24 configuration holder
+ */
+void NRF24::configure(Config configuration)
+{
+    // SPI configure
+    SPI.begin();
+    SPI.beginTransaction(SPISettings((uint32_t) 1000000, MSBFIRST, SPI_MODE0));
+
+    // Interface configure
+    ce(LOW);
+    csn(HIGH);
+
+    // Set configuration to NRF24
+    setTransceiverMode(configuration._mode);
+    setOutputRfPower(configuration._power);
+    setDataRate(configuration._dataRate);
+    setRfChannel(configuration._rfCh);
+
+    if (configuration._constCarrier) {
+        enableConstantCarrier();
+    } else {
+        disableConstantCarrier();
+    }
+
+    setAddrLength(configuration._addrLen);
+
+    for(int p = 0; p < 6; p++)
+    {
+        if (configuration._autoAck) {
+            enablePipeAutoAck((NRF24::RxPipe_t) p);
+        } else {
+            disablePipeAutoAck((NRF24::RxPipe_t) p);
+        }
+    }
+
+    if (configuration._crc != CRC_DISABLED) {
+        enableCRC(configuration._crc);
+    } else {
+        disableCRC();
+    }
+
+    setAutoRtDelay(configuration._autoRtDelay);
+    setAutoRtCount(configuration._autoRtCount);
+
+    if (configuration._ackPayload) {
+        enableAckPayload();
+    } else {
+        disableAckPayload();
+    }
+
+    if (configuration._dynamicAck) {
+        enableDynamicAck();
+    } else {
+        disableDynamicAck();
+    }
+
+}
+
 //endregion
 
 /**
@@ -656,10 +716,19 @@ void NRF24::whichPipeAutoAckAreEnabled(bool *autoAck)
  */
 void NRF24::setAutoRtDelay(uint16_t delay)
 {
-    const uint8_t max_delay = 0xF;
+    const uint16_t min_delay = 250;
+    const uint16_t max_delay = 4000;
+
     uint8_t setupRetr = readRegister(SETUP_RETR);
     setupRetr &= 0x0F;
-    setupRetr |= (min(delay/250, max_delay) << 4);
+
+    if (delay < min_delay) {
+        setupRetr |= 0x00;
+    } else if (delay > max_delay) {
+        setupRetr |= 0xF0;
+    } else {
+        setupRetr |= (delay/250 - 1) << 4;
+    }
 
     writeRegister(SETUP_RETR, setupRetr);
 }
@@ -729,7 +798,7 @@ void NRF24::enableDynamicAck()
 }
 
 /**
- * Disabel dynamic ACK
+ * Disable dynamic ACK
  */
 void NRF24::disableDynamicAck()
 {
