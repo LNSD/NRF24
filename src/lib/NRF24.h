@@ -2,51 +2,15 @@
 #define NRF24_H
 
 #if ARDUINO >= 100
- #include "Arduino.h"
+#include "Arduino.h"
 #else
- #include "WProgram.h"
+#include "WProgram.h"
 #endif
 
 #include "NRF24L01.h"
 
 /**
- * Data rate. How fast data moves through the air.
- *
- * For use with setDataRate()
- */
-typedef enum {
-    NRF24_DataRate_1Mbps = 0,	// 1Mbps
-    NRF24_DataRate_2Mbps,		// 2Mbps
-    NRF24_DataRate_250kbps		// 250kbps
-} NRF24_DataRate_t;
-
-/**
- * Power Amplifier level.
- *
- * For use with +()
- */
-typedef enum {
-    NRF24_OutputPower_M18dBm = 0,	// -18dBm MIN
-    NRF24_OutputPower_M12dBm,		// -12dBm LOW
-    NRF24_OutputPower_M6dBm,		// -6dBm HIGH
-    NRF24_OutputPower_0dBm,			// 	0dBm MAX
-} NRF24_OutputPower_t;
-
-/**
- * CRC Length.  How big (if any) of a CRC is included.
- *
- * For use with setCRCLength()
- */
-typedef enum {
-    NRF24_CRC_8 = 0,
-    NRF24_CRC_16,
-    NRF24_CRC_DISABLED
-} NRF24_CRCLength_t;
-
-
-/**
  * Interrupt configuration.
- *
  */
 typedef enum {
     NRF24_IRQ_RX_DR = 0,
@@ -56,7 +20,6 @@ typedef enum {
 
 /**
  * Pipes definition.
- *
  */
 typedef enum {
     NRF24_RX_P0 = 0,
@@ -68,17 +31,7 @@ typedef enum {
 } NRF24_RxPipe_t;
 
 /**
- * Transmision mode definition.
- *
- */
-typedef enum {
-    NRF24_Mode_PTX = 0,
-    NRF24_Mode_PRX = 1
-} NRF24_TransceiverMode_t;
-
-/**
  * Fifo status.
- *
  */
 typedef enum {
     NRF24_FIFO_EMPTY = 0,
@@ -86,22 +39,69 @@ typedef enum {
     NRF24_FIFO_FULL
 } NRF24_FIFOStatus_t;
 
-
 class NRF24
 {
 public:
-    // Constructor and configure subroutines
-    NRF24(uint8_t csn, uint8_t ce);              // Hardware SPI
-	NRF24(uint8_t csn, uint8_t c, uint8_t irq);  // Hardware SPI + IRQ
-	void configure();
 
-    // Register read and write functions
+    //region Enum typedefs
+    /**
+     * Transmision mode
+     * @note For use with {@link setTransceiverMode()}
+     */
+    typedef enum {
+        Mode_PTX = 0,
+        Mode_PRX = 1
+    } TransceiverMode_t;
+
+    /**
+     * Power Amplifier output level
+     * @note For use with {@link setOutputRfPower()}
+     */
+    typedef enum {
+        OutputPower_M18dBm = 0,	// -18dBm MIN
+        OutputPower_M12dBm,		// -12dBm LOW
+        OutputPower_M6dBm,		// -6dBm HIGH
+        OutputPower_0dBm,		// 	0dBm MAX
+    } OutputPower_t;
+
+    /**
+    * Data rate. How fast data moves through the air.
+    * @note For use with {@link setDataRate()}
+    */
+    typedef enum {
+        DataRate_1Mbps = 0,	// 1Mbps
+        DataRate_2Mbps,		// 2Mbps
+        DataRate_250kbps	// 250kbps
+    } DataRate_t;
+
+    /**
+    * CRC Length. How big (if any) of a CRC is included.
+    * @note For use with {@link enableCRC()}
+    */
+    typedef enum {
+        CRC_8 = 0,
+        CRC_16,
+        CRC_DISABLED
+    } CRCLength_t;
+    //endregion
+
+    //region Constructor and configure subroutines
+
+    NRF24(uint8_t csn, uint8_t ce);              // Hardware SPI
+    NRF24(uint8_t csn, uint8_t c, uint8_t irq);  // Hardware SPI + IRQ
+    void configure();
+    //endregion
+
+    //region Register read and write functions
+
     uint8_t readRegister(uint8_t reg);
     void readRegister(uint8_t reg, uint8_t *buf, uint8_t len);
     void writeRegister(uint8_t reg, uint8_t value);
     void writeRegister(uint8_t reg, uint8_t *buf, uint8_t len);
+    //endregion
 
-    // Command functions
+    //region Command functions
+
     uint8_t getRxPayloadLength();
     void readRxPayload(uint8_t* data, uint8_t len);
     void writeTxPayload(uint8_t* data, uint8_t len);
@@ -110,17 +110,19 @@ public:
     void reuseTxPayload();
     void flushTXFIFO();
     void flushRXFIFO();
+    //endregion
 
-    // Configuration functions. Getters and setters
-    void setTransceiverMode(NRF24_TransceiverMode_t mode);
-    NRF24_TransceiverMode_t getTransceiverMode();
+    //region Configuration functions. Getters and setters
+
+    void setTransceiverMode(TransceiverMode_t mode);
+    TransceiverMode_t getTransceiverMode();
     void enableConstantCarrier();
     void disableConstantCarrier();
     bool isConstantCarrierEnabled();
-    void setOutputRfPower(NRF24_OutputPower_t level);
-    NRF24_OutputPower_t getOutputRfPower();
-    void setDataRate(NRF24_DataRate_t speed);
-    NRF24_DataRate_t getDataRate();
+    void setOutputRfPower(OutputPower_t level);
+    OutputPower_t getOutputRfPower();
+    void setDataRate(DataRate_t speed);
+    DataRate_t getDataRate();
     void setRFChannel(uint8_t channel);
     uint8_t getRFChannel();
     void setAddrLength(uint8_t length);
@@ -137,9 +139,9 @@ public:
     void enablePipeDynamicPayloads(NRF24_RxPipe_t pipe);
     void disablePipeDynamicPayloads(NRF24_RxPipe_t pipe);
     void whichPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads);
-    void enableCRC(NRF24_CRCLength_t length);
+    void enableCRC(CRCLength_t length);
     void disableCRC();
-    NRF24_CRCLength_t getCRCConfig();
+    CRCLength_t getCRCConfig();
     void enablePipeAutoAck(NRF24_RxPipe_t pipe);
     void disablePipeAutoAck(NRF24_RxPipe_t pipe);
     void whichPipeAutoAckAreEnabled(bool *autoAck);
@@ -153,14 +155,15 @@ public:
     void enableDynamicAck();
     void disableDynamicAck();
     bool getDynamicAckConfig();
+    //endregion
 
 private:
-	uint8_t _sck, _mosi, _miso, _csn;
-	uint8_t _ce, _irq;
+    uint8_t _sck, _mosi, _miso, _csn;
+    uint8_t _ce, _irq;
 
-	// Low-level signal & SPI-specific functions
-	void csn(uint8_t val);
-	void ce(uint8_t val);
+    //Low-level signal & SPI-specific functions
+    void csn(uint8_t val);
+    void ce(uint8_t val);
     void spiCmdTransfer(uint8_t cmd);
     void spiCmdTransfer(uint8_t cmd, void *buf, size_t len);
 };

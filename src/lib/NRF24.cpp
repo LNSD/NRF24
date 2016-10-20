@@ -192,11 +192,11 @@ void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
  * Set transceiver mode
  * @param mode Transceiver mode
  */
-void NRF24::setTransceiverMode(NRF24_TransceiverMode_t mode)
+void NRF24::setTransceiverMode(TransceiverMode_t mode)
 {
     uint8_t config = readRegister(CONFIG);
 
-    if(mode == NRF24_Mode_PTX)
+    if(mode == Mode_PTX)
     {
         config &= ~_BV(PRIM_RX);
     }
@@ -212,17 +212,17 @@ void NRF24::setTransceiverMode(NRF24_TransceiverMode_t mode)
  * Get current transceiver mode
  * @return Transceiver mode
  */
-NRF24_TransceiverMode_t NRF24::getTransceiverMode()
+NRF24::TransceiverMode_t NRF24::getTransceiverMode()
 {
     uint8_t result = readRegister(CONFIG) & _BV(PRIM_RX);
 
-    if(result == NRF24_Mode_PTX)
+    if(result == Mode_PTX)
     {
-        return NRF24_Mode_PTX;
+        return Mode_PTX;
     }
     else
     {
-        return NRF24_Mode_PRX;
+        return Mode_PRX;
     }
 }
 
@@ -260,23 +260,23 @@ bool NRF24::isConstantCarrierEnabled()
  * Set transceiver's output power level
  * @param level Output power level
  */
-void NRF24::setOutputRfPower(NRF24_OutputPower_t level)
+void NRF24::setOutputRfPower(OutputPower_t level)
 {
     uint8_t setup = readRegister(RF_SETUP) ;
     setup &= ~(_BV(RF_PWR) | _BV(RF_PWR+1));
 
     switch(level)
     {
-        case NRF24_OutputPower_0dBm:
+        case OutputPower_0dBm:
             setup |= (_BV(RF_PWR) | _BV(RF_PWR+1));
             break;
-        case NRF24_OutputPower_M6dBm:
+        case OutputPower_M6dBm:
             setup |= _BV(RF_PWR+1);
             break;
-        case NRF24_OutputPower_M12dBm:
+        case OutputPower_M12dBm:
             setup |= _BV(RF_PWR);
             break;
-        case NRF24_OutputPower_M18dBm:
+        case OutputPower_M18dBm:
             break;
     }
 
@@ -287,26 +287,26 @@ void NRF24::setOutputRfPower(NRF24_OutputPower_t level)
  * Get current transceiver's output power level
  * @return Current output power
  */
-NRF24_OutputPower_t NRF24::getOutputRfPower()
+NRF24::OutputPower_t NRF24::getOutputRfPower()
 {
-    NRF24_OutputPower_t result = NRF24_OutputPower_0dBm;
+    OutputPower_t result = OutputPower_0dBm;
     uint8_t power = readRegister(RF_SETUP) & (_BV(RF_PWR) | _BV(RF_PWR+1));
 
     if (power == (_BV(RF_PWR) | _BV(RF_PWR+1)))
     {
-        result = NRF24_OutputPower_0dBm ;
+        result = OutputPower_0dBm ;
     }
     else if(power == _BV(RF_PWR+1))
     {
-        result = NRF24_OutputPower_M6dBm ;
+        result = OutputPower_M6dBm ;
     }
     else if(power == _BV(RF_PWR))
     {
-        result = NRF24_OutputPower_M12dBm ;
+        result = OutputPower_M12dBm ;
     }
     else
     {
-        result = NRF24_OutputPower_M18dBm ;
+        result = OutputPower_M18dBm ;
     }
 
     return result;
@@ -316,20 +316,20 @@ NRF24_OutputPower_t NRF24::getOutputRfPower()
  * Set transceiver's datarate
  * @param rate Datarate
  */
-void NRF24::setDataRate(NRF24_DataRate_t rate)
+void NRF24::setDataRate(DataRate_t rate)
 {
     uint8_t setup = readRegister(RF_SETUP);
     setup &= ~(_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
 
     switch(rate)
     {
-        case NRF24_DataRate_250kbps:
+        case DataRate_250kbps:
             setup |= _BV(RF_DR_LOW);
             break;
-        case NRF24_DataRate_2Mbps:
+        case DataRate_2Mbps:
             setup |= _BV(RF_DR_HIGH);
             break;
-        case NRF24_DataRate_1Mbps:
+        case DataRate_1Mbps:
             break;
     }
 
@@ -340,27 +340,27 @@ void NRF24::setDataRate(NRF24_DataRate_t rate)
  * Get current transceiver's datarate
  * @return Current datarate
  */
-NRF24_DataRate_t NRF24::getDataRate()
+NRF24::DataRate_t NRF24::getDataRate()
 {
     uint8_t dr = readRegister(RF_SETUP) & (_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
 
     if(dr == _BV(RF_DR_LOW))
     {
         // '10' = 250Kbps
-        return NRF24_DataRate_250kbps;
+        return DataRate_250kbps;
     }
     else if(dr == _BV(RF_DR_HIGH))
     {
         // '01' = 2Mbps
-        return NRF24_DataRate_2Mbps;
+        return DataRate_2Mbps;
     }
     else if (dr == 0)
     {
         // '00' = 1Mbps
-        return NRF24_DataRate_1Mbps;
+        return DataRate_1Mbps;
     }
 
-    return NRF24_DataRate_2Mbps;
+    return DataRate_2Mbps;
 }
 
 /**
@@ -568,12 +568,12 @@ void NRF24::whichPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads)
  * Enable CRC and set length
  * @param length CRC length
  */
-void NRF24::enableCRC(NRF24_CRCLength_t length)
+void NRF24::enableCRC(CRCLength_t length)
 {
     uint8_t config = readRegister(CONFIG);
     config |= _BV(EN_CRC);
 
-    if(length == NRF24_CRC_16)
+    if(length == CRC_16)
     {
         config |= _BV(CRCO);
     }
@@ -599,23 +599,23 @@ void NRF24::disableCRC()
  * Get current CRC configuration
  * @return Current CRC configuration
  */
-NRF24_CRCLength_t NRF24::getCRCConfig()
+NRF24::CRCLength_t NRF24::getCRCConfig()
 {
     uint8_t config = readRegister(CONFIG);
     if(config & _BV(EN_CRC))
     {
         if(config & _BV(CRCO))
         {
-            return NRF24_CRC_16;
+            return CRC_16;
         }
         else
         {
-            return NRF24_CRC_8;
+            return CRC_8;
         }
     }
     else
     {
-        return NRF24_CRC_DISABLED;
+        return CRC_DISABLED;
     }
 }
 

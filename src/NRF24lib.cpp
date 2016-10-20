@@ -54,7 +54,6 @@ void setup() {
 
     // NRF24Debug::debugDYNPDRegister(nRF24.readRegister(DYNPD));
     // NRF24Debug::debugFeatureRegister(nRF24.readRegister(FEATURE));
-
 }
 
 void loop() { }
