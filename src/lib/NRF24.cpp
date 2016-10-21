@@ -313,7 +313,7 @@ void NRF24::disableConstantCarrier()
  */
 bool NRF24::isConstantCarrierEnabled()
 {
-    return (readRegister(RF_SETUP) & _BV(CONT_WAVE)) > 0;
+    return (bool)(readRegister(RF_SETUP) & _BV(CONT_WAVE));
 }
 
 /**
@@ -908,5 +908,26 @@ void NRF24::flushRXFIFO()
  */
 
 //region Util functions
+
+/**
+ * Check if NRF24 is P variant or not
+ * @return Whether is P variant ot not
+ */
+bool NRF24::isPVariant()
+{
+    uint8_t setup = readRegister(RF_SETUP);
+    uint8_t aux = setup;
+
+    aux &= ~_BV(RF_DR_HIGH);
+    aux |= _BV(RF_DR_LOW);
+
+    writeRegister(RF_SETUP, aux);
+    aux = readRegister(RF_SETUP);
+
+    // Restore RF_SETUP original content
+    writeRegister(RF_SETUP, setup);
+
+    return (bool)(aux & _BV(RF_DR_LOW));
+}
 
 //endregion

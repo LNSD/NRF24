@@ -18,8 +18,7 @@ void setup() {
     nRF24.configure();
     Serial.println("DONE");
 
-    NRF24Debug::debugConfigRegister(nRF24.readRegister(CONFIG));
-
+    // NRF24Debug::debugConfigRegister(nRF24.readRegister(CONFIG));
     // NRF24Debug::debugEnAARegister(nRF24.readRegister(EN_AA));
     // NRF24Debug::debugEnRxAddrRegister(nRF24.readRegister(EN_RXADDR));
     // NRF24Debug::debugSetupAWRegister(nRF24.readRegister(SETUP_AW));
@@ -54,6 +53,9 @@ void setup() {
 
     // NRF24Debug::debugDYNPDRegister(nRF24.readRegister(DYNPD));
     // NRF24Debug::debugFeatureRegister(nRF24.readRegister(FEATURE));
+
+    /*Serial.print(" - Plus variant: ");
+    Serial.println(nRF24.isPVariant()? "TRUE":"FALSE");*/
 }
 
 void loop() { }
