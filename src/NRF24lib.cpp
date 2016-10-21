@@ -14,12 +14,29 @@ void setup() {
     Serial.begin(115200);
     Serial.println("nRF24lib test program");
 
+    // NRF24::Config config(NRF24::Mode_PTX);
+    // config.setTransceiverMode(NRF24::Mode_PRX);
+    // config.setPower(NRF24::OutputPower_0dBm);
+    // config.setDataRate(NRF24::DataRate_2Mbps);
+
+    // config.setRfChannel(2);
+    // config.disableConstCarrier();
+    // config.setCRC(NRF24::CRC_16);
+
+    // config.setAddrLength(5);
+
+    // config.enableAutoAck();
+    // config.setAutoRtDelay(250);
+    // config.setAutoRtCount(3);
+
+    // config.disableAckPayload();
+    // config.disableDynamicAck();
+
     Serial.print(" - Configuring: ");
-    nRF24.configure();
+    nRF24.configure(); // nRF24.configure(config);
     Serial.println("DONE");
 
-    NRF24Debug::debugConfigRegister(nRF24.readRegister(CONFIG));
-
+    // NRF24Debug::debugConfigRegister(nRF24.readRegister(CONFIG));
     // NRF24Debug::debugEnAARegister(nRF24.readRegister(EN_AA));
     // NRF24Debug::debugEnRxAddrRegister(nRF24.readRegister(EN_RXADDR));
     // NRF24Debug::debugSetupAWRegister(nRF24.readRegister(SETUP_AW));
@@ -54,6 +71,9 @@ void setup() {
 
     // NRF24Debug::debugDYNPDRegister(nRF24.readRegister(DYNPD));
     // NRF24Debug::debugFeatureRegister(nRF24.readRegister(FEATURE));
+
+    /*Serial.print(" - Plus variant: ");
+    Serial.println(nRF24.isPVariant()? "TRUE":"FALSE");*/
 }
 
 void loop() { }
