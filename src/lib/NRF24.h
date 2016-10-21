@@ -257,6 +257,9 @@ public:
     bool getDynamicAckConfig();
     //endregion
 
+    //Util functions
+    bool isPVariant();
+
 private:
     uint8_t _sck, _mosi, _miso, _csn;
     uint8_t _ce, _irq;
