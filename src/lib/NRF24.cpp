@@ -1,5 +1,5 @@
 #if ARDUINO >= 100
-    #include "Arduino.h"
+#include "Arduino.h"
 #else
 #include "WProgram.h"
 #endif
@@ -28,12 +28,12 @@
  * @param ce SPI chip enable pin (CE)
  */
 NRF24::NRF24(uint8_t csn, uint8_t ce):
-    _sck(13),
-    _miso(12),
-    _mosi(11),
-    _csn(csn),
-    _ce(ce),
-    _irq(0)
+        _sck(13),
+        _miso(12),
+        _mosi(11),
+        _csn(csn),
+        _ce(ce),
+        _irq(0)
 {
     pinMode(_csn, OUTPUT);
     pinMode(_ce, OUTPUT);
@@ -46,12 +46,12 @@ NRF24::NRF24(uint8_t csn, uint8_t ce):
  * @param irq SPI chip interrupt pin (IRQ)
 */
 NRF24::NRF24(uint8_t csn, uint8_t ce, uint8_t irq):
-    _sck(13),
-    _miso(12),
-    _mosi(11),
-    _csn(csn),
-    _ce(ce),
-    _irq(irq)
+        _sck(13),
+        _miso(12),
+        _mosi(11),
+        _csn(csn),
+        _ce(ce),
+        _irq(irq)
 {
     pinMode(_csn, OUTPUT);
     pinMode(_ce, OUTPUT);
@@ -71,6 +71,66 @@ void NRF24::configure()
     // Interface configure
     ce(LOW);
     csn(HIGH);
+}
+
+/**
+ * Setups hardware
+ * @param configuration NRF24 configuration holder
+ */
+void NRF24::configure(Config configuration)
+{
+    // SPI configure
+    SPI.begin();
+    SPI.beginTransaction(SPISettings((uint32_t) 1000000, MSBFIRST, SPI_MODE0));
+
+    // Interface configure
+    ce(LOW);
+    csn(HIGH);
+
+    // Set configuration to NRF24
+    setTransceiverMode(configuration._mode);
+    setOutputRfPower(configuration._power);
+    setDataRate(configuration._dataRate);
+    setRfChannel(configuration._rfCh);
+
+    if (configuration._constCarrier) {
+        enableConstantCarrier();
+    } else {
+        disableConstantCarrier();
+    }
+
+    setAddrLength(configuration._addrLen);
+
+    for(int p = 0; p < 6; p++)
+    {
+        if (configuration._autoAck) {
+            enablePipeAutoAck((NRF24::RxPipe_t) p);
+        } else {
+            disablePipeAutoAck((NRF24::RxPipe_t) p);
+        }
+    }
+
+    if (configuration._crc != CRC_DISABLED) {
+        enableCRC(configuration._crc);
+    } else {
+        disableCRC();
+    }
+
+    setAutoRtDelay(configuration._autoRtDelay);
+    setAutoRtCount(configuration._autoRtCount);
+
+    if (configuration._ackPayload) {
+        enableAckPayload();
+    } else {
+        disableAckPayload();
+    }
+
+    if (configuration._dynamicAck) {
+        enableDynamicAck();
+    } else {
+        disableDynamicAck();
+    }
+
 }
 
 //endregion
@@ -188,6 +248,571 @@ void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 
 //region Configuration functions. Getters and setters
 
+/**
+ * Set transceiver mode
+ * @param mode Transceiver mode
+ */
+void NRF24::setTransceiverMode(TransceiverMode_t mode)
+{
+    uint8_t config = readRegister(CONFIG);
+
+    if(mode == Mode_PTX)
+    {
+        config &= ~_BV(PRIM_RX);
+    }
+    else
+    {
+        config |= _BV(PRIM_RX);
+    }
+
+    writeRegister(CONFIG, config);
+}
+
+/**
+ * Get current transceiver mode
+ * @return Transceiver mode
+ */
+NRF24::TransceiverMode_t NRF24::getTransceiverMode()
+{
+    uint8_t result = readRegister(CONFIG) & _BV(PRIM_RX);
+
+    if(result == Mode_PTX)
+    {
+        return Mode_PTX;
+    }
+    else
+    {
+        return Mode_PRX;
+    }
+}
+
+/**
+ * Enable constant carrier
+ */
+void NRF24::enableConstantCarrier()
+{
+    uint8_t rfsetup= readRegister(RF_SETUP);
+    rfsetup |= _BV(CONT_WAVE);
+
+    writeRegister(RF_SETUP, rfsetup);
+}
+
+/**
+ * Disable constant carrier
+ */
+void NRF24::disableConstantCarrier()
+{
+    uint8_t rfsetup = readRegister(RF_SETUP);
+    rfsetup &= ~_BV(CONT_WAVE);
+
+    writeRegister(RF_SETUP, rfsetup);
+}
+
+/**
+ * Check if constant carrier is enabled
+ */
+bool NRF24::isConstantCarrierEnabled()
+{
+    return (readRegister(RF_SETUP) & _BV(CONT_WAVE)) > 0;
+}
+
+/**
+ * Set transceiver's output power level
+ * @param level Output power level
+ */
+void NRF24::setOutputRfPower(OutputPower_t level)
+{
+    uint8_t setup = readRegister(RF_SETUP) ;
+    setup &= ~(_BV(RF_PWR) | _BV(RF_PWR+1));
+
+    switch(level)
+    {
+        case OutputPower_0dBm:
+            setup |= (_BV(RF_PWR) | _BV(RF_PWR+1));
+            break;
+        case OutputPower_M6dBm:
+            setup |= _BV(RF_PWR+1);
+            break;
+        case OutputPower_M12dBm:
+            setup |= _BV(RF_PWR);
+            break;
+        case OutputPower_M18dBm:
+            break;
+    }
+
+    writeRegister(RF_SETUP, setup);
+}
+
+/**
+ * Get current transceiver's output power level
+ * @return Current output power
+ */
+NRF24::OutputPower_t NRF24::getOutputRfPower()
+{
+    OutputPower_t result = OutputPower_0dBm;
+    uint8_t power = readRegister(RF_SETUP) & (_BV(RF_PWR) | _BV(RF_PWR+1));
+
+    if (power == (_BV(RF_PWR) | _BV(RF_PWR+1)))
+    {
+        result = OutputPower_0dBm ;
+    }
+    else if(power == _BV(RF_PWR+1))
+    {
+        result = OutputPower_M6dBm ;
+    }
+    else if(power == _BV(RF_PWR))
+    {
+        result = OutputPower_M12dBm ;
+    }
+    else
+    {
+        result = OutputPower_M18dBm ;
+    }
+
+    return result;
+}
+
+/**
+ * Set transceiver's datarate
+ * @param rate Datarate
+ */
+void NRF24::setDataRate(DataRate_t rate)
+{
+    uint8_t setup = readRegister(RF_SETUP);
+    setup &= ~(_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
+
+    switch(rate)
+    {
+        case DataRate_250kbps:
+            setup |= _BV(RF_DR_LOW);
+            break;
+        case DataRate_2Mbps:
+            setup |= _BV(RF_DR_HIGH);
+            break;
+        case DataRate_1Mbps:
+            break;
+    }
+
+    writeRegister(RF_SETUP, setup);
+}
+
+/**
+ * Get current transceiver's datarate
+ * @return Current datarate
+ */
+NRF24::DataRate_t NRF24::getDataRate()
+{
+    uint8_t dr = readRegister(RF_SETUP) & (_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
+
+    if(dr == _BV(RF_DR_LOW))
+    {
+        // '10' = 250Kbps
+        return DataRate_250kbps;
+    }
+    else if(dr == _BV(RF_DR_HIGH))
+    {
+        // '01' = 2Mbps
+        return DataRate_2Mbps;
+    }
+    else if (dr == 0)
+    {
+        // '00' = 1Mbps
+        return DataRate_1Mbps;
+    }
+
+    return DataRate_2Mbps;
+}
+
+/**
+ * Set transceiver's RF channel
+ * @param channel RF channel
+ */
+void NRF24::setRfChannel(uint8_t channel)
+{
+    const uint8_t max_channel = 127;
+    writeRegister(RF_CH, min(channel, max_channel));
+}
+
+/**
+ * Get transceiver's current RF channel
+ * @return Current RF channel
+ */
+uint8_t NRF24::getRfChannel()
+{
+    return readRegister(RF_CH);
+}
+/**
+ * Set address length. Address length: 3 - 5 bytes.
+ * @param length Address length
+ */
+void NRF24::setAddrLength(uint8_t length)
+{
+    if(length >= 3  && length <= 5)
+    {
+        writeRegister(SETUP_AW, length-2);
+    }
+}
+
+/**
+ * Get current address length
+ * @return Current address length
+ */
+uint8_t NRF24::getAddrLength()
+{
+    return readRegister(SETUP_AW) + 2;
+}
+
+/**
+ * Enable RX pipe
+ * @param pipe RX pipe
+ */
+void NRF24::enablePipeRxAddr(RxPipe_t pipe)
+{
+    writeRegister(EN_RXADDR, readRegister(EN_RXADDR) | _BV(pipe));
+}
+
+/**
+ * Disable RX pipe
+ * @param pipe RX pipe
+ */
+void NRF24::disablePipeRxAddr(RxPipe_t pipe)
+{
+    writeRegister(EN_RXADDR, readRegister(EN_RXADDR) & ~_BV(pipe));
+}
+
+/**
+ * Get list of RX pipes status
+ * @param pipes Boolean array holding status of all the RX pipes
+ */
+void NRF24::whichRxAddrAreEnabled(bool *pipes)
+{
+    uint8_t enRxAddr = readRegister(EN_RXADDR);
+    for (int p = 0; p < 6; ++p)
+    {
+        pipes[p] = (bool) (enRxAddr & _BV(p));
+    }
+}
+
+/**
+ * Set destination address (TX address)
+ * @param addr Address
+ * @param len Address length
+ */
+void NRF24::setTxAddr(uint8_t *addr, uint8_t len)
+{
+    writeRegister(TX_ADDR, addr, len);
+}
+
+/**
+ * Get current destination address (TX address)
+ * @param addr Current address
+ * @param len Adress length
+ */
+void NRF24::getTxAddr(uint8_t *addr, uint8_t len)
+{
+    readRegister(TX_ADDR, addr, len);
+}
+
+const uint8_t pipeRx[6] = {RX_ADDR_P0, RX_ADDR_P1, RX_ADDR_P2, RX_ADDR_P3, RX_ADDR_P4, RX_ADDR_P5};
+
+/**
+ * Set input pipe address (RX pipe address)
+ * @param pipe RX pipe
+ * @param addr Pipe address
+ * @param len Address length
+ */
+void NRF24::setPipeRxAddr(RxPipe_t pipe, uint8_t *addr, uint8_t len)
+{
+    if(pipe < 2)
+    {
+        writeRegister(pipeRx[pipe], addr, len);
+    }
+    else
+    {
+        writeRegister(pipeRx[pipe], addr[0]);
+    }
+}
+
+/**
+ * Get current input pipe address (RX pipe address)
+ * @param pipe RX pipe
+ * @param addr Pipe address
+ * @param len Address length
+ */
+void NRF24::getPipeRxAddr(RxPipe_t pipe, uint8_t *addr, uint8_t len)
+{
+    if(pipe < 2)
+    {
+        readRegister(pipeRx[pipe], addr, len);
+    }
+    else
+    {
+        addr[0] = readRegister(pipeRx[pipe]);
+    }
+}
+
+const uint8_t pipe_payload[6] = {RX_PW_P0, RX_PW_P1, RX_PW_P2, RX_PW_P3, RX_PW_P4, RX_PW_P5};
+
+/**
+ * Set input pipe payload size. Max payload size: 32 bytes
+ * @param pipe RX pipe
+ * @param size Payload size
+ */
+void NRF24::setPipePayloadSize(RxPipe_t pipe, uint8_t size)
+{
+    const uint8_t max_size = 32;
+    writeRegister(pipe_payload[pipe], min(size, max_size));
+}
+
+/**
+ * Get current input pipe payload size
+ * @param pipe pipe
+ * @return Payload size
+ */
+uint8_t NRF24::getPipePayloadSize(RxPipe_t pipe)
+{
+    return readRegister(pipe_payload[pipe]);
+}
+
+/**
+ * Enable input pipe dynamic payloads
+ * @param pipe RX pipe
+ */
+void NRF24::enablePipeDynamicPayloads(RxPipe_t pipe)
+{
+    uint8_t dynpd = readRegister(DYNPD);
+    dynpd |= _BV(pipe);
+
+    writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_DPL));
+    writeRegister(DYNPD, dynpd);
+}
+
+/**
+ * Disable input pipe dynamic payloads
+ * @param pipe RX pipe
+ */
+void NRF24::disablePipeDynamicPayloads(RxPipe_t pipe)
+{
+    uint8_t dynpd = readRegister(DYNPD);
+
+    if(!(dynpd & ~_BV(pipe))) {
+        writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_DPL));
+    }
+
+    writeRegister(DYNPD, dynpd & ~_BV(pipe));
+}
+
+/**
+ * Check which inout pipe dynamic payloads are enabled
+ * @param dynamicPayloads RX pipe dynamic payloads status
+ */
+void NRF24::whichPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads)
+{
+    if(readRegister(FEATURE) & _BV(EN_DPL))
+    {
+        uint8_t dPayloads = readRegister(DYNPD);
+        for (int p = 0; p < 6; ++p)
+        {
+            bool dynp = (bool) (dPayloads & _BV(p));
+            dynamicPayloads[p] = dynp;
+        }
+    }
+    else
+    {
+        const bool defaultDynPayloads[6] = {false,false,false,false,false,false};
+        memcpy(dynamicPayloads, defaultDynPayloads, sizeof(defaultDynPayloads));
+    }
+}
+
+/**
+ * Enable CRC and set length
+ * @param length CRC length
+ */
+void NRF24::enableCRC(CRCLength_t length)
+{
+    uint8_t config = readRegister(CONFIG);
+    config |= _BV(EN_CRC);
+
+    if(length == CRC_16)
+    {
+        config |= _BV(CRCO);
+    }
+    else
+    {
+        config &= ~_BV(CRCO);
+    }
+
+    writeRegister(CONFIG, config);
+}
+
+/**
+ * Disable CRC
+ */
+void NRF24::disableCRC()
+{
+    uint8_t config = readRegister(CONFIG);
+    config &= ~_BV(EN_CRC);
+    writeRegister(CONFIG, config);
+}
+
+/**
+ * Get current CRC configuration
+ * @return Current CRC configuration
+ */
+NRF24::CRCLength_t NRF24::getCRCConfig()
+{
+    uint8_t config = readRegister(CONFIG);
+    if(config & _BV(EN_CRC))
+    {
+        if(config & _BV(CRCO))
+        {
+            return CRC_16;
+        }
+        else
+        {
+            return CRC_8;
+        }
+    }
+    else
+    {
+        return CRC_DISABLED;
+    }
+}
+
+/**
+ * Enable input pipe auto ACK
+ * @param pipe RX pipe
+ */
+void NRF24::enablePipeAutoAck(RxPipe_t pipe)
+{
+    writeRegister(EN_AA, readRegister(EN_AA) | _BV(pipe));
+}
+
+/**
+ * Disable input pipe auto ACK
+ * @param pipe RX pipe
+ */
+void NRF24::disablePipeAutoAck(RxPipe_t pipe)
+{
+    writeRegister(EN_AA, readRegister(EN_AA) & ~_BV(pipe));
+}
+
+/**
+ * Get which input pipes have auto ACK enabled
+ * @param autoAck Boolean array holding status of RX pipes auto ACK
+ */
+void NRF24::whichPipeAutoAckAreEnabled(bool *autoAck)
+{
+    uint8_t autoack = readRegister(EN_AA);
+    for (int p = 0; p < 6; ++p)
+    {
+        autoAck[p] = (bool) (autoack & _BV(p));
+    }
+}
+
+/**
+ * Set autoretransmission delay
+ * @param delay Autoretransmission delay
+ */
+void NRF24::setAutoRtDelay(uint16_t delay)
+{
+    const uint16_t min_delay = 250;
+    const uint16_t max_delay = 4000;
+
+    uint8_t setupRetr = readRegister(SETUP_RETR);
+    setupRetr &= 0x0F;
+
+    if (delay < min_delay) {
+        setupRetr |= 0x00;
+    } else if (delay > max_delay) {
+        setupRetr |= 0xF0;
+    } else {
+        setupRetr |= (delay/250 - 1) << 4;
+    }
+
+    writeRegister(SETUP_RETR, setupRetr);
+}
+
+/**
+ * Get current autoretransmission delay
+ * @return Current autoretranmission delay
+ */
+uint8_t NRF24::getAutoRtDelay()
+{
+    return (readRegister(SETUP_RETR) >> 4);
+}
+
+/**
+ * Set max autoretransmission retries
+ * @param count Max autoretransmission retries
+ */
+void NRF24::setAutoRtCount(uint8_t count)
+{
+    const uint8_t max_count = 0xF;
+    uint8_t setupRetr = readRegister(SETUP_RETR);
+    setupRetr &= 0xF0;
+    setupRetr |= min(count, max_count);
+
+    writeRegister(SETUP_RETR, setupRetr);
+}
+
+/**
+ * Get current max autoretransmission retries
+ * @return Current max autoretransmission retries
+ */
+uint8_t NRF24::getAutoRtCount()
+{
+    return readRegister(SETUP_RETR) & 0x0F;
+}
+
+/**
+ * Enable ACK payload
+ */
+void NRF24::enableAckPayload()
+{
+    writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_ACK_PAY));
+}
+
+/**
+ * Disable ACK payload
+ */
+void NRF24::disableAckPayload()
+{
+    writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_ACK_PAY));
+}
+
+/**
+ * Get current ACK payload configuration
+ */
+bool NRF24::getAckPayloadConfig()
+{
+    return  (bool)(readRegister(FEATURE) & _BV(EN_ACK_PAY));
+}
+
+/**
+ * Enable dynamic ACK
+ */
+void NRF24::enableDynamicAck()
+{
+    writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_DYN_ACK));
+}
+
+/**
+ * Disable dynamic ACK
+ */
+void NRF24::disableDynamicAck()
+{
+    writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_DYN_ACK));
+}
+
+/**
+ * Get current dynamic ACK configuration
+ */
+bool NRF24::getDynamicAckConfig()
+{
+    return (bool)(readRegister(FEATURE) & _BV(EN_DYN_ACK));
+}
+
 //endregion
 
 /**
@@ -237,7 +862,7 @@ void NRF24::writeTxPayload(uint8_t* data, uint8_t len)
  * @param data Payload buffer
  * @param len Payload length
  */
-void NRF24::writePipeACKPayload(NRF24_RxPipe_t pipe, uint8_t* data, uint8_t len)
+void NRF24::writePipeACKPayload(RxPipe_t pipe, uint8_t* data, uint8_t len)
 {
     spiCmdTransfer((uint8_t) (W_ACK_PAYLOAD | (pipe & 0x07)), data, len);
 }
