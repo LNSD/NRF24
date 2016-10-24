@@ -87,6 +87,15 @@ public:
         RX_P4 = 4,
         RX_P5 = 5
     } RxPipe_t;
+
+    /**
+     * Fifo status definition
+     */
+    typedef enum {
+        FIFO_STATUS_EMPTY = 0,
+        FIFO_STATUS_OK,
+        FIFO_STATUS_FULL
+    } FIFOStatus_t;
     //endregion
 
     /**
@@ -202,16 +211,6 @@ public:
     void writeRegister(uint8_t reg, uint8_t value);
     void writeRegister(uint8_t reg, uint8_t *buf, uint8_t len);
 
-    // Command functions
-    uint8_t getRxPayloadLength();
-    void readRxPayload(uint8_t* data, uint8_t len);
-    void writeTxPayload(uint8_t* data, uint8_t len);
-    void writePipeACKPayload(RxPipe_t pipe, uint8_t* data, uint8_t len);
-    void disableAAforPayload();
-    void reuseTxPayload();
-    void flushTXFIFO();
-    void flushRXFIFO();
-
     //region Configuration functions. Getters and setters
 
     void setTransceiverMode(TransceiverMode_t mode);
@@ -256,6 +255,24 @@ public:
     void disableDynamicAck();
     bool isDynamicAckEnabled();
     //endregion
+
+    // Command functions
+    uint8_t getRxPayloadLength();
+    void readRxPayload(uint8_t* data, uint8_t len);
+    void writeTxPayload(uint8_t* data, uint8_t len);
+    void writePipeACKPayload(RxPipe_t pipe, uint8_t* data, uint8_t len);
+    void disableAAforPayload();
+    void reuseTxPayload();
+    void flushTXFIFO();
+    void flushRXFIFO();
+
+    // Get status functions
+    uint8_t getLostPacketsCount();
+    uint8_t getRtCount();
+    bool isCarrierDetected();
+    bool isReuseTxPayloadActive();
+    FIFOStatus_t getTxFifoStatus();
+    FIFOStatus_t getRxFifoStatus();
 
     //Util functions
     bool isPVariant();

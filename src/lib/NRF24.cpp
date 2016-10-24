@@ -904,6 +904,80 @@ void NRF24::flushRXFIFO()
 //endregion
 
 /**
+ * Get status functions
+ */
+
+//region Get status functions
+
+/**
+ * Get count of lost packets. The counter is overflow pro- tected to 15, and discontinues at max until reset.
+ * @note The counter is reset by writing to RF_CH.
+ * @return Number of packets
+ */
+uint8_t NRF24::getLostPacketsCount()
+{
+    return (readRegister(OBSERVE_TX) & 0xF0) >> 4;
+}
+
+/**
+ * Get count of retransmitted packets. The counter is reset when transmission of a new packet starts.
+ * @return Number of packets
+ */
+uint8_t NRF24::getRtCount()
+{
+    return readRegister(OBSERVE_TX) & 0x0F;
+}
+
+/**
+ * Check if carrier is detected
+ * @note nRF24L01+ must be in receive mode.
+ */
+bool NRF24::isCarrierDetected()
+{
+    return (bool) (readRegister(RPD) & 0x01);
+}
+
+/**
+ * Check if TX payload reuse is active (It should be active until W_TX_PAYLOAD or FLUSH TX is executed).
+ */
+bool NRF24::isReuseTxPayloadActive()
+{
+    return (bool) (readRegister(FIFO_STATUS) & _BV(TX_REUSE));
+}
+
+/**
+ * Get current TX FIFO status
+ * @return FIFO status
+ */
+FIFOStatus_t NRF24::getTxFifoStatus()
+{
+    uint8_t fifo_status = readRegister(FIFO_STATUS);
+    if(fifo_status & _BV(TX_FULL))
+        return FIFO_STATUS_FULL;
+    else if(fifo_status & _BV(TX_EMPTY))
+        return  FIFO_STATUS_EMPTY;
+    else
+        return FIFO_STATUS_OK;
+}
+
+/**
+ * Get current RX FIFO status
+ * @return FIFO status
+ */
+FIFOStatus_t NRF24::getRxFifoStatus()
+{
+    uint8_t fifo_status = readRegister(FIFO_STATUS);
+    if(fifo_status & _BV(RX_FULL))
+        return FIFO_STATUS_FULL;
+    else if(fifo_status & _BV(RX_EMPTY))
+        return  FIFO_STATUS_EMPTY;
+    else
+        return FIFO_STATUS_OK;
+}
+
+//endregion
+
+/**
  * Util functions
  */
 
