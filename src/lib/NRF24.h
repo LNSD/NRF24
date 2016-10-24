@@ -251,10 +251,10 @@ public:
     uint8_t getAutoRtCount();
     void enableAckPayload();
     void disableAckPayload();
-    bool getAckPayloadConfig();
+    bool isAckPayloadEnabled();
     void enableDynamicAck();
     void disableDynamicAck();
-    bool getDynamicAckConfig();
+    bool isDynamicAckEnabled();
     //endregion
 
 private:
@@ -267,7 +267,5 @@ private:
     void spiCmdTransfer(uint8_t cmd);
     void spiCmdTransfer(uint8_t cmd, void *buf, size_t len);
 };
-
-
 
 #endif
