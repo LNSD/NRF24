@@ -784,9 +784,9 @@ void NRF24::disableAckPayload()
 /**
  * Get current ACK payload configuration
  */
-bool NRF24::getAckPayloadConfig()
+bool NRF24::isAckPayloadEnabled()
 {
-    return  (bool)(readRegister(FEATURE) & _BV(EN_ACK_PAY));
+    return (bool)(readRegister(FEATURE) & _BV(EN_ACK_PAY));
 }
 
 /**
@@ -808,7 +808,7 @@ void NRF24::disableDynamicAck()
 /**
  * Get current dynamic ACK configuration
  */
-bool NRF24::getDynamicAckConfig()
+bool NRF24::isDynamicAckEnabled()
 {
     return (bool)(readRegister(FEATURE) & _BV(EN_DYN_ACK));
 }
