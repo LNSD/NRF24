@@ -8,6 +8,7 @@
 #endif
 
 #include "NRF24L01.h"
+#include "NRF24.h"
 
 class NRF24Debug
 {
@@ -25,11 +26,10 @@ public:
     static void debugObserveTxRegister(uint8_t content);
     static void debugRPDRegister(uint8_t content);
 
-    static void debugDataPipeRxAddrRegister(uint8_t content, uint8_t pipe);
-    static void debugDataPipeRxAddrRegister(uint8_t *content, uint8_t pipe);
-    static void debugTxAddrRegister(uint8_t *content);
+    static void debugDataPipeRxAddrRegister(uint8_t *content, NRF24::RxPipe_t pipe, uint8_t len);
+    static void debugTxAddrRegister(uint8_t *content, uint8_t len);
 
-    static void debugRxBytesPipeRegister(uint8_t content, uint8_t pipe);
+    static void debugRxBytesPipeRegister(uint8_t content, NRF24::RxPipe_t pipe);
     static void debugFIFOStatusRegister(uint8_t content);
     
     static void debugDYNPDRegister(uint8_t content);
