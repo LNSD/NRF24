@@ -5,6 +5,7 @@
 #endif
 
 #include "NRF24Debug.h"
+#include "NRF24.h"
 
 /**
  * Parse byte bits into boolean array
@@ -329,33 +330,25 @@ void NRF24Debug::debugRPDRegister(uint8_t content)
 }
 
 /**
- * Parse RX_ADDR_P# register content and show debug info. Unique byte address
- * @param content Register content
- */
-void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t content, uint8_t pipe)
-{
-    // Debug info header
-    Serial.print(" - DEBUG: RX_ADDR_P");
-    Serial.print(pipe, DEC);
-    Serial.print(" register content: 0x");
-    Serial.println(content, HEX);
-}
-
-/**
  * Parse RX_ADDR_P# register content and show debug info. Long address (5 bytes max)
  * @param content Register content
  * @param pipe Pipe number
  */
-void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, uint8_t pipe)
+void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, NRF24::RxPipe_t pipe, uint8_t len)
 {
+    uint8_t length = (pipe<2)? len:1;
+
     // Debug info header
     Serial.print(" - DEBUG: RX_ADDR_P");
     Serial.print(pipe, DEC);
-    Serial.print(" register content: ");
+    Serial.print(" (");
+    Serial.print(length, DEC);
+    Serial.print((length>1) ? " bytes): ":" byte): ");
 
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < length; ++i) {
+        if (content[i]<=0xF) Serial.print(0, HEX);
         Serial.print(content[i], HEX);
-        Serial.print((i != 4) ? ":":"\n");
+        Serial.print((i<length-1) ? ":":"\n");
     }
 }
 
@@ -363,14 +356,17 @@ void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, uint8_t pipe)
  * Parse TX_ADDR register content and show debug info
  * @param content Register content
  */
-void NRF24Debug::debugTxAddrRegister(uint8_t *content)
+void NRF24Debug::debugTxAddrRegister(uint8_t *content, uint8_t len)
 {
     // Debug info header
-    Serial.print(" - DEBUG: TX_ADDR register content: ");
+    Serial.print(" - DEBUG: TX_ADDR (");
+    Serial.print(len, DEC);
+    Serial.print(" bytes): ");
 
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < len; ++i) {
+        if (content[i] <= 0xF) Serial.print(0, HEX);
         Serial.print(content[i], HEX);
-        Serial.print((i != 4) ? ":":"\n");
+        Serial.print((i<len-1) ? ":":"\n");
     }
 }
 
@@ -379,7 +375,7 @@ void NRF24Debug::debugTxAddrRegister(uint8_t *content)
  * @param content Register content
  * @param pipe Pipe number
  */
-void NRF24Debug::debugRxBytesPipeRegister(uint8_t content, uint8_t pipe)
+void NRF24Debug::debugRxBytesPipeRegister(uint8_t content, NRF24::RxPipe_t pipe)
 {
     // Debug info header
     Serial.print(" - DEBUG: RX_PW_P");
