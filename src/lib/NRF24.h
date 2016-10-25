@@ -274,6 +274,10 @@ public:
     FIFOStatus_t getTxFifoStatus();
     FIFOStatus_t getRxFifoStatus();
 
+    // Interrupt related functions
+    void clearCommStatus();
+    void getCommStatus(bool* status);
+
     //Util functions
     bool isPVariant();
 

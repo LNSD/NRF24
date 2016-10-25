@@ -978,6 +978,38 @@ FIFOStatus_t NRF24::getRxFifoStatus()
 //endregion
 
 /**
+ * Interrupt related functions
+ */
+
+//region Interrupt related functions
+
+/**
+ * Clear communication status
+ */
+void NRF24::clearCommStatus()
+{
+    writeRegister(STATUS, readRegister(STATUS) | (_BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT)));
+}
+
+/**
+ * Get current communication status
+ * @param status
+ */
+void NRF24::getCommStatus(bool *status)
+{
+    // No Operation. Might be used to read the STATUS register.
+    csn(LOW);
+    uint8_t reg = SPI.transfer(NOP);
+    csn(HIGH);
+
+    status[0] = (bool) (reg & _BV(RX_DR));
+    status[1] = (bool) (reg & _BV(TX_DS));
+    status[2] = (bool) (reg & _BV(MAX_RT));
+}
+
+//endregion
+
+/**
  * Util functions
  */
 
