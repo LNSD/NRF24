@@ -949,7 +949,7 @@ bool NRF24::isReuseTxPayloadActive()
  * Get current TX FIFO status
  * @return FIFO status
  */
-FIFOStatus_t NRF24::getTxFifoStatus()
+NRF24::FIFOStatus_t NRF24::getTxFifoStatus()
 {
     uint8_t fifo_status = readRegister(FIFO_STATUS);
     if(fifo_status & _BV(TX_FULL))
@@ -964,7 +964,7 @@ FIFOStatus_t NRF24::getTxFifoStatus()
  * Get current RX FIFO status
  * @return FIFO status
  */
-FIFOStatus_t NRF24::getRxFifoStatus()
+NRF24::FIFOStatus_t NRF24::getRxFifoStatus()
 {
     uint8_t fifo_status = readRegister(FIFO_STATUS);
     if(fifo_status & _BV(RX_FULL))
