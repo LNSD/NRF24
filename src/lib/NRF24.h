@@ -168,7 +168,7 @@ public:
             }
         }
 
-        void setTxPipeAddress(uint8_t* address) {
+        void setTxAddress(uint8_t *address) {
             memcpy(_txAddr, address, _addrWidth);
         }
 
