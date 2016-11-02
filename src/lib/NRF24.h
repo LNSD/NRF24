@@ -129,6 +129,14 @@ public:
             _constCarrier = false;
         }
 
+        void forcePllLock() {
+            _pllLock = true;
+        }
+
+        void disablePllLock() {
+            _pllLock = false;
+        }
+
         void setCRC(NRF24::CRCLength crc) {
             _crc = crc;
         }
@@ -176,6 +184,7 @@ public:
 
         uint8_t _rfCh = 2;
         bool _constCarrier = false;
+        bool _pllLock = false;
         NRF24::CRCLength _crc = NRF24::CRC_8;
 
         uint8_t _addrLen = 5;

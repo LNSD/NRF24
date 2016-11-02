@@ -99,6 +99,12 @@ void NRF24::configure(Config configuration)
         disableConstantCarrier();
     }
 
+    if (configuration._pllLock) {
+        forcePllLock();
+    } else {
+        disablePllLock();
+    }
+
     setAddrLength(configuration._addrLen);
 
     for(int p = 0; p < 6; p++)
