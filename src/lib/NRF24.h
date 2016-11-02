@@ -160,16 +160,16 @@ public:
             _rxPipePayloadSize[pipe] = min(size, NRF24::MAX_PAYLOAD_SIZE);
         }
 
-        void setRxPipeAddress(NRF24::RxPipe pipe, uint8_t* address, uint8_t width) {
+        void setRxPipeAddress(NRF24::RxPipe pipe, uint8_t* address) {
             if (pipe < 2) {
-                memcpy(_rxPipeAddrLong[pipe], address, width);
+                memcpy(_rxPipeAddrLong[pipe], address, _addrWidth);
             } else {
                 _rxPipeAddrShort[pipe] = address[0];
             }
         }
 
-        void setTxPipeAddress(uint8_t* address, uint8_t width) {
-            memcpy(_txAddr, address, width);
+        void setTxPipeAddress(uint8_t* address) {
+            memcpy(_txAddr, address, _addrWidth);
         }
 
         void enableAutoAck() {
