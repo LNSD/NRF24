@@ -43,7 +43,7 @@ public:
     typedef enum {
         Mode_PTX = 0,
         Mode_PRX = 1
-    } TransceiverMode_t;
+    } TransceiverMode;
 
     /**
      * Power Amplifier output level
@@ -54,7 +54,7 @@ public:
         OutputPower_M12dBm,		// -12dBm LOW
         OutputPower_M6dBm,		// -6dBm HIGH
         OutputPower_0dBm,		// 	0dBm MAX
-    } OutputPower_t;
+    } OutputPower;
 
     /**
     * Data rate. How fast data moves through the air.
@@ -64,7 +64,7 @@ public:
         DataRate_1Mbps = 0,	// 1Mbps
         DataRate_2Mbps,		// 2Mbps
         DataRate_250kbps	// 250kbps
-    } DataRate_t;
+    } DataRate;
 
     /**
     * CRC Length. How big (if any) of a CRC is included.
@@ -74,7 +74,7 @@ public:
         CRC_8 = 0,
         CRC_16,
         CRC_DISABLED
-    } CRCLength_t;
+    } CRCLength;
 
     /**
     * RX pipes definition
@@ -86,7 +86,7 @@ public:
         RX_P3 = 3,
         RX_P4 = 4,
         RX_P5 = 5
-    } RxPipe_t;
+    } RxPipe;
     //endregion
 
     /**
@@ -95,25 +95,25 @@ public:
     class Config
     {
     public:
-        Config(NRF24::TransceiverMode_t mode):
+        Config(NRF24::TransceiverMode mode):
                 _mode(mode)
         {};
 
-        Config(NRF24::TransceiverMode_t mode, NRF24::OutputPower_t level, NRF24::DataRate_t rate):
+        Config(NRF24::TransceiverMode mode, NRF24::OutputPower level, NRF24::DataRate rate):
                 _mode(mode),
                 _power(level),
                 _dataRate(rate)
         {};
 
-        void setTransceiverMode(NRF24::TransceiverMode_t mode) {
+        void setTransceiverMode(NRF24::TransceiverMode mode) {
             _mode = mode;
         }
 
-        void setPower(NRF24::OutputPower_t power) {
+        void setPower(NRF24::OutputPower power) {
             _power = power;
         }
 
-        void setDataRate(NRF24::DataRate_t dataRate) {
+        void setDataRate(NRF24::DataRate dataRate) {
             _dataRate = dataRate;
         }
 
@@ -129,7 +129,7 @@ public:
             _constCarrier = false;
         }
 
-        void setCRC(NRF24::CRCLength_t crc) {
+        void setCRC(NRF24::CRCLength crc) {
             _crc = crc;
         }
 
@@ -170,13 +170,13 @@ public:
         }
 
     private:
-        NRF24::TransceiverMode_t _mode = NRF24::Mode_PTX;
-        NRF24::OutputPower_t _power = NRF24::OutputPower_0dBm;
-        NRF24::DataRate_t _dataRate = NRF24::DataRate_2Mbps;
+        NRF24::TransceiverMode _mode = NRF24::Mode_PTX;
+        NRF24::OutputPower _power = NRF24::OutputPower_0dBm;
+        NRF24::DataRate _dataRate = NRF24::DataRate_2Mbps;
 
         uint8_t _rfCh = 2;
         bool _constCarrier = false;
-        NRF24::CRCLength_t _crc = NRF24::CRC_8;
+        NRF24::CRCLength _crc = NRF24::CRC_8;
 
         uint8_t _addrLen = 5;
 
@@ -206,7 +206,7 @@ public:
     uint8_t getRxPayloadLength();
     void readRxPayload(uint8_t* data, uint8_t len);
     void writeTxPayload(uint8_t* data, uint8_t len);
-    void writePipeACKPayload(RxPipe_t pipe, uint8_t* data, uint8_t len);
+    void writePipeACKPayload(RxPipe pipe, uint8_t* data, uint8_t len);
     void disableAAforPayload();
     void reuseTxPayload();
     void flushTXFIFO();
@@ -214,39 +214,39 @@ public:
 
     //region Configuration functions. Getters and setters
 
-    void setTransceiverMode(TransceiverMode_t mode);
-    TransceiverMode_t getTransceiverMode();
+    void setTransceiverMode(TransceiverMode mode);
+    TransceiverMode getTransceiverMode();
     void enableConstantCarrier();
     void disableConstantCarrier();
     bool isConstantCarrierEnabled();
     void forcePllLock();
     void disablePllLock();
     bool isPllLockForced();
-    void setOutputRfPower(OutputPower_t level);
-    OutputPower_t getOutputRfPower();
-    void setDataRate(DataRate_t speed);
-    DataRate_t getDataRate();
+    void setOutputRfPower(OutputPower level);
+    OutputPower getOutputRfPower();
+    void setDataRate(DataRate speed);
+    DataRate getDataRate();
     void setRfChannel(uint8_t channel);
     uint8_t getRfChannel();
     void setAddrLength(uint8_t length);
     uint8_t getAddrLength();
-    void enablePipeRxAddr(RxPipe_t pipe);
-    void disablePipeRxAddr(RxPipe_t pipe);
+    void enablePipeRxAddr(RxPipe pipe);
+    void disablePipeRxAddr(RxPipe pipe);
     void whichRxAddrAreEnabled(bool *addr_enabled);
     void setTxAddr(uint8_t* addr, uint8_t len);
     void getTxAddr(uint8_t* addr, uint8_t len);
-    void setPipeRxAddr(RxPipe_t pipe, uint8_t* addr, uint8_t len);
-    void getPipeRxAddr(RxPipe_t pipe, uint8_t* addr, uint8_t len);
-    void setPipePayloadSize(RxPipe_t pipe, uint8_t size);
-    uint8_t getPipePayloadSize(RxPipe_t pipe);
-    void enablePipeDynamicPayloads(RxPipe_t pipe);
-    void disablePipeDynamicPayloads(RxPipe_t pipe);
+    void setPipeRxAddr(RxPipe pipe, uint8_t* addr, uint8_t len);
+    void getPipeRxAddr(RxPipe pipe, uint8_t* addr, uint8_t len);
+    void setPipePayloadSize(RxPipe pipe, uint8_t size);
+    uint8_t getPipePayloadSize(RxPipe pipe);
+    void enablePipeDynamicPayloads(RxPipe pipe);
+    void disablePipeDynamicPayloads(RxPipe pipe);
     void whichPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads);
-    void enableCRC(CRCLength_t length);
+    void enableCRC(CRCLength length);
     void disableCRC();
-    CRCLength_t getCRCConfig();
-    void enablePipeAutoAck(RxPipe_t pipe);
-    void disablePipeAutoAck(RxPipe_t pipe);
+    CRCLength getCRCConfig();
+    void enablePipeAutoAck(RxPipe pipe);
+    void disablePipeAutoAck(RxPipe pipe);
     void whichPipeAutoAckAreEnabled(bool *autoAck);
     void setAutoRtDelay(uint16_t delay);
     uint8_t getAutoRtDelay();
