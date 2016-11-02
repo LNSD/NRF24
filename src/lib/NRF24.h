@@ -219,6 +219,9 @@ public:
     void enableConstantCarrier();
     void disableConstantCarrier();
     bool isConstantCarrierEnabled();
+    void forcePllLock();
+    void disablePllLock();
+    bool isPllLockForced();
     void setOutputRfPower(OutputPower_t level);
     OutputPower_t getOutputRfPower();
     void setDataRate(DataRate_t speed);

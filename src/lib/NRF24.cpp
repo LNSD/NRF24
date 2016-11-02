@@ -291,7 +291,7 @@ NRF24::TransceiverMode_t NRF24::getTransceiverMode()
  */
 void NRF24::enableConstantCarrier()
 {
-    uint8_t rfsetup= readRegister(RF_SETUP);
+    uint8_t rfsetup = readRegister(RF_SETUP);
     rfsetup |= _BV(CONT_WAVE);
 
     writeRegister(RF_SETUP, rfsetup);
@@ -314,6 +314,37 @@ void NRF24::disableConstantCarrier()
 bool NRF24::isConstantCarrierEnabled()
 {
     return (readRegister(RF_SETUP) & _BV(CONT_WAVE)) > 0;
+}
+
+/**
+ * Force PLL Lock signal
+ * @note Only used in test
+ */
+void NRF24::forcePllLock()
+{
+    uint8_t rfsetup = readRegister(RF_SETUP);
+    rfsetup |= _BV(PLL_LOCK);
+
+    writeRegister(RF_SETUP, rfsetup);
+}
+
+/**
+ * Disable PLL Lock signal
+ */
+void NRF24::disablePllLock()
+{
+    uint8_t rfsetup = readRegister(RF_SETUP);
+    rfsetup &= ~_BV(PLL_LOCK);
+
+    writeRegister(RF_SETUP, rfsetup);
+}
+
+/**
+ * Check if PLL Lock is forced
+ */
+bool NRF24::isPllLockForced()
+{
+    return (readRegister(RF_SETUP) & _BV(PLL_LOCK)) > 0;
 }
 
 /**
