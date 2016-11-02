@@ -35,6 +35,8 @@ class NRF24
 {
 public:
 
+    const static uint8_t MAX_PAYLOAD_SIZE = 32;
+
     //region Enum typedefs
     /**
      * Transmision mode
@@ -141,8 +143,33 @@ public:
             _crc = crc;
         }
 
-        void setAddrLength(uint8_t length) {
-            _addrLen = length;
+        void setAddrWidth(uint8_t width) {
+            _addrWidth = width;
+        }
+
+        void enableRxPipeAddress(NRF24::RxPipe pipe) {
+            _rxPipeAddrStatus[pipe] = true;
+        }
+
+        void disableRxPipeAddress(NRF24::RxPipe pipe) {
+            _rxPipeAddrStatus[pipe] = false;
+            _rxPipePayloadSize[pipe] = 0;
+        }
+
+        void setRxPipePayloadSize(NRF24::RxPipe pipe, uint8_t size) {
+            _rxPipePayloadSize[pipe] = min(size, NRF24::MAX_PAYLOAD_SIZE);
+        }
+
+        void setRxPipeAddress(NRF24::RxPipe pipe, uint8_t* address, uint8_t width) {
+            if (pipe < 2) {
+                memcpy(_rxPipeAddrLong[pipe], address, width);
+            } else {
+                _rxPipeAddrShort[pipe] = address[0];
+            }
+        }
+
+        void setTxPipeAddress(uint8_t* address, uint8_t width) {
+            memcpy(_txAddr, address, width);
         }
 
         void enableAutoAck() {
@@ -187,7 +214,18 @@ public:
         bool _pllLock = false;
         NRF24::CRCLength _crc = NRF24::CRC_8;
 
-        uint8_t _addrLen = 5;
+        uint8_t _addrWidth = 5;
+
+        bool _rxPipeAddrStatus[6] = {false, false, false, false, false, false};
+
+        uint8_t _rxPipePayloadSize[6] = { 0, 0, 0, 0, 0, 0 };
+
+        uint8_t _rxPipeAddrLong[2][5] = {{ 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 },
+                                         { 0xC2, 0xC2, 0xC2, 0xC2, 0xC2 }};
+
+        uint8_t _rxPipeAddrShort[4] = { 0xC3, 0xC4, 0xC5, 0xC6 };
+
+        uint8_t _txAddr[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 };
 
         bool _autoAck = true;
         uint16_t _autoRtDelay = 250;

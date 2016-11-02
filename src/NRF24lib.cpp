@@ -23,7 +23,7 @@ void setup() {
     // config.disableConstCarrier();
     // config.setCRC(NRF24::CRC_16);
 
-    // config.setAddrLength(5);
+    // config.setAddrWidth(5);
 
     // config.enableAutoAck();
     // config.setAutoRtDelay(250);

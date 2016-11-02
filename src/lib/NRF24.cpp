@@ -105,7 +105,29 @@ void NRF24::configure(Config configuration)
         disablePllLock();
     }
 
-    setAddrLength(configuration._addrLen);
+    setAddrLength(configuration._addrWidth);
+
+    for (int p = 0; p < 6; p++) {
+        if (configuration._rxPipeAddrStatus[p]) {
+            enablePipeRxAddr((NRF24::RxPipe) p);
+        } else {
+            disablePipeRxAddr((NRF24::RxPipe) p);
+        }
+    }
+
+    for (int p = 0; p < 6; p++) {
+        setPipePayloadSize((NRF24::RxPipe) p, configuration._rxPipePayloadSize[p]);
+    }
+
+    for (int p = 0; p < 6; p++) {
+        if (p < 2) {
+            setPipeRxAddr((NRF24::RxPipe) p, configuration._rxPipeAddrLong[p], configuration._addrWidth);
+        } else {
+            setPipeRxAddr((NRF24::RxPipe) p, &configuration._rxPipeAddrShort[p - 2], 1);
+        }
+    }
+
+    setTxAddr(configuration._txAddr, configuration._addrWidth);
 
     for(int p = 0; p < 6; p++)
     {
