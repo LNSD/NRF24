@@ -10,48 +10,48 @@
 #endif
 
 class LED {
-  public:
+public:
     LED(uint8_t pin) : _pin(pin) {
-      pinMode(_pin, OUTPUT);
+        pinMode(_pin, OUTPUT);
     }
 
     void setState(boolean state) {
-      _state = state;
-      digitalWrite(_pin, (_state) ? HIGH : LOW);
+        _state = state;
+        digitalWrite(_pin, (_state) ? HIGH : LOW);
     }
 
     boolean getState() {
-      return _state;
+        return _state;
     }
 
     void turnOn() {
-      setState(true);
+        setState(true);
     }
 
     void turnOff() {
-      setState(false);
+        setState(false);
     }
 
     void toggleState() {
-      setState(!getState());
+        setState(!getState());
     }
 
-  private:
+private:
     uint8_t _pin = 4;
     bool _state = false;
 };
 
 class PushButton {
-  public:
+public:
     PushButton(uint8_t pin) : _pin(pin) {
-      pinMode(_pin, INPUT_PULLUP);
+        pinMode(_pin, INPUT_PULLUP);
     }
 
     bool isPushed() {
-      return ~(digitalRead(_pin) > 0);
+        return !digitalRead(_pin);
     }
 
-  private:
+private:
     uint8_t _pin;
 };
 
