@@ -11,7 +11,6 @@ set(${PROJECT_NAME}_SRCS NRF24lib.cpp)
 
 # Library not detected automatically
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
-set(NRF24_RECURSE True)
 set(SPI_RECURSE True)
 
 # Define the port for uploading code to the Arduino

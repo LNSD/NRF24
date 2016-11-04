@@ -334,7 +334,7 @@ void NRF24Debug::debugRPDRegister(uint8_t content)
  * @param content Register content
  * @param pipe Pipe number
  */
-void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, NRF24::RxPipe_t pipe, uint8_t len)
+void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, NRF24::RxPipe pipe, uint8_t len)
 {
     uint8_t length = (pipe<2)? len:1;
 
@@ -375,7 +375,7 @@ void NRF24Debug::debugTxAddrRegister(uint8_t *content, uint8_t len)
  * @param content Register content
  * @param pipe Pipe number
  */
-void NRF24Debug::debugRxBytesPipeRegister(uint8_t content, NRF24::RxPipe_t pipe)
+void NRF24Debug::debugRxBytesPipeRegister(uint8_t content, NRF24::RxPipe pipe)
 {
     // Debug info header
     Serial.print(" - DEBUG: RX_PW_P");
