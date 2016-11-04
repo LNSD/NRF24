@@ -314,6 +314,10 @@ public:
     FIFOStatus getTxFifoStatus();
     FIFOStatus getRxFifoStatus();
 
+    // Driver functions
+    void powerUp();
+    void powerDown();
+
     // Interrupt related functions
     void clearCommStatus();
     void getCommStatus(bool* status);

@@ -1037,6 +1037,28 @@ NRF24::FIFOStatus NRF24::getRxFifoStatus()
 //endregion
 
 /**
+ * Driver functions
+ */
+
+//region Driver functions
+
+/**
+ * Set the PWR_UP bit in the CONFIG register high to enter standby-I mode.
+ */
+void NRF24::powerUp()
+{
+    writeRegister(CONFIG, readRegister(CONFIG) | _BV(PWR_UP));
+}
+
+/**
+ * Set the PWR_UP bit in the CONFIG register low to entert Power down mode.
+ */
+void NRF24::powerDown() {
+    writeRegister(CONFIG, readRegister(CONFIG) & ~_BV(PWR_UP));
+}
+//endregion
+
+/**
  * Interrupt related functions
  */
 
