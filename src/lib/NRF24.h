@@ -155,6 +155,11 @@ public:
             _rxPipePayloadSize[pipe] = 0;
         }
 
+        void disableAllRxPipeAddress() {
+            memset(_rxPipeAddrStatus, false, sizeof(_rxPipeAddrStatus));
+            memset(_rxPipePayloadSize, 0, sizeof(_rxPipePayloadSize));
+        }
+
         void setRxPipePayloadSize(NRF24::RxPipe pipe, uint8_t size) {
             _rxPipePayloadSize[pipe] = min(size, NRF24::MAX_PAYLOAD_SIZE);
         }
@@ -185,6 +190,18 @@ public:
 
         void setAutoRtCount(uint8_t autoRtCount) {
             _autoRtCount = autoRtCount;
+        }
+
+        void enableRxPipeDynamicPayload(NRF24::RxPipe pipe) {
+            _dynamicPayload[pipe] = true;
+        }
+
+        void disableRxPipeDynamicPayload(NRF24::RxPipe pipe) {
+            _dynamicPayload[pipe] = false;
+        }
+
+        void disableDynamicPayloads() {
+            memset(_dynamicPayload, false, sizeof(_dynamicPayload));
         }
 
         void enableAckPayload() {
@@ -229,6 +246,9 @@ public:
         bool _autoAck = true;
         uint16_t _autoRtDelay = 250;
         uint8_t _autoRtCount = 3;
+
+
+        bool _dynamicPayload[6] = {false, false, false, false, false, false};
 
         bool _ackPayload = false;
         bool _dynamicAck = false;
@@ -275,14 +295,14 @@ public:
     void getPipeRxAddr(RxPipe pipe, uint8_t* addr, uint8_t len);
     void setPipePayloadSize(RxPipe pipe, uint8_t size);
     uint8_t getPipePayloadSize(RxPipe pipe);
-    void enablePipeDynamicPayloads(RxPipe pipe);
-    void disablePipeDynamicPayloads(RxPipe pipe);
+    void enableRxPipeDynamicPayloads(RxPipe pipe);
+    void disableRxPipeDynamicPayloads(RxPipe pipe);
     void whichPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads);
     void enableCRC(CRCLength length);
     void disableCRC();
     CRCLength getCRCConfig();
-    void enablePipeAutoAck(RxPipe pipe);
-    void disablePipeAutoAck(RxPipe pipe);
+    void enableRxPipeAutoAck(RxPipe pipe);
+    void disableRxPipeAutoAck(RxPipe pipe);
     void whichPipeAutoAckAreEnabled(bool *autoAck);
     void setAutoRtDelay(uint16_t delay);
     uint8_t getAutoRtDelay();

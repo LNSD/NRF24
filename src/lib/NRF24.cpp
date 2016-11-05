@@ -132,9 +132,9 @@ void NRF24::configure(Config configuration)
     for(int p = 0; p < 6; p++)
     {
         if (configuration._autoAck) {
-            enablePipeAutoAck((NRF24::RxPipe) p);
+            enableRxPipeAutoAck((NRF24::RxPipe) p);
         } else {
-            disablePipeAutoAck((NRF24::RxPipe) p);
+            disableRxPipeAutoAck((NRF24::RxPipe) p);
         }
     }
 
@@ -146,6 +146,14 @@ void NRF24::configure(Config configuration)
 
     setAutoRtDelay(configuration._autoRtDelay);
     setAutoRtCount(configuration._autoRtCount);
+
+    for (int p = 0; p < 6; p++) {
+        if (configuration._dynamicPayload[p]) {
+            enableRxPipeDynamicPayloads((NRF24::RxPipe) p);
+        } else {
+            disableRxPipeDynamicPayloads((NRF24::RxPipe) p);
+        }
+    }
 
     if (configuration._ackPayload) {
         enableAckPayload();
@@ -252,8 +260,6 @@ void NRF24::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
  */
 void NRF24::writeRegister(uint8_t reg, uint8_t value)
 {
-    //uint8_t data = value; TODO check if this is necessary
-
     spiCmdTransfer(W_REGISTER | (REGISTER_MASK & reg), &value, 1);
 }
 
@@ -637,7 +643,7 @@ uint8_t NRF24::getPipePayloadSize(RxPipe pipe)
  * Enable input pipe dynamic payloads
  * @param pipe RX pipe
  */
-void NRF24::enablePipeDynamicPayloads(RxPipe pipe)
+void NRF24::enableRxPipeDynamicPayloads(RxPipe pipe)
 {
     uint8_t dynpd = readRegister(DYNPD);
     dynpd |= _BV(pipe);
@@ -650,7 +656,7 @@ void NRF24::enablePipeDynamicPayloads(RxPipe pipe)
  * Disable input pipe dynamic payloads
  * @param pipe RX pipe
  */
-void NRF24::disablePipeDynamicPayloads(RxPipe pipe)
+void NRF24::disableRxPipeDynamicPayloads(RxPipe pipe)
 {
     uint8_t dynpd = readRegister(DYNPD);
 
@@ -742,7 +748,7 @@ NRF24::CRCLength NRF24::getCRCConfig()
  * Enable input pipe auto ACK
  * @param pipe RX pipe
  */
-void NRF24::enablePipeAutoAck(RxPipe pipe)
+void NRF24::enableRxPipeAutoAck(RxPipe pipe)
 {
     writeRegister(EN_AA, readRegister(EN_AA) | _BV(pipe));
 }
@@ -751,7 +757,7 @@ void NRF24::enablePipeAutoAck(RxPipe pipe)
  * Disable input pipe auto ACK
  * @param pipe RX pipe
  */
-void NRF24::disablePipeAutoAck(RxPipe pipe)
+void NRF24::disableRxPipeAutoAck(RxPipe pipe)
 {
     writeRegister(EN_AA, readRegister(EN_AA) & ~_BV(pipe));
 }
