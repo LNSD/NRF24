@@ -64,13 +64,29 @@ NRF24::NRF24(uint8_t csn, uint8_t ce, uint8_t irq):
  */
 void NRF24::configure()
 {
-    // SPI configure
+    // SPI configuration
     SPI.begin();
-    SPI.beginTransaction(SPISettings((uint32_t) 1000000, MSBFIRST, SPI_MODE0));
+
+    // Minimum ideal SPI bus speed is 2x data rate
+    // If we assume 2Mbps data rate and 16Mhz clock,
+    // a divider of 4 is the minimum we want.
+    // CLK:BUS 8Mhz:2Mhz, 16Mhz:4Mhz, or 20Mhz:5Mhz
+    // SPI.setBitOrder(MSBFIRST);
+    // SPI.setDataMode(SPI_MODE0);
+    // SPI.setClockDivider(SPI_CLOCK_DIV4);
+    SPI.beginTransaction(SPISettings((uint32_t) 4000000, MSBFIRST, SPI_MODE0));
 
     // Interface configure
     ce(LOW);
     csn(HIGH);
+
+    // Must allow the radio time to settle else configuration bits will not necessarily stick.
+    // This is actually only required following power up but some settling time also appears to
+    // be required after resets too. For full coverage, we'll always assume the worst.
+    // Enabling 16b CRC is by far the most obvious case if the wrong timing is used - or skipped.
+    // Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
+    // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
+    delay( 5 ) ;
 }
 
 /**
@@ -79,13 +95,29 @@ void NRF24::configure()
  */
 void NRF24::configure(Config configuration)
 {
-    // SPI configure
+    // SPI configuration
     SPI.begin();
-    SPI.beginTransaction(SPISettings((uint32_t) 1000000, MSBFIRST, SPI_MODE0));
+
+    // Minimum ideal SPI bus speed is 2x data rate
+    // If we assume 2Mbps data rate and 16Mhz clock,
+    // a divider of 4 is the minimum we want.
+    // CLK:BUS 8Mhz:2Mhz, 16Mhz:4Mhz, or 20Mhz:5Mhz
+    // SPI.setBitOrder(MSBFIRST);
+    // SPI.setDataMode(SPI_MODE0);
+    // SPI.setClockDivider(SPI_CLOCK_DIV4);
+    SPI.beginTransaction(SPISettings((uint32_t) 4000000, MSBFIRST, SPI_MODE0));
 
     // Interface configure
     ce(LOW);
     csn(HIGH);
+
+    // Must allow the radio time to settle else configuration bits will not necessarily stick.
+    // This is actually only required following power up but some settling time also appears to
+    // be required after resets too. For full coverage, we'll always assume the worst.
+    // Enabling 16b CRC is by far the most obvious case if the wrong timing is used - or skipped.
+    // Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
+    // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
+    delay( 5 ) ;
 
     // Set configuration to NRF24
     setTransceiverMode(configuration._mode);
@@ -662,6 +694,14 @@ void NRF24::disablePipeDynamicPayloads(RxPipe pipe)
 }
 
 /**
+ * Disable all pipes dynamic payloads
+ */
+void NRF24::disableDynamicPayloads()
+{
+    writeRegister(DYNPD, 0x00);
+}
+
+/**
  * Check which inout pipe dynamic payloads are enabled
  * @param dynamicPayloads RX pipe dynamic payloads status
  */
@@ -966,7 +1006,7 @@ void NRF24::flushRXFIFO()
  * Get status functions
  */
 
-//region Get status functions
+//region Status functions
 
 /**
  * Get count of lost packets. The counter is overflow pro- tected to 15, and discontinues at max until reset.
@@ -1034,6 +1074,15 @@ NRF24::FIFOStatus NRF24::getRxFifoStatus()
         return FIFO_STATUS_OK;
 }
 
+/**
+ * Reset RX_DR, TX_DS and MAX_RT bits.
+ * @note Write 1 to clear bits.
+ */
+void NRF24::resetCurrentStatus()
+{
+    writeRegister(STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT));
+}
+
 //endregion
 
 /**
@@ -1055,6 +1104,61 @@ void NRF24::powerUp()
  */
 void NRF24::powerDown() {
     writeRegister(CONFIG, readRegister(CONFIG) & ~_BV(PWR_UP));
+}
+
+/**
+ * Begin transmission. Move to "Standby-I" state
+ */
+void NRF24::begin()
+{
+    // State: "Power Down"
+
+    powerUp();
+
+    // State: "Crystal oscillator start up"
+
+    delayMicroseconds(4500); // Tpd2stby = max(4.5ms)
+
+    // State: "Standby-I"
+}
+
+void NRF24::start()
+{
+    // State: "Standby-I"
+
+    ce(HIGH);
+
+    /* State:
+     *  if (Mode_PRX) -> "RX Mode"
+     *  if (Mode_PTX):
+     *      if (TX_FIFO_EMPTY) -> "Standby-II"
+     *      else -(130us)-> "TX Mode"
+     */
+}
+
+/**
+ * Go back to "Standby-I" state
+ */
+void NRF24::stop()
+{
+    // State: "RX Mode/TX Mode"
+
+    ce(LOW);
+
+    // State: "Standby-I"
+}
+
+/**
+ * Go to "Power down" state
+ */
+void NRF24::end()
+{
+    // State: Any
+
+    stop(); // Reset CE
+    powerDown();
+
+    // State: "Power down"
 }
 //endregion
 
