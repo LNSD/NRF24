@@ -223,12 +223,12 @@ public:
     private:
         NRF24::TransceiverMode _mode = NRF24::Mode_PTX;
         NRF24::OutputPower _power = NRF24::OutputPower_0dBm;
-        NRF24::DataRate _dataRate = NRF24::DataRate_2Mbps;
+        NRF24::DataRate _dataRate = NRF24::DataRate_1Mbps;
 
         uint8_t _rfCh = 2;
         bool _constCarrier = false;
         bool _pllLock = false;
-        NRF24::CRCLength _crc = NRF24::CRC_8;
+        NRF24::CRCLength _crc = NRF24::CRC_16;
 
         uint8_t _addrWidth = 5;
 
@@ -244,8 +244,8 @@ public:
         uint8_t _txAddr[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 };
 
         bool _autoAck = true;
-        uint16_t _autoRtDelay = 250;
-        uint8_t _autoRtCount = 3;
+        uint16_t _autoRtDelay = 1500;
+        uint8_t _autoRtCount = 15;
 
 
         bool _dynamicPayload[6] = {false, false, false, false, false, false};
@@ -291,19 +291,20 @@ public:
     void whichRxAddrAreEnabled(bool *addr_enabled);
     void setTxAddr(uint8_t* addr, uint8_t len);
     void getTxAddr(uint8_t* addr, uint8_t len);
-    void setPipeRxAddr(RxPipe pipe, uint8_t* addr, uint8_t len);
-    void getPipeRxAddr(RxPipe pipe, uint8_t* addr, uint8_t len);
-    void setPipePayloadSize(RxPipe pipe, uint8_t size);
-    uint8_t getPipePayloadSize(RxPipe pipe);
+    void setRxPipeAddr(RxPipe pipe, uint8_t *addr, uint8_t len);
+    void getRxPipeAddr(RxPipe pipe, uint8_t *addr, uint8_t len);
+    void setRxPipePayloadSize(RxPipe pipe, uint8_t size);
+    uint8_t getRxPipePayloadSize(RxPipe pipe);
     void enableRxPipeDynamicPayloads(RxPipe pipe);
     void disableRxPipeDynamicPayloads(RxPipe pipe);
-    void whichPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads);
+    void disableDynamicPayloads();
+    void whichRxPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads);
     void enableCRC(CRCLength length);
     void disableCRC();
     CRCLength getCRCConfig();
     void enableRxPipeAutoAck(RxPipe pipe);
     void disableRxPipeAutoAck(RxPipe pipe);
-    void whichPipeAutoAckAreEnabled(bool *autoAck);
+    void whichRxPipeAutoAckAreEnabled(bool *autoAck);
     void setAutoRtDelay(uint16_t delay);
     uint8_t getAutoRtDelay();
     void setAutoRtCount(uint8_t count);
@@ -326,13 +327,22 @@ public:
     void flushTXFIFO();
     void flushRXFIFO();
 
-    // Get status functions
+    // Status functions
     uint8_t getLostPacketsCount();
     uint8_t getRtCount();
     bool isCarrierDetected();
     bool isReuseTxPayloadActive();
     FIFOStatus getTxFifoStatus();
     FIFOStatus getRxFifoStatus();
+    void resetCurrentStatus();
+
+    // Driver functions
+    void powerUp();
+    void powerDown();
+    void begin();
+    void start();
+    void stop();
+    void end();
 
     // Interrupt related functions
     void clearCommStatus();
