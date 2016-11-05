@@ -17,11 +17,6 @@
 
 #include "NRF24Debug.h"
 
-/**
- * Parse byte bits into boolean array
- * @param bit Boolean bit array
- * @param byte Byte to parse
- */
 void inline NRF24Debug::parseToBoolean(boolean *bit, uint8_t byte)
 {
     for (int i = 0; i < 8; i++)
@@ -30,10 +25,6 @@ void inline NRF24Debug::parseToBoolean(boolean *bit, uint8_t byte)
     }
 }
 
-/**
- * Parse CONFIG register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugConfigRegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
@@ -73,10 +64,6 @@ void NRF24Debug::debugConfigRegister(uint8_t content)
     Serial.println(bit[PRIM_RX], BIN);
 }
 
-/**
- * Parse EN_AA register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugEnAARegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
@@ -112,10 +99,6 @@ void NRF24Debug::debugEnAARegister(uint8_t content)
     Serial.println(bit[ENAA_P0], BIN);
 }
 
-/**
- * Parse EN_RXADDR register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugEnRxAddrRegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
@@ -151,10 +134,6 @@ void NRF24Debug::debugEnRxAddrRegister(uint8_t content)
     Serial.println(bit[ERX_P0], BIN);
 }
 
-/**
- * Parse SETUP_AW register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugSetupAWRegister(uint8_t content)
 {
     // Debug info header
@@ -171,10 +150,6 @@ void NRF24Debug::debugSetupAWRegister(uint8_t content)
     Serial.println(aw, BIN);
 }
 
-/**
- * Parse SETUP_RETR register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugSetupRetrRegister(uint8_t content)
 {
     // Debug info header
@@ -199,11 +174,7 @@ void NRF24Debug::debugSetupRetrRegister(uint8_t content)
     Serial.println(arc, BIN);
 }
 
-/**
- * Parse RF_CH register content and show debug info
- * @param content Register content
- */
-void NRF24Debug::debugRfChRegister(uint8_t content)
+void NRF24Debug::debugRFChRegister(uint8_t content)
 {
     // Debug info header
     Serial.print(" - DEBUG: RF_CH register content (0x");
@@ -217,11 +188,7 @@ void NRF24Debug::debugRfChRegister(uint8_t content)
     Serial.println(content, BIN);
 }
 
-/**
- * Parse RF_SETUP register content and show debug info
- * @param content Register content
- */
-void NRF24Debug::debugRfSetupRegister(uint8_t content)
+void NRF24Debug::debugRFSetupRegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
     parseToBoolean(bit, content);
@@ -256,10 +223,6 @@ void NRF24Debug::debugRfSetupRegister(uint8_t content)
     Serial.println(rfpwr, BIN);
 }
 
-/**
- * Parse STATUS register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugStatusRegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
@@ -295,10 +258,6 @@ void NRF24Debug::debugStatusRegister(uint8_t content)
     Serial.println(bit[TX_FULL], BIN);
 }
 
-/**
- * Parse OBSERVE_TX register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugObserveTxRegister(uint8_t content)
 {
     // Debug info header
@@ -323,11 +282,7 @@ void NRF24Debug::debugObserveTxRegister(uint8_t content)
     Serial.println(arccnt, BIN);
 }
 
-/**
- * Parse RPD register content and show debug info
- * @param content Register content
- */
-void NRF24Debug::debugRPDRegister(uint8_t content)
+void NRF24Debug::debugRpdRegister(uint8_t content)
 {
     // Debug info header
     Serial.print(" - DEBUG: RPD register content (0x");
@@ -339,12 +294,7 @@ void NRF24Debug::debugRPDRegister(uint8_t content)
     Serial.println(_BV(RPD_BIT) & content, BIN);
 }
 
-/**
- * Parse RX_ADDR_P# register content and show debug info. Long address (5 bytes max)
- * @param content Register content
- * @param pipe Pipe number
- */
-void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, NRF24::RxPipe pipe, uint8_t len)
+void NRF24Debug::debugRxPipeAddressRegister(uint8_t *content, NRF24::RxPipe pipe, uint8_t len)
 {
     uint8_t length = (pipe<2)? len:1;
 
@@ -362,11 +312,7 @@ void NRF24Debug::debugDataPipeRxAddrRegister(uint8_t *content, NRF24::RxPipe pip
     }
 }
 
-/**
- * Parse TX_ADDR register content and show debug info
- * @param content Register content
- */
-void NRF24Debug::debugTxAddrRegister(uint8_t *content, uint8_t len)
+void NRF24Debug::debugTxAddressRegister(uint8_t *content, uint8_t len)
 {
     // Debug info header
     Serial.print(" - DEBUG: TX_ADDR (");
@@ -380,12 +326,7 @@ void NRF24Debug::debugTxAddrRegister(uint8_t *content, uint8_t len)
     }
 }
 
-/**
- * Parse RX_PW_P# registers content and show debug info
- * @param content Register content
- * @param pipe Pipe number
- */
-void NRF24Debug::debugRxBytesPipeRegister(uint8_t content, NRF24::RxPipe pipe)
+void NRF24Debug::debugRxPipePayloadWidthRegister(uint8_t content, NRF24::RxPipe pipe)
 {
     // Debug info header
     Serial.print(" - DEBUG: RX_PW_P");
@@ -394,11 +335,7 @@ void NRF24Debug::debugRxBytesPipeRegister(uint8_t content, NRF24::RxPipe pipe)
     Serial.println(content, DEC);
 }
 
-/**
- * Parse FIFO_STATUS register content and show debug info
- * @param content Register content
- */
-void NRF24Debug::debugFIFOStatusRegister(uint8_t content)
+void NRF24Debug::debugFifoStatusRegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
     parseToBoolean(bit, content);
@@ -429,11 +366,7 @@ void NRF24Debug::debugFIFOStatusRegister(uint8_t content)
     Serial.println(bit[RX_EMPTY], BIN);
 }
 
-/**
- * Parse DYNPD register content and show debug info
- * @param content Register content
- */
-void NRF24Debug::debugDYNPDRegister(uint8_t content)
+void NRF24Debug::debugDynpdRegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
     parseToBoolean(bit, content);
@@ -452,10 +385,6 @@ void NRF24Debug::debugDYNPDRegister(uint8_t content)
     }
 }
 
-/**
- * Parse FEATURE register content and show debug info
- * @param content Register content
- */
 void NRF24Debug::debugFeatureRegister(uint8_t content)
 {
     boolean bit[8] = {false, false, false, false, false, false, false, false};
