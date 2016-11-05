@@ -31,6 +31,7 @@ public:
      * @name Driver Constants
      */
     const static uint8_t MAX_PAYLOAD_SIZE = 32;
+    const static uint8_t MAX_RF_CHANNEL = 127;
 
     //region Enum typedefs
     /**

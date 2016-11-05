@@ -32,7 +32,7 @@ NRF24 nRF24(CSN, CE);
  * Scan configuration
  */
 
-const uint8_t NUM_CHANNELS = 128;
+const uint8_t NUM_CHANNELS = NRF24::MAX_RF_CHANNEL+1;
 uint8_t values[NUM_CHANNELS];
 
 const int NUM_REPS = 250;

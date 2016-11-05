@@ -431,8 +431,7 @@ NRF24::DataRate NRF24::getDataRate()
 
 void NRF24::setRFChannel(uint8_t channel)
 {
-    const uint8_t max_channel = 127;
-    writeRegister(RF_CH, min(channel, max_channel));
+    writeRegister(RF_CH, min(channel, MAX_RF_CHANNEL));
 }
 
 uint8_t NRF24::getRFChannel()
