@@ -49,7 +49,7 @@ void setup() {
     // Rf radio configuration
     NRF24::Config config(NRF24::Mode_PRX);
 
-    config.setRfChannel(76);
+    config.setRFChannel(76);
     config.disableAutoAck();
     config.disableDynamicPayloads();
 
@@ -62,8 +62,8 @@ void setup() {
     nRF24.resetCurrentStatus();
 
     // Flush buffers
-    nRF24.flushTXFIFO();
-    nRF24.flushRXFIFO();
+    nRF24.flushTxFifo();
+    nRF24.flushRxFifo();
 
     // Rf radio setup
     nRF24.begin(); // "Power Down" -> "Standby-I"
@@ -111,12 +111,12 @@ void loop()
             // State: Standby-I
 
             // Select this channel
-            nRF24.setRfChannel(ch);
+            nRF24.setRFChannel(ch);
 
             // Start listening
             nRF24.resetCurrentStatus();
-            nRF24.flushRXFIFO();
-            nRF24.flushTXFIFO();
+            nRF24.flushRxFifo();
+            nRF24.flushTxFifo();
 
             nRF24.start();
 
@@ -130,8 +130,8 @@ void loop()
 
             // State: Standby-I
 
-            nRF24.flushRXFIFO();
-            nRF24.flushTXFIFO();
+            nRF24.flushRxFifo();
+            nRF24.flushTxFifo();
 
             if (nRF24.isCarrierDetected())
             {
