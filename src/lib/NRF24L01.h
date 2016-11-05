@@ -1,3 +1,16 @@
+/**
+ * NRF24L01.h
+ *
+ * Copyright (C) 2016 Lorenzo Delgado <lorenzo.delgado@lnsd.es>
+ * All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+#ifndef NRF24L01_H
+#define NRF24L01_H
 
 /* Memory Map */
 #define CONFIG      0x00
@@ -103,3 +116,5 @@
 
 /* Bit Mnemonics */
 #define RPD_BIT     CD_BIT
+
+#endif //NRF24L01_H

@@ -1,11 +1,21 @@
+/**
+ * NRF24Debug.cpp
+ *
+ * Copyright (C) 2016 Lorenzo Delgado <lorenzo.delgado@lnsd.es>
+ * All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 #if ARDUINO >= 100
-#include "Arduino.h"
+    #include "Arduino.h"
 #else
-#include "WProgram.h"
+    #include "WProgram.h"
 #endif
 
 #include "NRF24Debug.h"
-#include "NRF24.h"
 
 /**
  * Parse byte bits into boolean array

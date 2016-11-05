@@ -21,7 +21,6 @@
 LED led(LD); // Set up a LED on pin 4
 PushButton button(PB); // Set up a button on pin 3
 
-
 /**
  * Setup
  */
@@ -30,7 +29,6 @@ void setup()
     // Start serial connection
     Serial.begin(115200);
 }
-
 
 /**
  * Loop

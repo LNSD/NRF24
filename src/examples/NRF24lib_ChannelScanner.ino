@@ -37,7 +37,6 @@ uint8_t values[NUM_CHANNELS];
 
 const int NUM_REPS = 250;
 
-
 /**
  * Setup
  */
@@ -93,7 +92,6 @@ void setup() {
     }
     Serial.print("\n\t");
 }
-
 
 /**
  * Loop
