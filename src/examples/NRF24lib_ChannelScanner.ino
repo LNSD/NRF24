@@ -1,5 +1,5 @@
 /**
- *  NRF24lib_ChannelScanner.ino -- Channel scanner example sketch
+ * NRF24lib_ChannelScanner.ino -- Channel scanner example sketch
  *
  * Copyright (C) 2016 Lorenzo Delgado <lorenzo.delgado@lnsd.es>
  * All rights reserved.
@@ -12,7 +12,7 @@
 #include "NRF24.h"
 
 /**
- *  Hardware configuration
+ * Hardware configuration
  */
 
 #define SCK 13
@@ -29,7 +29,7 @@
 NRF24 nRF24(CSN, CE);
 
 /**
- *  Scan configuration
+ * Scan configuration
  */
 
 const uint8_t NUM_CHANNELS = 128;
@@ -39,7 +39,7 @@ const int NUM_REPS = 250;
 
 
 /**
- *  Setup
+ * Setup
  */
 void setup() {
 
@@ -96,9 +96,8 @@ void setup() {
 
 
 /**
- *  Loop
+ * Loop
  */
-
 void loop()
 {
     // Clear measurement values
