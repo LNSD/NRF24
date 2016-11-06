@@ -267,7 +267,7 @@ namespace NRF24
         /**
          * Arduino Constructor
          *
-         * Creates a new instance of this driver. Before using, create an istance and pas
+         * Creates a new instance of this driver. Before using, create an instance and pass
          * the unique pins that this chip is attached to.
          *
          * Instantiates a new NRF24 class using hardware SPI.
@@ -280,7 +280,7 @@ namespace NRF24
         /**
          * Arduino Constructor
          *
-         * Creates a new instance of this driver. Before using, create an istance and pas
+         * Creates a new instance of this driver. Before using, create an instance and pas
          * the unique pins that this chip is attached to.
          *
          * Instantiates a new NRF24 class using hardware SPI and IRQ.
