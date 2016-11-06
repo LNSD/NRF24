@@ -26,7 +26,7 @@
 #define PB 3
 
 // Set up nRF24L01 radio on SPI bus plus pins 7 & 8
-NRF24 nRF24(CSN, CE);
+NRF24::Driver nRF24(CSN, CE);
 
 /**
  * Scan configuration
@@ -47,7 +47,7 @@ void setup() {
     Serial.println("nRF24lib RF Channel scanner test sketch");
 
     // Rf radio configuration
-    NRF24::Config config(NRF24::Mode_PRX);
+    NRF24::Configuration config(NRF24::Mode_PRX);
 
     config.setRFChannel(76);
     config.disableAutoAck();

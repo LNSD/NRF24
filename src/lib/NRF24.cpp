@@ -32,7 +32,7 @@
 
 //region Constructor and configure subroutines
 
-NRF24::NRF24(uint8_t csn, uint8_t ce):
+NRF24::Driver::Driver(uint8_t csn, uint8_t ce):
         _sck(13),
         _miso(12),
         _mosi(11),
@@ -44,7 +44,7 @@ NRF24::NRF24(uint8_t csn, uint8_t ce):
     pinMode(_ce, OUTPUT);
 }
 
-NRF24::NRF24(uint8_t csn, uint8_t ce, uint8_t irq):
+NRF24::Driver::Driver(uint8_t csn, uint8_t ce, uint8_t irq):
         _sck(13),
         _miso(12),
         _mosi(11),
@@ -58,7 +58,7 @@ NRF24::NRF24(uint8_t csn, uint8_t ce, uint8_t irq):
     //TODO Configure interrupt pin to IRQ
 }
 
-void NRF24::configure()
+void NRF24::Driver::configure()
 {
     // SPI configuration
     SPI.begin();
@@ -85,7 +85,7 @@ void NRF24::configure()
     delay( 5 ) ;
 }
 
-void NRF24::configure(Config configuration)
+void NRF24::Driver::configure(Configuration configuration)
 {
     // SPI configuration
     SPI.begin();
@@ -132,7 +132,7 @@ void NRF24::configure(Config configuration)
     setAddressWidth(configuration._addressWidth);
 
     for (int p = 0; p < 6; p++) {
-        if (configuration._rxPipeAddrStatus[p]) {
+        if (configuration._rxPipeAddressStatus[p]) {
             enableRxPipeAddress((NRF24::RxPipe) p);
         } else {
             disableRxPipeAddress((NRF24::RxPipe) p);
@@ -201,24 +201,24 @@ void NRF24::configure(Config configuration)
 
 //region Low-level signal & SPI-specific functions
 
-inline void NRF24::csn(uint8_t val)
+inline void NRF24::Driver::csn(uint8_t val)
 {
     digitalWrite(_csn, val);
 }
 
-inline void NRF24::ce(uint8_t val)
+inline void NRF24::Driver::ce(uint8_t val)
 {
     digitalWrite(_ce, val);
 }
 
-inline void NRF24::spiCmdTransfer(uint8_t cmd)
+inline void NRF24::Driver::spiCmdTransfer(uint8_t cmd)
 {
     csn(LOW);
     SPI.transfer(cmd);
     csn(HIGH);
 }
 
-inline void NRF24::spiCmdTransfer(uint8_t cmd, void *buf, size_t len)
+inline void NRF24::Driver::spiCmdTransfer(uint8_t cmd, void *buf, size_t len)
 {
     csn(LOW);
     SPI.transfer(cmd);
@@ -234,7 +234,7 @@ inline void NRF24::spiCmdTransfer(uint8_t cmd, void *buf, size_t len)
 
 //region Register read and write functions
 
-uint8_t NRF24::readRegister(uint8_t reg)
+uint8_t NRF24::Driver::readRegister(uint8_t reg)
 {
     uint8_t data;
 
@@ -243,17 +243,17 @@ uint8_t NRF24::readRegister(uint8_t reg)
     return data;
 }
 
-void NRF24::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
+void NRF24::Driver::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 {
     spiCmdTransfer(R_REGISTER | (REGISTER_MASK & reg), buf, len);
 }
 
-void NRF24::writeRegister(uint8_t reg, uint8_t value)
+void NRF24::Driver::writeRegister(uint8_t reg, uint8_t value)
 {
     spiCmdTransfer(W_REGISTER | (REGISTER_MASK & reg), &value, 1);
 }
 
-void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
+void NRF24::Driver::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 {
     spiCmdTransfer(W_REGISTER | (REGISTER_MASK & reg), buf, len);
 }
@@ -266,7 +266,7 @@ void NRF24::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 
 //region Configuration functions. Getters and setters
 
-void NRF24::setTransceiverMode(TransceiverMode mode)
+void NRF24::Driver::setTransceiverMode(TransceiverMode mode)
 {
     uint8_t config = readRegister(CONFIG);
 
@@ -282,7 +282,7 @@ void NRF24::setTransceiverMode(TransceiverMode mode)
     writeRegister(CONFIG, config);
 }
 
-NRF24::TransceiverMode NRF24::getTransceiverMode()
+NRF24::TransceiverMode NRF24::Driver::getTransceiverMode()
 {
     uint8_t result = readRegister(CONFIG) & _BV(PRIM_RX);
 
@@ -296,7 +296,7 @@ NRF24::TransceiverMode NRF24::getTransceiverMode()
     }
 }
 
-void NRF24::enableConstantCarrier()
+void NRF24::Driver::enableConstantCarrier()
 {
     uint8_t rfsetup = readRegister(RF_SETUP);
     rfsetup |= _BV(CONT_WAVE);
@@ -304,7 +304,7 @@ void NRF24::enableConstantCarrier()
     writeRegister(RF_SETUP, rfsetup);
 }
 
-void NRF24::disableConstantCarrier()
+void NRF24::Driver::disableConstantCarrier()
 {
     uint8_t rfsetup = readRegister(RF_SETUP);
     rfsetup &= ~_BV(CONT_WAVE);
@@ -312,12 +312,12 @@ void NRF24::disableConstantCarrier()
     writeRegister(RF_SETUP, rfsetup);
 }
 
-bool NRF24::isConstantCarrierEnabled()
+bool NRF24::Driver::isConstantCarrierEnabled()
 {
     return (bool)(readRegister(RF_SETUP) & _BV(CONT_WAVE));
 }
 
-void NRF24::forcePllLock()
+void NRF24::Driver::forcePllLock()
 {
     uint8_t rfsetup = readRegister(RF_SETUP);
     rfsetup |= _BV(PLL_LOCK);
@@ -325,7 +325,7 @@ void NRF24::forcePllLock()
     writeRegister(RF_SETUP, rfsetup);
 }
 
-void NRF24::disablePllLock()
+void NRF24::Driver::disablePllLock()
 {
     uint8_t rfsetup = readRegister(RF_SETUP);
     rfsetup &= ~_BV(PLL_LOCK);
@@ -333,12 +333,12 @@ void NRF24::disablePllLock()
     writeRegister(RF_SETUP, rfsetup);
 }
 
-bool NRF24::isPllLockForced()
+bool NRF24::Driver::isPllLockForced()
 {
     return (readRegister(RF_SETUP) & _BV(PLL_LOCK)) > 0;
 }
 
-void NRF24::setOutputRFPower(OutputPower level)
+void NRF24::Driver::setOutputRFPower(OutputPower level)
 {
     uint8_t setup = readRegister(RF_SETUP) ;
     setup &= ~(_BV(RF_PWR) | _BV(RF_PWR+1));
@@ -361,7 +361,7 @@ void NRF24::setOutputRFPower(OutputPower level)
     writeRegister(RF_SETUP, setup);
 }
 
-NRF24::OutputPower NRF24::getOutputRFPower()
+NRF24::OutputPower NRF24::Driver::getOutputRFPower()
 {
     OutputPower result = OutputPower_0dBm;
     uint8_t power = readRegister(RF_SETUP) & (_BV(RF_PWR) | _BV(RF_PWR+1));
@@ -386,7 +386,7 @@ NRF24::OutputPower NRF24::getOutputRFPower()
     return result;
 }
 
-void NRF24::setDataRate(DataRate rate)
+void NRF24::Driver::setDataRate(DataRate rate)
 {
     uint8_t setup = readRegister(RF_SETUP);
     setup &= ~(_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
@@ -406,7 +406,7 @@ void NRF24::setDataRate(DataRate rate)
     writeRegister(RF_SETUP, setup);
 }
 
-NRF24::DataRate NRF24::getDataRate()
+NRF24::DataRate NRF24::Driver::getDataRate()
 {
     uint8_t dr = readRegister(RF_SETUP) & (_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
 
@@ -429,17 +429,17 @@ NRF24::DataRate NRF24::getDataRate()
     return DataRate_2Mbps;
 }
 
-void NRF24::setRFChannel(uint8_t channel)
+void NRF24::Driver::setRFChannel(uint8_t channel)
 {
     writeRegister(RF_CH, min(channel, MAX_RF_CHANNEL));
 }
 
-uint8_t NRF24::getRFChannel()
+uint8_t NRF24::Driver::getRFChannel()
 {
     return readRegister(RF_CH);
 }
 
-void NRF24::setAddressWidth(uint8_t width)
+void NRF24::Driver::setAddressWidth(uint8_t width)
 {
     if(width >= 3  && width <= 5)
     {
@@ -447,22 +447,22 @@ void NRF24::setAddressWidth(uint8_t width)
     }
 }
 
-uint8_t NRF24::getAddressWidth()
+uint8_t NRF24::Driver::getAddressWidth()
 {
     return readRegister(SETUP_AW) + 2;
 }
 
-void NRF24::enableRxPipeAddress(RxPipe pipe)
+void NRF24::Driver::enableRxPipeAddress(RxPipe pipe)
 {
     writeRegister(EN_RXADDR, readRegister(EN_RXADDR) | _BV(pipe));
 }
 
-void NRF24::disableRxPipeAddress(RxPipe pipe)
+void NRF24::Driver::disableRxPipeAddress(RxPipe pipe)
 {
     writeRegister(EN_RXADDR, readRegister(EN_RXADDR) & ~_BV(pipe));
 }
 
-void NRF24::whichRxPipeAddrAreEnabled(bool *enabledAddr)
+void NRF24::Driver::whichRxPipeAddrAreEnabled(bool *enabledAddr)
 {
     uint8_t enRxAddr = readRegister(EN_RXADDR);
     for (int p = 0; p < 6; ++p)
@@ -471,19 +471,19 @@ void NRF24::whichRxPipeAddrAreEnabled(bool *enabledAddr)
     }
 }
 
-void NRF24::setTxAddress(uint8_t *addr, uint8_t len)
+void NRF24::Driver::setTxAddress(uint8_t *addr, uint8_t len)
 {
     writeRegister(TX_ADDR, addr, len);
 }
 
-void NRF24::getTxAddress(uint8_t *addr, uint8_t len)
+void NRF24::Driver::getTxAddress(uint8_t *addr, uint8_t len)
 {
     readRegister(TX_ADDR, addr, len);
 }
 
 const uint8_t pipeRx[6] = {RX_ADDR_P0, RX_ADDR_P1, RX_ADDR_P2, RX_ADDR_P3, RX_ADDR_P4, RX_ADDR_P5};
 
-void NRF24::setRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
+void NRF24::Driver::setRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
 {
     if(pipe < 2)
     {
@@ -495,7 +495,7 @@ void NRF24::setRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
     }
 }
 
-void NRF24::getRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
+void NRF24::Driver::getRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
 {
     if(pipe < 2)
     {
@@ -509,18 +509,18 @@ void NRF24::getRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
 
 const uint8_t pipe_payload[6] = {RX_PW_P0, RX_PW_P1, RX_PW_P2, RX_PW_P3, RX_PW_P4, RX_PW_P5};
 
-void NRF24::setRxPipePayloadSize(RxPipe pipe, uint8_t size)
+void NRF24::Driver::setRxPipePayloadSize(RxPipe pipe, uint8_t size)
 {
     const uint8_t max_size = 32;
     writeRegister(pipe_payload[pipe], min(size, max_size));
 }
 
-uint8_t NRF24::getRxPipePayloadSize(RxPipe pipe)
+uint8_t NRF24::Driver::getRxPipePayloadSize(RxPipe pipe)
 {
     return readRegister(pipe_payload[pipe]);
 }
 
-void NRF24::enableRxPipeDynamicPayloads(RxPipe pipe)
+void NRF24::Driver::enableRxPipeDynamicPayloads(RxPipe pipe)
 {
     uint8_t dynpd = readRegister(DYNPD);
     dynpd |= _BV(pipe);
@@ -529,7 +529,7 @@ void NRF24::enableRxPipeDynamicPayloads(RxPipe pipe)
     writeRegister(DYNPD, dynpd);
 }
 
-void NRF24::disableRxPipeDynamicPayloads(RxPipe pipe)
+void NRF24::Driver::disableRxPipeDynamicPayloads(RxPipe pipe)
 {
     uint8_t dynpd = readRegister(DYNPD);
 
@@ -540,12 +540,12 @@ void NRF24::disableRxPipeDynamicPayloads(RxPipe pipe)
     writeRegister(DYNPD, dynpd & ~_BV(pipe));
 }
 
-void NRF24::disableDynamicPayloads()
+void NRF24::Driver::disableDynamicPayloads()
 {
     writeRegister(DYNPD, 0x00);
 }
 
-void NRF24::whichRxPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads)
+void NRF24::Driver::whichRxPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads)
 {
     if(readRegister(FEATURE) & _BV(EN_DPL))
     {
@@ -563,7 +563,7 @@ void NRF24::whichRxPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads)
     }
 }
 
-void NRF24::enableCRC(CRCLength length)
+void NRF24::Driver::enableCRC(CRCLength length)
 {
     uint8_t config = readRegister(CONFIG);
     config |= _BV(EN_CRC);
@@ -580,14 +580,14 @@ void NRF24::enableCRC(CRCLength length)
     writeRegister(CONFIG, config);
 }
 
-void NRF24::disableCRC()
+void NRF24::Driver::disableCRC()
 {
     uint8_t config = readRegister(CONFIG);
     config &= ~_BV(EN_CRC);
     writeRegister(CONFIG, config);
 }
 
-NRF24::CRCLength NRF24::getCRCConfig()
+NRF24::CRCLength NRF24::Driver::getCRCConfig()
 {
     uint8_t config = readRegister(CONFIG);
     if(config & _BV(EN_CRC))
@@ -607,17 +607,17 @@ NRF24::CRCLength NRF24::getCRCConfig()
     }
 }
 
-void NRF24::enableRxPipeAutoAck(RxPipe pipe)
+void NRF24::Driver::enableRxPipeAutoAck(RxPipe pipe)
 {
     writeRegister(EN_AA, readRegister(EN_AA) | _BV(pipe));
 }
 
-void NRF24::disableRxPipeAutoAck(RxPipe pipe)
+void NRF24::Driver::disableRxPipeAutoAck(RxPipe pipe)
 {
     writeRegister(EN_AA, readRegister(EN_AA) & ~_BV(pipe));
 }
 
-void NRF24::whichRxPipeAutoAckAreEnabled(bool *autoAck)
+void NRF24::Driver::whichRxPipeAutoAckAreEnabled(bool *autoAck)
 {
     uint8_t autoack = readRegister(EN_AA);
     for (int p = 0; p < 6; ++p)
@@ -626,7 +626,7 @@ void NRF24::whichRxPipeAutoAckAreEnabled(bool *autoAck)
     }
 }
 
-void NRF24::setAutoRtDelay(uint16_t delay)
+void NRF24::Driver::setAutoRtDelay(uint16_t delay)
 {
     const uint16_t min_delay = 250;
     const uint16_t max_delay = 4000;
@@ -645,12 +645,12 @@ void NRF24::setAutoRtDelay(uint16_t delay)
     writeRegister(SETUP_RETR, setupRetr);
 }
 
-uint8_t NRF24::getAutoRtDelay()
+uint8_t NRF24::Driver::getAutoRtDelay()
 {
     return (readRegister(SETUP_RETR) >> 4);
 }
 
-void NRF24::setAutoRtCount(uint8_t count)
+void NRF24::Driver::setAutoRtCount(uint8_t count)
 {
     const uint8_t max_count = 0xF;
     uint8_t setupRetr = readRegister(SETUP_RETR);
@@ -660,37 +660,37 @@ void NRF24::setAutoRtCount(uint8_t count)
     writeRegister(SETUP_RETR, setupRetr);
 }
 
-uint8_t NRF24::getAutoRtCount()
+uint8_t NRF24::Driver::getAutoRtCount()
 {
     return readRegister(SETUP_RETR) & 0x0F;
 }
 
-void NRF24::enableAckPayload()
+void NRF24::Driver::enableAckPayload()
 {
     writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_ACK_PAY));
 }
 
-void NRF24::disableAckPayload()
+void NRF24::Driver::disableAckPayload()
 {
     writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_ACK_PAY));
 }
 
-bool NRF24::isAckPayloadEnabled()
+bool NRF24::Driver::isAckPayloadEnabled()
 {
     return (bool)(readRegister(FEATURE) & _BV(EN_ACK_PAY));
 }
 
-void NRF24::enableDynamicAck()
+void NRF24::Driver::enableDynamicAck()
 {
     writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_DYN_ACK));
 }
 
-void NRF24::disableDynamicAck()
+void NRF24::Driver::disableDynamicAck()
 {
     writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_DYN_ACK));
 }
 
-bool NRF24::isDynamicAckEnabled()
+bool NRF24::Driver::isDynamicAckEnabled()
 {
     return (bool)(readRegister(FEATURE) & _BV(EN_DYN_ACK));
 }
@@ -703,7 +703,7 @@ bool NRF24::isDynamicAckEnabled()
 
 //region Command functions
 
-uint8_t NRF24::getRxPayloadLength()
+uint8_t NRF24::Driver::getRxPayloadLength()
 {
     uint8_t width;
 
@@ -712,37 +712,37 @@ uint8_t NRF24::getRxPayloadLength()
     return width;
 }
 
-void NRF24::readRxPayload(uint8_t* data, uint8_t len)
+void NRF24::Driver::readRxPayload(uint8_t* data, uint8_t len)
 {
     spiCmdTransfer(R_RX_PAYLOAD, data, len);
 }
 
-void NRF24::writeTxPayload(uint8_t* data, uint8_t len)
+void NRF24::Driver::writeTxPayload(uint8_t* data, uint8_t len)
 {
     spiCmdTransfer(W_TX_PAYLOAD, data, len);
 }
 
-void NRF24::writePipeACKPayload(RxPipe pipe, uint8_t* data, uint8_t len)
+void NRF24::Driver::writePipeACKPayload(RxPipe pipe, uint8_t* data, uint8_t len)
 {
     spiCmdTransfer((uint8_t) (W_ACK_PAYLOAD | (pipe & 0x07)), data, len);
 }
 
-void NRF24::disableAAforPayload()
+void NRF24::Driver::disableAAforPayload()
 {
     spiCmdTransfer(W_TX_PAYLOAD_NOACK);
 }
 
-void NRF24::reuseTxPayload()
+void NRF24::Driver::reuseTxPayload()
 {
     spiCmdTransfer(REUSE_TX_PL);
 }
 
-void NRF24::flushTxFifo()
+void NRF24::Driver::flushTxFifo()
 {
     spiCmdTransfer(FLUSH_TX);
 }
 
-void NRF24::flushRxFifo()
+void NRF24::Driver::flushRxFifo()
 {
     spiCmdTransfer(FLUSH_RX);
 }
@@ -755,27 +755,27 @@ void NRF24::flushRxFifo()
 
 //region Status functions
 
-uint8_t NRF24::getLostPacketsCount()
+uint8_t NRF24::Driver::getLostPacketsCount()
 {
     return (readRegister(OBSERVE_TX) & 0xF0) >> 4;
 }
 
-uint8_t NRF24::getRtCount()
+uint8_t NRF24::Driver::getRtCount()
 {
     return readRegister(OBSERVE_TX) & 0x0F;
 }
 
-bool NRF24::isCarrierDetected()
+bool NRF24::Driver::isCarrierDetected()
 {
     return (bool) (readRegister(RPD) & 0x01);
 }
 
-bool NRF24::isReuseTxPayloadActive()
+bool NRF24::Driver::isReuseTxPayloadActive()
 {
     return (bool) (readRegister(FIFO_STATUS) & _BV(TX_REUSE));
 }
 
-NRF24::FIFOStatus NRF24::getTxFifoStatus()
+NRF24::FifoStatus NRF24::Driver::getTxFifoStatus()
 {
     uint8_t fifo_status = readRegister(FIFO_STATUS);
     if(fifo_status & _BV(TX_FULL))
@@ -786,7 +786,7 @@ NRF24::FIFOStatus NRF24::getTxFifoStatus()
         return FIFO_STATUS_OK;
 }
 
-NRF24::FIFOStatus NRF24::getRxFifoStatus()
+NRF24::FifoStatus NRF24::Driver::getRxFifoStatus()
 {
     uint8_t fifo_status = readRegister(FIFO_STATUS);
     if(fifo_status & _BV(RX_FULL))
@@ -797,7 +797,7 @@ NRF24::FIFOStatus NRF24::getRxFifoStatus()
         return FIFO_STATUS_OK;
 }
 
-void NRF24::resetCurrentStatus()
+void NRF24::Driver::resetCurrentStatus()
 {
     writeRegister(STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT));
 }
@@ -810,16 +810,16 @@ void NRF24::resetCurrentStatus()
 
 //region Driver functions
 
-void NRF24::powerUp()
+void NRF24::Driver::powerUp()
 {
     writeRegister(CONFIG, readRegister(CONFIG) | _BV(PWR_UP));
 }
 
-void NRF24::powerDown() {
+void NRF24::Driver::powerDown() {
     writeRegister(CONFIG, readRegister(CONFIG) & ~_BV(PWR_UP));
 }
 
-void NRF24::begin()
+void NRF24::Driver::begin()
 {
     // State: "Power Down"
 
@@ -832,7 +832,7 @@ void NRF24::begin()
     // State: "Standby-I"
 }
 
-void NRF24::start()
+void NRF24::Driver::start()
 {
     // State: "Standby-I"
 
@@ -846,7 +846,7 @@ void NRF24::start()
      */
 }
 
-void NRF24::stop()
+void NRF24::Driver::stop()
 {
     // State: "RX Mode/TX Mode"
 
@@ -855,7 +855,7 @@ void NRF24::stop()
     // State: "Standby-I"
 }
 
-void NRF24::end()
+void NRF24::Driver::end()
 {
     // State: Any
 
@@ -873,7 +873,7 @@ void NRF24::end()
 
 //region Interrupt related functions
 
-void NRF24::getCommStatus(bool *status)
+void NRF24::Driver::getCommStatus(bool *status)
 {
     // No Operation. Might be used to read the STATUS register.
     csn(LOW);
@@ -893,7 +893,7 @@ void NRF24::getCommStatus(bool *status)
 
 //region Util functions
 
-bool NRF24::isPVariant()
+bool NRF24::Driver::isPVariant()
 {
     uint8_t setup = readRegister(RF_SETUP);
     uint8_t aux = setup;
