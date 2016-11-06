@@ -100,76 +100,164 @@ namespace NRF24
     class Configuration
     {
     public:
+
+        /**
+         * @name Constructors
+         */
+
+        /**
+         * Arduino Constructor
+         *
+         * Empty constructor. Creates a new instance of this configuration holder.
+         * @note Uses default configuration (TX transceiver mode);
+         */
         Configuration() {};
 
-        Configuration(NRF24::TransceiverMode mode):
+        /**
+         * Arduino Constructor
+         *
+         * Creates a new instance of this configuration holder.
+         *
+         * @param mode Transceiver mode
+         */
+        Configuration(TransceiverMode mode):
                 _mode(mode)
         {};
 
-        Configuration(NRF24::TransceiverMode mode, NRF24::OutputPower level, NRF24::DataRate rate):
+        /**
+         * Arduino Constructor
+         *
+         * Creates a new instance of this configuration holder.
+         *
+         * @param mode Transceiver mode
+         * @param level Output power level
+         * @param rate Communication data rate
+         */
+        Configuration(TransceiverMode mode, OutputPower level, DataRate rate):
                 _mode(mode),
                 _outputPower(level),
                 _dataRate(rate)
         {};
 
-        void setTransceiverMode(NRF24::TransceiverMode mode) {
+        /**
+         * @name Configuration setters
+         */
+
+        /**
+         * Set transceiver mode
+         * @param mode Transceiver mode
+         */
+        void setTransceiverMode(TransceiverMode mode) {
             _mode = mode;
         }
 
-        void setOutputPower(NRF24::OutputPower power) {
+        /**
+         * Set output power
+         * @param power Output power
+         */
+        void setOutputPower(OutputPower power) {
             _outputPower = power;
         }
 
-        void setDataRate(NRF24::DataRate dataRate) {
+        /**
+         * Set communication data rate
+         * @param dataRate Communication data rate
+         */
+        void setDataRate(DataRate dataRate) {
             _dataRate = dataRate;
         }
 
+        /**
+         * Set RF channel
+         * @param channel RF channel
+         */
         void setRFChannel(uint8_t channel) {
             _rfCh = channel;
         }
 
+        /**
+         * Enable constant carrier
+         */
         void enableConstantCarrier() {
             _constCarrier = true;
         }
 
+        /**
+         * Disable constant carrier
+         */
         void disableConstantCarrier() {
             _constCarrier = false;
         }
 
+        /**
+         * Force PLL lock
+         */
         void forcePllLock() {
             _pllLock = true;
         }
 
+        /**
+         * Disable PLL lock
+         */
         void disablePllLock() {
             _pllLock = false;
         }
 
-        void setCRC(NRF24::CRCLength crc) {
+        /**
+         * Set CRC length
+         * @param crc Length
+         */
+        void setCRC(CRCLength crc) {
             _crc = crc;
         }
 
+        /**
+         * Set address width
+         * @param width Address width
+         */
         void setAddressWidth(uint8_t width) {
             _addressWidth = width;
         }
 
-        void enableRxPipeAddress(NRF24::RxPipe pipe) {
+        /**
+         * Enable Rx Pipe
+         * @param pipe Rx Pipe
+         */
+        void enableRxPipeAddress(RxPipe pipe) {
             _rxPipeAddressStatus[pipe] = true;
         }
 
-        void disableRxPipeAddress(NRF24::RxPipe pipe) {
+        /**
+         * Disable Rx Pipe
+         * @param pipe Rx Pipe
+         */
+        void disableRxPipeAddress(RxPipe pipe) {
             _rxPipeAddressStatus[pipe] = false;
             _rxPipePayloadSize[pipe] = 0;
         }
 
+        /**
+         * Disable all Rx Pipes
+         */
         void disableAllRxPipeAddresses() {
             memset(_rxPipeAddressStatus, false, sizeof(_rxPipeAddressStatus));
             memset(_rxPipePayloadSize, 0, sizeof(_rxPipePayloadSize));
         }
 
+        /**
+         * Set Rx Pipe payload size
+         * @param pipe Rx Pipe
+         * @param size Payload size
+         */
         void setRxPipePayloadSize(NRF24::RxPipe pipe, uint8_t size) {
             _rxPipePayloadSize[pipe] = min(size, NRF24::MAX_PAYLOAD_SIZE);
         }
 
+        /**
+         * Set Rx Pipe address
+         * @param pipe Rx Pipe
+         * @param address Address bytes
+         */
         void setRxPipeAddress(NRF24::RxPipe pipe, uint8_t* address) {
             if (pipe < 2) {
                 memcpy(_rxPipeAddrLong[pipe], address, _addressWidth);
@@ -178,50 +266,91 @@ namespace NRF24
             }
         }
 
+        /**
+         * Set Tx address
+         * @param address Address bytes
+         */
         void setTxAddress(uint8_t *address) {
             memcpy(_txAddr, address, _addressWidth);
         }
 
+        /**
+         * Enable auto ACK
+         */
         void enableAutoAck() {
             _autoAck = true;
         }
 
+        /**
+         * Disable auto ACK
+         */
         void disableAutoAck() {
             _autoAck = false;
         }
 
-        void setAutoRtDelay(uint16_t autoRtDelay) {
-            _autoRtDelay = autoRtDelay;
+        /**
+         * Set auto retransmissions delay
+         * @param delay Auto retransmission delay
+         */
+        void setAutoRtDelay(uint16_t delay) {
+            _autoRtDelay = delay;
         }
 
-        void setAutoRtCount(uint8_t autoRtCount) {
-            _autoRtCount = autoRtCount;
+        /**
+         * Set MAX retransmissions count
+         * @param count Retransmission count
+         */
+        void setAutoRtCount(uint8_t count) {
+            _autoRtCount = count;
         }
 
+        /**
+         * Enable Rx Pipe dynamic payloads
+         * @param pipe Rx Pipe
+         */
         void enableRxPipeDynamicPayload(NRF24::RxPipe pipe) {
             _dynamicPayload[pipe] = true;
         }
 
+        /**
+         * Disable Rx Pipe dynamic payloads
+         * @param pipe
+         */
         void disableRxPipeDynamicPayload(NRF24::RxPipe pipe) {
             _dynamicPayload[pipe] = false;
         }
 
+        /**
+         * Disable all Rx Pipes dynamic payloads
+         */
         void disableDynamicPayloads() {
             memset(_dynamicPayload, false, sizeof(_dynamicPayload));
         }
 
+        /**
+         * Enable ACK payload
+         */
         void enableAckPayload() {
             _ackPayload = true;
         }
 
+        /**
+         * Disable ACK payloads
+         */
         void disableAckPayload() {
             _ackPayload = false;
         }
 
+        /**
+         * Enable dynamic ACKs
+         */
         void enableDynamicAck() {
             _dynamicAck = true;
         }
 
+        /**
+         * Disable dynamic ACKs
+         */
         void disableDynamicAck() {
             _dynamicAck = false;
         }
@@ -261,7 +390,7 @@ namespace NRF24
     public:
 
         /**
-         * @name Constructor and configure subroutines
+         * @name Constructors and configure subroutines
          */
 
         /**
@@ -797,7 +926,5 @@ namespace NRF24
 
     };
 }
-
-
 
 #endif //NRF24_H
