@@ -906,14 +906,6 @@ bool NRF24::Driver::isPVariant()
 
 //region Debug functions
 
-void inline NRF24::Debug::parseToBoolean(boolean *bit, uint8_t byte)
-{
-    for (int i = 0; i < 8; i++)
-    {
-        bit[i] = (byte & _BV(i)) > 0;
-    }
-}
-
 void NRF24::Debug::debugConfigRegister(uint8_t content)
 {
     Register::CONFIG config;

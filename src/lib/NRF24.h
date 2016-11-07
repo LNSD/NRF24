@@ -1134,15 +1134,6 @@ namespace NRF24
      */
     class Debug
     {
-    private:
-
-        /**
-         * Parse byte bits into boolean array
-         * @param bit Boolean bit array
-         * @param byte Byte to parse
-         */
-        static void parseToBoolean(boolean *bit, uint8_t byte);
-
     public:
 
         /**
