@@ -312,7 +312,10 @@ namespace NRF24
          * Empty constructor. Creates a new instance of this configuration holder.
          * @note Uses default configuration (TX transceiver mode);
          */
-        Configuration() {};
+        Configuration()
+        {
+            setDefaultConfiguration();
+        };
 
         /**
          * Arduino Constructor
@@ -321,9 +324,12 @@ namespace NRF24
          *
          * @param mode Transceiver mode
          */
-        Configuration(TransceiverMode mode):
-                _mode(mode)
-        {};
+        Configuration(TransceiverMode mode)
+        {
+            setDefaultConfiguration();
+
+            this->setTransceiverMode(mode);
+        };
 
         /**
          * Arduino Constructor
@@ -332,13 +338,45 @@ namespace NRF24
          *
          * @param mode Transceiver mode
          * @param level Output power level
-         * @param rate Communication data rate
+         * @param dataRate Communication data rate
          */
-        Configuration(TransceiverMode mode, OutputPower level, DataRate rate):
-                _mode(mode),
-                _outputPower(level),
-                _dataRate(rate)
-        {};
+        Configuration(TransceiverMode mode, OutputPower level, DataRate dataRate)
+        {
+            setDefaultConfiguration();
+
+            this->setTransceiverMode(mode);
+            this->setOutputPower(level);
+            this->setDataRate(dataRate);
+        };
+
+    private:
+
+        /**
+         * Set default configuration to this configuration holder instance
+         */
+        inline void setDefaultConfiguration()
+        {
+            this->setTransceiverMode(Mode_PTX);
+            this->setCRC(CRC_16);
+            for (int p = 0; p < 6; ++p)
+            {
+                this->enableRxPipeAutoAck((RxPipe) p);
+            }
+            this->disableAllRxPipeAddresses();
+            this->setAddressWidth(5);
+            this->setAutoRtCount(MAX_RT_COUNT);
+            this->setAutoRtDelay(1500);
+            this->setRFChannel(2);
+            this->setOutputPower(OutputPower_0dBm);
+            this->setDataRate(DataRate_1Mbps);
+            this->disableConstantCarrier();
+            this->disablePllLock();
+            this->disableDynamicPayloads();
+            this->disableAckPayload();
+            this->disableDynamicAck();
+        }
+
+    public:
 
         /**
          * @name Configuration setters
@@ -348,101 +386,180 @@ namespace NRF24
          * Set transceiver mode
          * @param mode Transceiver mode
          */
-        void setTransceiverMode(TransceiverMode mode) {
-            _mode = mode;
+        void setTransceiverMode(TransceiverMode mode)
+        {
+            _config.PRIM_RX = (mode != Mode_PTX);
         }
 
         /**
          * Set output power
-         * @param power Output power
+         * @param level Output power
          */
-        void setOutputPower(OutputPower power) {
-            _outputPower = power;
+        void setOutputPower(OutputPower level)
+        {
+            _rfSetup.RF_PWR = (unsigned int) level;
         }
 
         /**
          * Set communication data rate
          * @param dataRate Communication data rate
          */
-        void setDataRate(DataRate dataRate) {
-            _dataRate = dataRate;
+        void setDataRate(DataRate dataRate)
+        {
+            switch(dataRate)
+            {
+                case DataRate_250kbps:
+                    _rfSetup.RF_DR_LOW = true;
+                    _rfSetup.RF_DR_HIGH = false;
+                    break;
+                case DataRate_2Mbps:
+                    _rfSetup.RF_DR_LOW = false;
+                    _rfSetup.RF_DR_HIGH = true;
+                    break;
+                case DataRate_1Mbps:
+                    _rfSetup.RF_DR_LOW = false;
+                    _rfSetup.RF_DR_HIGH = false;
+                    break;
+            }
         }
 
         /**
          * Set RF channel
          * @param channel RF channel
          */
-        void setRFChannel(uint8_t channel) {
-            _rfCh = channel;
+        void setRFChannel(uint8_t channel)
+        {
+            _rfCh.RF_CH = min(channel, MAX_RF_CHANNEL);
         }
 
         /**
          * Enable constant carrier
          */
-        void enableConstantCarrier() {
-            _constCarrier = true;
+        void enableConstantCarrier()
+        {
+            _rfSetup.CONT_WAVE = true;
         }
 
         /**
          * Disable constant carrier
          */
-        void disableConstantCarrier() {
-            _constCarrier = false;
+        void disableConstantCarrier()
+        {
+            _rfSetup.CONT_WAVE = false;
         }
 
         /**
          * Force PLL lock
          */
-        void forcePllLock() {
-            _pllLock = true;
+        void forcePllLock()
+        {
+            _rfSetup.PLL_LOCK = true;
         }
 
         /**
          * Disable PLL lock
          */
-        void disablePllLock() {
-            _pllLock = false;
+        void disablePllLock()
+        {
+            _rfSetup.PLL_LOCK = false;
         }
 
         /**
          * Set CRC length
-         * @param crc Length
+         * @param length Length
          */
-        void setCRC(CRCLength crc) {
-            _crc = crc;
+        void setCRC(CRCLength length)
+        {
+            _config.EN_CRC = (length != CRC_DISABLED);
+            _config.CRCO = (length == CRC_16);
         }
 
         /**
          * Set address width
          * @param width Address width
          */
-        void setAddressWidth(uint8_t width) {
-            _addressWidth = width;
+        void setAddressWidth(uint8_t width)
+        {
+            if(width >= 3  && width <= 5)
+            {
+                _setupAw.AW = width - 2;
+            }
         }
 
         /**
          * Enable Rx Pipe
          * @param pipe Rx Pipe
          */
-        void enableRxPipeAddress(RxPipe pipe) {
-            _rxPipeAddressStatus[pipe] = true;
+        void enableRxPipeAddress(RxPipe pipe)
+        {
+            switch (pipe)
+            {
+                case RX_P0:
+                    _enRxAddr.ERX_P0 = true;
+                    break;
+                case RX_P1:
+                    _enRxAddr.ERX_P1 = true;
+                    break;
+                case RX_P2:
+                    _enRxAddr.ERX_P2 = true;
+                    break;
+                case RX_P3:
+                    _enRxAddr.ERX_P3 = true;
+                    break;
+                case RX_P4:
+                    _enRxAddr.ERX_P4 = true;
+                    break;
+                case RX_P5:
+                    _enRxAddr.ERX_P5 = true;
+                    break;
+            }
         }
 
         /**
          * Disable Rx Pipe
          * @param pipe Rx Pipe
          */
-        void disableRxPipeAddress(RxPipe pipe) {
-            _rxPipeAddressStatus[pipe] = false;
-            _rxPipePayloadSize[pipe] = 0;
+        void disableRxPipeAddress(RxPipe pipe)
+        {
+            switch (pipe)
+            {
+                case RX_P0:
+                    _enRxAddr.ERX_P0 = false;
+                    _rxPwPN[0].RX_PW_PN = 0;
+                    break;
+                case RX_P1:
+                    _enRxAddr.ERX_P1 = false;
+                    _rxPwPN[1].RX_PW_PN = 0;
+                    break;
+                case RX_P2:
+                    _enRxAddr.ERX_P2 = false;
+                    _rxPwPN[2].RX_PW_PN = 0;
+                    break;
+                case RX_P3:
+                    _enRxAddr.ERX_P3 = false;
+                    _rxPwPN[3].RX_PW_PN = 0;
+                    break;
+                case RX_P4:
+                    _enRxAddr.ERX_P4 = false;
+                    _rxPwPN[4].RX_PW_PN = 0;
+                    break;
+                case RX_P5:
+                    _enRxAddr.ERX_P5 = false;
+                    _rxPwPN[5].RX_PW_PN = 0;
+                    break;
+            }
         }
 
         /**
          * Disable all Rx Pipes
          */
-        void disableAllRxPipeAddresses() {
-            memset(_rxPipeAddressStatus, false, sizeof(_rxPipeAddressStatus));
-            memset(_rxPipePayloadSize, 0, sizeof(_rxPipePayloadSize));
+        void disableAllRxPipeAddresses()
+        {
+            _enRxAddr.raw = 0x00;
+            for (int p = 0; p < sizeof(_rxPwPN); ++p)
+            {
+                _rxPwPN[p].RX_PW_PN = 0;
+            }
         }
 
         /**
@@ -450,8 +567,9 @@ namespace NRF24
          * @param pipe Rx Pipe
          * @param size Payload size
          */
-        void setRxPipePayloadSize(NRF24::RxPipe pipe, uint8_t size) {
-            _rxPipePayloadSize[pipe] = min(size, NRF24::MAX_PAYLOAD_SIZE);
+        void setRxPipePayloadSize(RxPipe pipe, uint8_t size)
+        {
+            _rxPwPN[pipe].RX_PW_PN = min(size, MAX_PAYLOAD_SIZE);
         }
 
         /**
@@ -459,9 +577,10 @@ namespace NRF24
          * @param pipe Rx Pipe
          * @param address Address bytes
          */
-        void setRxPipeAddress(NRF24::RxPipe pipe, uint8_t* address) {
+        void setRxPipeAddress(RxPipe pipe, uint8_t* address)
+        {
             if (pipe < 2) {
-                memcpy(_rxPipeAddrLong[pipe], address, _addressWidth);
+                memcpy(_rxPipeAddrLong[pipe], address, _setupAw.AW);
             } else {
                 _rxPipeAddrShort[pipe] = address[0];
             }
@@ -471,109 +590,209 @@ namespace NRF24
          * Set Tx address
          * @param address Address bytes
          */
-        void setTxAddress(uint8_t *address) {
-            memcpy(_txAddr, address, _addressWidth);
+        void setTxAddress(uint8_t *address)
+        {
+            memcpy(_txAddr, address, _setupAw.AW);
         }
 
         /**
-         * Enable auto ACK
+         * Enable Rx Pipe auto ACK
          */
-        void enableAutoAck() {
-            _autoAck = true;
+        void enableRxPipeAutoAck(RxPipe pipe)
+        {
+            switch (pipe)
+            {
+                case RX_P0:
+                    _enAA.ENAA_P0 = true;
+                    break;
+                case RX_P1:
+                    _enAA.ENAA_P1 = true;
+                    break;
+                case RX_P2:
+                    _enAA.ENAA_P2 = true;
+                    break;
+                case RX_P3:
+                    _enAA.ENAA_P3 = true;
+                    break;
+                case RX_P4:
+                    _enAA.ENAA_P4 = true;
+                    break;
+                case RX_P5:
+                    _enAA.ENAA_P5 = true;
+                    break;
+            }
         }
 
         /**
-         * Disable auto ACK
+         * Disable Rx Pipe auto ACK
          */
-        void disableAutoAck() {
-            _autoAck = false;
+        void disableRxPipeAutoAck(RxPipe pipe)
+        {
+            switch (pipe)
+            {
+                case RX_P0:
+                    _enAA.ENAA_P0 = false;
+                    break;
+                case RX_P1:
+                    _enAA.ENAA_P1 = false;
+                    break;
+                case RX_P2:
+                    _enAA.ENAA_P2 = false;
+                    break;
+                case RX_P3:
+                    _enAA.ENAA_P3 = false;
+                    break;
+                case RX_P4:
+                    _enAA.ENAA_P4 = false;
+                    break;
+                case RX_P5:
+                    _enAA.ENAA_P5 = false;
+                    break;
+            }
+        }
+
+        /**
+         * Disable all Rx Pipes auto ACK
+         */
+        void disableAutoAck()
+        {
+            _enAA.raw = 0x00;
         }
 
         /**
          * Set auto retransmissions delay
-         * @param delay Auto retransmission delay
+         * @param delay Auto retransmission delay (ms)
          */
-        void setAutoRtDelay(uint16_t delay) {
-            _autoRtDelay = delay;
+        void setAutoRtDelay(uint16_t delay)
+        {
+            if (delay < MIN_RT_DELAY) {
+                _setupRetr.ARD = 0x0;
+            } else if (delay > MAX_RT_DELAY) {
+                _setupRetr.ARD = 0xF;
+            } else {
+                _setupRetr.ARD = (delay/250 - 1);
+            }
         }
 
         /**
          * Set MAX retransmissions count
          * @param count Retransmission count
          */
-        void setAutoRtCount(uint8_t count) {
-            _autoRtCount = count;
+        void setAutoRtCount(uint8_t count)
+        {
+            _setupRetr.ARC = min(count, MAX_RT_COUNT);
         }
 
         /**
          * Enable Rx Pipe dynamic payloads
          * @param pipe Rx Pipe
          */
-        void enableRxPipeDynamicPayload(NRF24::RxPipe pipe) {
-            _dynamicPayload[pipe] = true;
+        void enableRxPipeDynamicPayload(RxPipe pipe)
+        {
+            switch (pipe)
+            {
+                case RX_P0:
+                    _dynpd.DPL_P0 = true;
+                    break;
+                case RX_P1:
+                    _dynpd.DPL_P1 = true;
+                    break;
+                case RX_P2:
+                    _dynpd.DPL_P2 = true;
+                    break;
+                case RX_P3:
+                    _dynpd.DPL_P3 = true;
+                    break;
+                case RX_P4:
+                    _dynpd.DPL_P4 = true;
+                    break;
+                case RX_P5:
+                    _dynpd.DPL_P5 = true;
+                    break;
+            }
         }
 
         /**
          * Disable Rx Pipe dynamic payloads
          * @param pipe
          */
-        void disableRxPipeDynamicPayload(NRF24::RxPipe pipe) {
-            _dynamicPayload[pipe] = false;
+        void disableRxPipeDynamicPayload(RxPipe pipe)
+        {
+            switch (pipe)
+            {
+                case RX_P0:
+                    _dynpd.DPL_P0 = false;
+                    break;
+                case RX_P1:
+                    _dynpd.DPL_P1 = false;
+                    break;
+                case RX_P2:
+                    _dynpd.DPL_P2 = false;
+                    break;
+                case RX_P3:
+                    _dynpd.DPL_P3 = false;
+                    break;
+                case RX_P4:
+                    _dynpd.DPL_P4 = false;
+                    break;
+                case RX_P5:
+                    _dynpd.DPL_P5 = false;
+                    break;
+            }
         }
 
         /**
          * Disable all Rx Pipes dynamic payloads
          */
-        void disableDynamicPayloads() {
-            memset(_dynamicPayload, false, sizeof(_dynamicPayload));
+        void disableDynamicPayloads()
+        {
+            _dynpd.raw = 0x00;
         }
 
         /**
          * Enable ACK payload
          */
-        void enableAckPayload() {
-            _ackPayload = true;
+        void enableAckPayload()
+        {
+            _feature.EN_DYN_ACK = true;
         }
 
         /**
          * Disable ACK payloads
          */
-        void disableAckPayload() {
-            _ackPayload = false;
+        void disableAckPayload()
+        {
+            _feature.EN_DYN_ACK = false;
         }
 
         /**
          * Enable dynamic ACKs
          */
-        void enableDynamicAck() {
-            _dynamicAck = true;
+        void enableDynamicAck()
+        {
+            _feature.EN_DYN_ACK = true;
         }
 
         /**
          * Disable dynamic ACKs
          */
-        void disableDynamicAck() {
-            _dynamicAck = false;
+        void disableDynamicAck()
+        {
+            _feature.EN_DYN_ACK = false;
         }
 
     private:
-        NRF24::TransceiverMode _mode = NRF24::Mode_PTX;
-        NRF24::OutputPower _outputPower = NRF24::OutputPower_0dBm;
-        NRF24::DataRate _dataRate = NRF24::DataRate_1Mbps;
 
-        uint8_t _rfCh = 2;
-        bool _constCarrier = false;
-        bool _pllLock = false;
-        NRF24::CRCLength _crc = NRF24::CRC_16;
-        uint8_t _addressWidth = 5;
-        bool _rxPipeAddressStatus[6] = {false, false, false, false, false, false};
-        uint8_t _rxPipePayloadSize[6] = { 0, 0, 0, 0, 0, 0 };
-        bool _autoAck = true;
-        uint16_t _autoRtDelay = 1500;
-        uint8_t _autoRtCount = 15;
-        bool _dynamicPayload[6] = {false, false, false, false, false, false};
-        bool _ackPayload = false;
-        bool _dynamicAck = false;
+        Register::CONFIG _config;
+        Register::EN_AA _enAA;
+        Register::EN_RXADDR _enRxAddr;
+        Register::SETUP_AW _setupAw;
+        Register::SETUP_RETR _setupRetr;
+        Register::RF_CH _rfCh;
+        Register::RF_SETUP _rfSetup;
+        Register::RX_PW_PN _rxPwPN[6];
+        Register::DYNPD _dynpd;
+        Register::FEATURE _feature;
 
         uint8_t _txAddr[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 };
         uint8_t _rxPipeAddrLong[2][5] = {{ 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 },
@@ -631,6 +850,14 @@ namespace NRF24
          * @param configuration NRF24 configuration holder
          */
         void configure(Configuration configuration);
+
+    private:
+        /**
+         * Transfer configuration parameters
+         */
+        inline void transferConfiguration(Configuration config);
+
+    public:
 
         /**
          * @name Register read and write functions
@@ -729,7 +956,7 @@ namespace NRF24
          * Set transceiver's datarate
          * @param rate Datarate
          */
-        void setDataRate(DataRate speed);
+        void setDataRate(DataRate dataRate);
 
         /**
          * Get current transceiver's datarate
@@ -1201,7 +1428,7 @@ namespace NRF24
          * @param content Register content
          * @param pipe Pipe number
          */
-        static void debugRxPipeAddressRegister(uint8_t *content, NRF24::RxPipe pipe, uint8_t len);
+        static void debugRxPipeAddressRegister(uint8_t *content, RxPipe pipe, uint8_t len);
 
         /**
          * Parse TX_ADDR register content and show debug info
@@ -1214,7 +1441,7 @@ namespace NRF24
          * @param content Register content
          * @param pipe Pipe number
          */
-        static void debugRxPipePayloadWidthRegister(uint8_t content, NRF24::RxPipe pipe);
+        static void debugRxPipePayloadWidthRegister(uint8_t content, RxPipe pipe);
 
         /**
          * Parse FIFO_STATUS register content and show debug info

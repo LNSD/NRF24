@@ -83,6 +83,9 @@ void NRF24::Driver::configure()
     // Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
     // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
     delay( 5 ) ;
+
+    // Transfer default configuration to nRF24
+    transferConfiguration(Configuration());
 }
 
 void NRF24::Driver::configure(Configuration configuration)
@@ -111,86 +114,36 @@ void NRF24::Driver::configure(Configuration configuration)
     // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
     delay( 5 ) ;
 
-    // Set configuration to NRF24
-    setTransceiverMode(configuration._mode);
-    setOutputRFPower(configuration._outputPower);
-    setDataRate(configuration._dataRate);
-    setRFChannel(configuration._rfCh);
+    // Transfer configuration to NRF24
+    transferConfiguration(configuration);
+}
 
-    if (configuration._constCarrier) {
-        enableConstantCarrier();
-    } else {
-        disableConstantCarrier();
+void NRF24::Driver::transferConfiguration(Configuration config)
+{
+    writeRegister(CONFIG, config._config.raw);
+    writeRegister(EN_AA, config._enAA.raw);
+    writeRegister(EN_RXADDR, config._enRxAddr.raw);
+    writeRegister(SETUP_AW, config._setupAw.raw);
+    writeRegister(SETUP_RETR, config._setupRetr.raw);
+    writeRegister(RF_CH, config._rfCh.raw);
+    writeRegister(RF_SETUP, config._rfSetup.raw);
+
+    for (int p = 0; p < 6; ++p) {
+        writeRegister(RX_PW_P0+p, config._rxPwPN[p].raw);
     }
 
-    if (configuration._pllLock) {
-        forcePllLock();
-    } else {
-        disablePllLock();
-    }
-
-    setAddressWidth(configuration._addressWidth);
-
-    for (int p = 0; p < 6; p++) {
-        if (configuration._rxPipeAddressStatus[p]) {
-            enableRxPipeAddress((NRF24::RxPipe) p);
-        } else {
-            disableRxPipeAddress((NRF24::RxPipe) p);
-        }
-    }
-
-    for (int p = 0; p < 6; p++) {
-        setRxPipePayloadSize((NRF24::RxPipe) p, configuration._rxPipePayloadSize[p]);
-    }
+    writeRegister(DYNPD, config._dynpd.raw);
+    writeRegister(FEATURE, config._feature.raw);
 
     for (int p = 0; p < 6; p++) {
         if (p < 2) {
-            setRxPipeAddress((NRF24::RxPipe) p, configuration._rxPipeAddrLong[p], configuration._addressWidth);
+            setRxPipeAddress((RxPipe) p, config._rxPipeAddrLong[p], config._setupAw.AW);
         } else {
-            setRxPipeAddress((NRF24::RxPipe) p, &configuration._rxPipeAddrShort[p - 2], 1);
+            setRxPipeAddress((RxPipe) p, &config._rxPipeAddrShort[p - 2], 1);
         }
     }
 
-    setTxAddress(configuration._txAddr, configuration._addressWidth);
-
-    for(int p = 0; p < 6; p++)
-    {
-        if (configuration._autoAck) {
-            enableRxPipeAutoAck((NRF24::RxPipe) p);
-        } else {
-            disableRxPipeAutoAck((NRF24::RxPipe) p);
-        }
-    }
-
-    if (configuration._crc != CRC_DISABLED) {
-        enableCRC(configuration._crc);
-    } else {
-        disableCRC();
-    }
-
-    setAutoRtDelay(configuration._autoRtDelay);
-    setAutoRtCount(configuration._autoRtCount);
-
-    for (int p = 0; p < 6; p++) {
-        if (configuration._dynamicPayload[p]) {
-            enableRxPipeDynamicPayloads((NRF24::RxPipe) p);
-        } else {
-            disableRxPipeDynamicPayloads((NRF24::RxPipe) p);
-        }
-    }
-
-    if (configuration._ackPayload) {
-        enableAckPayload();
-    } else {
-        disableAckPayload();
-    }
-
-    if (configuration._dynamicAck) {
-        enableDynamicAck();
-    } else {
-        disableDynamicAck();
-    }
-
+    setTxAddress(config._txAddr, config._setupAw.AW);
 }
 
 //endregion
@@ -270,16 +223,7 @@ void NRF24::Driver::setTransceiverMode(TransceiverMode mode)
 {
     Register::CONFIG config;
     config.raw = readRegister(CONFIG);
-
-    if(mode == Mode_PTX)
-    {
-        config.PRIM_RX = false;
-    }
-    else
-    {
-        config.PRIM_RX = true;
-    }
-
+    config.PRIM_RX = (mode != Mode_PTX);
     writeRegister(CONFIG, config.raw);
 }
 
@@ -359,12 +303,12 @@ NRF24::OutputPower NRF24::Driver::getOutputRFPower()
     return (OutputPower) rfSetup.RF_PWR;
 }
 
-void NRF24::Driver::setDataRate(DataRate rate)
+void NRF24::Driver::setDataRate(DataRate dataRate)
 {
     Register::RF_SETUP rfSetup;
     rfSetup.raw = readRegister(RF_SETUP);
 
-    switch(rate)
+    switch(dataRate)
     {
         case DataRate_250kbps:
             rfSetup.RF_DR_LOW = true;
