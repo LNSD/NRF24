@@ -1130,7 +1130,7 @@ namespace NRF24
     #ifdef NRF24_DEBUG_ENABLED
 
     /**
-     * NRF24 debug 
+     * Debug class
      */
     class Debug
     {
