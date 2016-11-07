@@ -26,12 +26,35 @@ namespace NRF24
      * @name Constants
      */
 
+    /**
+     * Max Payload Size. Max size: 32 bytes wide
+     */
     const static uint8_t MAX_PAYLOAD_SIZE = 32;
+
+    /**
+     * Max RF cCannel. 128 channels available
+     */
     const static uint8_t MAX_RF_CHANNEL = 127;
+
+    /**
+     * Min Automatic Retransmission delay: Wait 250us
+     */
     const static uint16_t MIN_RT_DELAY = 250;
+
+    /**
+     * Max Automatic Retransmission delay: Wait 4000us
+     */
     const static uint16_t MAX_RT_DELAY = 4000;
+
+    /**
+     * Max Automatic Retransmission count: Up to 15 Re-Transmit on fail of AA
+     */
     const static uint8_t MAX_RT_COUNT = 15;
-    const static uint8_t RX_PIPE_NOT_USED = 0;
+
+    /**
+     * Numbet of bytes in RX payload in data pipe: 0 - Pipe not used
+     */
+    const static uint8_t PIPE_NOT_USED = 0;
 
     /**
      * @name Enum definitions
@@ -533,27 +556,27 @@ namespace NRF24
             {
                 case RX_P0:
                     _enRxAddr.ERX_P0 = false;
-                    _rxPwPN[0].RX_PW_PN = RX_PIPE_NOT_USED;
+                    _rxPwPN[0].RX_PW_PN = PIPE_NOT_USED;
                     break;
                 case RX_P1:
                     _enRxAddr.ERX_P1 = false;
-                    _rxPwPN[1].RX_PW_PN = RX_PIPE_NOT_USED;
+                    _rxPwPN[1].RX_PW_PN = PIPE_NOT_USED;
                     break;
                 case RX_P2:
                     _enRxAddr.ERX_P2 = false;
-                    _rxPwPN[2].RX_PW_PN = RX_PIPE_NOT_USED;
+                    _rxPwPN[2].RX_PW_PN = PIPE_NOT_USED;
                     break;
                 case RX_P3:
                     _enRxAddr.ERX_P3 = false;
-                    _rxPwPN[3].RX_PW_PN = RX_PIPE_NOT_USED;
+                    _rxPwPN[3].RX_PW_PN = PIPE_NOT_USED;
                     break;
                 case RX_P4:
                     _enRxAddr.ERX_P4 = false;
-                    _rxPwPN[4].RX_PW_PN = RX_PIPE_NOT_USED;
+                    _rxPwPN[4].RX_PW_PN = PIPE_NOT_USED;
                     break;
                 case RX_P5:
                     _enRxAddr.ERX_P5 = false;
-                    _rxPwPN[5].RX_PW_PN = RX_PIPE_NOT_USED;
+                    _rxPwPN[5].RX_PW_PN = PIPE_NOT_USED;
                     break;
             }
         }
@@ -566,7 +589,7 @@ namespace NRF24
             _enRxAddr.raw = 0x00;
             for (int p = 0; p < sizeof(_rxPwPN); ++p)
             {
-                _rxPwPN[p].RX_PW_PN = RX_PIPE_NOT_USED;
+                _rxPwPN[p].RX_PW_PN = PIPE_NOT_USED;
             }
         }
 
