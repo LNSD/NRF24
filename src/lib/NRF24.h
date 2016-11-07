@@ -78,6 +78,16 @@ namespace NRF24
     } CRCLength;
 
     /**
+     * Address width definition
+     * @note For use with {@link setAddressWidth()}
+     */
+    typedef enum {
+        Width_3Bytes = 1,
+        Width_4Bytes = 2,
+        Width_5Bytes = 3
+    } AddressWidth;
+
+    /**
     * RX pipes definition
     */
     typedef enum {
@@ -364,7 +374,7 @@ namespace NRF24
                 this->enableRxPipeAutoAck((RxPipe) p);
             }
             this->disableAllRxPipeAddresses();
-            this->setAddressWidth(5);
+            this->setAddressWidth(Width_5Bytes);
             this->setAutoRtCount(MAX_RT_COUNT);
             this->setAutoRtDelay(1500);
             this->setRFChannel(2);
@@ -479,12 +489,9 @@ namespace NRF24
          * Set address width
          * @param width Address width
          */
-        void setAddressWidth(uint8_t width)
+        void setAddressWidth(AddressWidth width)
         {
-            if(width >= 3  && width <= 5)
-            {
-                _setupAw.AW = width - 2;
-            }
+           _setupAw.AW = width;
         }
 
         /**
@@ -981,13 +988,13 @@ namespace NRF24
          * Set address width. Address width: 3 - 5 bytes.
          * @param width Address width
          */
-        void setAddressWidth(uint8_t width);
+        void setAddressWidth(AddressWidth width);
 
         /**
          * Get current address width
          * @return Current address width
          */
-        uint8_t getAddressWidth();
+        AddressWidth getAddressWidth();
 
         /**
          * Enable RX pipe

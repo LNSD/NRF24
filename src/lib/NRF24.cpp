@@ -361,17 +361,14 @@ uint8_t NRF24::Driver::getRFChannel()
     return readRegister(RF_CH);
 }
 
-void NRF24::Driver::setAddressWidth(uint8_t width)
+void NRF24::Driver::setAddressWidth(AddressWidth width)
 {
-    if(width >= 3  && width <= 5)
-    {
-        writeRegister(SETUP_AW, width-2);
-    }
+    writeRegister(SETUP_AW, width);
 }
 
-uint8_t NRF24::Driver::getAddressWidth()
+NRF24::AddressWidth NRF24::Driver::getAddressWidth()
 {
-    return readRegister(SETUP_AW) + 2;
+    return (AddressWidth) readRegister(SETUP_AW);
 }
 
 void NRF24::Driver::enableRxPipeAddress(RxPipe pipe)
