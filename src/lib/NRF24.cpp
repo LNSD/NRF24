@@ -268,159 +268,137 @@ void NRF24::Driver::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
 
 void NRF24::Driver::setTransceiverMode(TransceiverMode mode)
 {
-    uint8_t config = readRegister(CONFIG);
+    Register::CONFIG config;
+    config.raw = readRegister(CONFIG);
 
     if(mode == Mode_PTX)
     {
-        config &= ~_BV(PRIM_RX);
+        config.PRIM_RX = false;
     }
     else
     {
-        config |= _BV(PRIM_RX);
+        config.PRIM_RX = true;
     }
 
-    writeRegister(CONFIG, config);
+    writeRegister(CONFIG, config.raw);
 }
 
-NRF24::TransceiverMode NRF24::Driver::getTransceiverMode()
+TransceiverMode NRF24::Driver::getTransceiverMode()
 {
-    uint8_t result = readRegister(CONFIG) & _BV(PRIM_RX);
+    Register::CONFIG config;
+    config.raw = readRegister(CONFIG);
 
-    if(result == Mode_PTX)
+    if(config.PRIM_RX)
     {
-        return Mode_PTX;
+        return Mode_PRX;
     }
     else
     {
-        return Mode_PRX;
+        return Mode_PTX;
     }
 }
 
 void NRF24::Driver::enableConstantCarrier()
 {
-    uint8_t rfsetup = readRegister(RF_SETUP);
-    rfsetup |= _BV(CONT_WAVE);
-
-    writeRegister(RF_SETUP, rfsetup);
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    rfSetup.CONT_WAVE = true;
+    writeRegister(RF_SETUP, rfSetup.raw);
 }
 
 void NRF24::Driver::disableConstantCarrier()
 {
-    uint8_t rfsetup = readRegister(RF_SETUP);
-    rfsetup &= ~_BV(CONT_WAVE);
-
-    writeRegister(RF_SETUP, rfsetup);
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    rfSetup.CONT_WAVE = false;
+    writeRegister(RF_SETUP, rfSetup.raw);
 }
 
 bool NRF24::Driver::isConstantCarrierEnabled()
 {
-    return (bool)(readRegister(RF_SETUP) & _BV(CONT_WAVE));
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    return rfSetup.CONT_WAVE;
 }
 
 void NRF24::Driver::forcePllLock()
 {
-    uint8_t rfsetup = readRegister(RF_SETUP);
-    rfsetup |= _BV(PLL_LOCK);
-
-    writeRegister(RF_SETUP, rfsetup);
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    rfSetup.PLL_LOCK = true;
+    writeRegister(RF_SETUP, rfSetup.raw);
 }
 
 void NRF24::Driver::disablePllLock()
 {
-    uint8_t rfsetup = readRegister(RF_SETUP);
-    rfsetup &= ~_BV(PLL_LOCK);
-
-    writeRegister(RF_SETUP, rfsetup);
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    rfSetup.PLL_LOCK = false;
+    writeRegister(RF_SETUP, rfSetup.raw);
 }
 
 bool NRF24::Driver::isPllLockForced()
 {
-    return (readRegister(RF_SETUP) & _BV(PLL_LOCK)) > 0;
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    return rfSetup.PLL_LOCK;
 }
 
 void NRF24::Driver::setOutputRFPower(OutputPower level)
 {
-    uint8_t setup = readRegister(RF_SETUP) ;
-    setup &= ~(_BV(RF_PWR) | _BV(RF_PWR+1));
-
-    switch(level)
-    {
-        case OutputPower_0dBm:
-            setup |= (_BV(RF_PWR) | _BV(RF_PWR+1));
-            break;
-        case OutputPower_M6dBm:
-            setup |= _BV(RF_PWR+1);
-            break;
-        case OutputPower_M12dBm:
-            setup |= _BV(RF_PWR);
-            break;
-        case OutputPower_M18dBm:
-            break;
-    }
-
-    writeRegister(RF_SETUP, setup);
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    rfSetup.RF_PWR = (unsigned int) level;
+    writeRegister(RF_SETUP, rfSetup.raw);
 }
 
 NRF24::OutputPower NRF24::Driver::getOutputRFPower()
 {
-    OutputPower result = OutputPower_0dBm;
-    uint8_t power = readRegister(RF_SETUP) & (_BV(RF_PWR) | _BV(RF_PWR+1));
-
-    if (power == (_BV(RF_PWR) | _BV(RF_PWR+1)))
-    {
-        result = OutputPower_0dBm ;
-    }
-    else if(power == _BV(RF_PWR+1))
-    {
-        result = OutputPower_M6dBm ;
-    }
-    else if(power == _BV(RF_PWR))
-    {
-        result = OutputPower_M12dBm ;
-    }
-    else
-    {
-        result = OutputPower_M18dBm ;
-    }
-
-    return result;
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
+    return (OutputPower) rfSetup.RF_PWR;
 }
 
 void NRF24::Driver::setDataRate(DataRate rate)
 {
-    uint8_t setup = readRegister(RF_SETUP);
-    setup &= ~(_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
 
     switch(rate)
     {
         case DataRate_250kbps:
-            setup |= _BV(RF_DR_LOW);
+            rfSetup.RF_DR_LOW = true;
+            rfSetup.RF_DR_HIGH = false;
             break;
         case DataRate_2Mbps:
-            setup |= _BV(RF_DR_HIGH);
+            rfSetup.RF_DR_LOW = false;
+            rfSetup.RF_DR_HIGH = true;
             break;
         case DataRate_1Mbps:
+            rfSetup.RF_DR_LOW = false;
+            rfSetup.RF_DR_HIGH = false;
             break;
     }
 
-    writeRegister(RF_SETUP, setup);
+    writeRegister(RF_SETUP, rfSetup.raw);
 }
 
 NRF24::DataRate NRF24::Driver::getDataRate()
 {
-    uint8_t dr = readRegister(RF_SETUP) & (_BV(RF_DR_LOW) | _BV(RF_DR_HIGH));
+    Register::RF_SETUP rfSetup;
+    rfSetup.raw = readRegister(RF_SETUP);
 
-    if(dr == _BV(RF_DR_LOW))
+    if(rfSetup.RF_DR_LOW && !rfSetup.RF_DR_HIGH)
     {
         // '10' = 250Kbps
         return DataRate_250kbps;
     }
-    else if(dr == _BV(RF_DR_HIGH))
+    else if(!rfSetup.RF_DR_LOW && rfSetup.RF_DR_HIGH)
     {
         // '01' = 2Mbps
         return DataRate_2Mbps;
     }
-    else if (dr == 0)
+    else if(!rfSetup.RF_DR_LOW && !rfSetup.RF_DR_HIGH)
     {
         // '00' = 1Mbps
         return DataRate_1Mbps;
@@ -481,7 +459,7 @@ void NRF24::Driver::getTxAddress(uint8_t *addr, uint8_t len)
     readRegister(TX_ADDR, addr, len);
 }
 
-const uint8_t pipeRx[6] = {RX_ADDR_P0, RX_ADDR_P1, RX_ADDR_P2, RX_ADDR_P3, RX_ADDR_P4, RX_ADDR_P5};
+const uint8_t pipeRx[6] = {NRF24::RX_ADDR_P0, NRF24::RX_ADDR_P1, NRF24::RX_ADDR_P2, NRF24::RX_ADDR_P3, NRF24::RX_ADDR_P4, NRF24::RX_ADDR_P5};
 
 void NRF24::Driver::setRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
 {
@@ -507,12 +485,11 @@ void NRF24::Driver::getRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
     }
 }
 
-const uint8_t pipe_payload[6] = {RX_PW_P0, RX_PW_P1, RX_PW_P2, RX_PW_P3, RX_PW_P4, RX_PW_P5};
+const uint8_t pipe_payload[6] = {NRF24::RX_PW_P0, NRF24::RX_PW_P1, NRF24::RX_PW_P2, NRF24::RX_PW_P3, NRF24::RX_PW_P4, NRF24::RX_PW_P5};
 
 void NRF24::Driver::setRxPipePayloadSize(RxPipe pipe, uint8_t size)
 {
-    const uint8_t max_size = 32;
-    writeRegister(pipe_payload[pipe], min(size, max_size));
+    writeRegister(pipe_payload[pipe], min(size, MAX_PAYLOAD_SIZE));
 }
 
 uint8_t NRF24::Driver::getRxPipePayloadSize(RxPipe pipe)
@@ -525,7 +502,11 @@ void NRF24::Driver::enableRxPipeDynamicPayloads(RxPipe pipe)
     uint8_t dynpd = readRegister(DYNPD);
     dynpd |= _BV(pipe);
 
-    writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_DPL));
+    Register::FEATURE feature;
+    feature.raw = readRegister(FEATURE);
+    feature.EN_DPL = true;
+    writeRegister(FEATURE, feature.raw);
+
     writeRegister(DYNPD, dynpd);
 }
 
@@ -534,7 +515,10 @@ void NRF24::Driver::disableRxPipeDynamicPayloads(RxPipe pipe)
     uint8_t dynpd = readRegister(DYNPD);
 
     if(!(dynpd & ~_BV(pipe))) {
-        writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_DPL));
+        Register::FEATURE feature;
+        feature.raw = readRegister(FEATURE);
+        feature.EN_DPL = false;
+        writeRegister(FEATURE, feature.raw);
     }
 
     writeRegister(DYNPD, dynpd & ~_BV(pipe));
@@ -545,61 +529,50 @@ void NRF24::Driver::disableDynamicPayloads()
     writeRegister(DYNPD, 0x00);
 }
 
-void NRF24::Driver::whichRxPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads)
+NRF24::Register::DYNPD NRF24::Driver::whichRxPipeDynamicPayloadsAreEnabled()
 {
-    if(readRegister(FEATURE) & _BV(EN_DPL))
+    Register::FEATURE feature;
+    Register::DYNPD dynpd;
+
+    feature.raw = readRegister(FEATURE);
+
+    if(feature.EN_DPL)
     {
-        uint8_t dPayloads = readRegister(DYNPD);
-        for (int p = 0; p < 6; ++p)
-        {
-            bool dynp = (bool) (dPayloads & _BV(p));
-            dynamicPayloads[p] = dynp;
-        }
+        dynpd.raw = readRegister(DYNPD);
     }
     else
     {
-        const bool defaultDynPayloads[6] = {false,false,false,false,false,false};
-        memcpy(dynamicPayloads, defaultDynPayloads, sizeof(defaultDynPayloads));
+        dynpd.raw = 0x00;
     }
+
+    return dynpd;
 }
 
 void NRF24::Driver::enableCRC(CRCLength length)
 {
-    uint8_t config = readRegister(CONFIG);
-    config |= _BV(EN_CRC);
-
-    if(length == CRC_16)
-    {
-        config |= _BV(CRCO);
-    }
-    else
-    {
-        config &= ~_BV(CRCO);
-    }
-
-    writeRegister(CONFIG, config);
+    Register::CONFIG config;
+    config.raw = readRegister(CONFIG);
+    config.EN_CRC = true;
+    config.CRCO = (length == CRC_16);
+    writeRegister(CONFIG, config.raw);
 }
 
 void NRF24::Driver::disableCRC()
 {
-    uint8_t config = readRegister(CONFIG);
-    config &= ~_BV(EN_CRC);
-    writeRegister(CONFIG, config);
+    Register::CONFIG config;
+    config.raw = readRegister(CONFIG);
+    config.EN_CRC = false;
+    writeRegister(CONFIG, config.raw);
 }
 
 NRF24::CRCLength NRF24::Driver::getCRCConfig()
 {
-    uint8_t config = readRegister(CONFIG);
-    if(config & _BV(EN_CRC))
+    Register::CONFIG config;
+    config.raw = readRegister(CONFIG);
+
+    if(config.EN_CRC)
     {
-        if(config & _BV(CRCO))
-        {
-            return CRC_16;
-        }
-        else
-        {
-            return CRC_8;
-        }
+        return (config.CRCO)? CRC_16 : CRC_8;
     }
     else
     {
@@ -617,82 +590,95 @@ void NRF24::Driver::disableRxPipeAutoAck(RxPipe pipe)
     writeRegister(EN_AA, readRegister(EN_AA) & ~_BV(pipe));
 }
 
-void NRF24::Driver::whichRxPipeAutoAckAreEnabled(bool *autoAck)
+NRF24::Register::EN_AA NRF24::Driver::whichRxPipeAutoAckAreEnabled()
 {
-    uint8_t autoack = readRegister(EN_AA);
-    for (int p = 0; p < 6; ++p)
-    {
-        autoAck[p] = (bool) (autoack & _BV(p));
-    }
+    Register::EN_AA enAA;
+    enAA.raw = readRegister(EN_AA);
+    return enAA;
 }
 
 void NRF24::Driver::setAutoRtDelay(uint16_t delay)
 {
-    const uint16_t min_delay = 250;
-    const uint16_t max_delay = 4000;
+    Register::SETUP_RETR setupRetr;
+    setupRetr.raw = readRegister(SETUP_RETR);
 
-    uint8_t setupRetr = readRegister(SETUP_RETR);
-    setupRetr &= 0x0F;
-
-    if (delay < min_delay) {
-        setupRetr |= 0x00;
-    } else if (delay > max_delay) {
-        setupRetr |= 0xF0;
+    if (delay < MIN_RT_DELAY) {
+        setupRetr.ARD = 0x0;
+    } else if (delay > MAX_RT_DELAY) {
+        setupRetr.ARD = 0xF;
     } else {
-        setupRetr |= (delay/250 - 1) << 4;
+        setupRetr.ARD = (delay/250 - 1);
     }
 
-    writeRegister(SETUP_RETR, setupRetr);
+    writeRegister(SETUP_RETR, setupRetr.raw);
 }
 
 uint8_t NRF24::Driver::getAutoRtDelay()
 {
-    return (readRegister(SETUP_RETR) >> 4);
+    Register::SETUP_RETR setupRetr;
+    setupRetr.raw = readRegister(SETUP_RETR);
+    return setupRetr.ARD;
 }
 
 void NRF24::Driver::setAutoRtCount(uint8_t count)
 {
-    const uint8_t max_count = 0xF;
-    uint8_t setupRetr = readRegister(SETUP_RETR);
-    setupRetr &= 0xF0;
-    setupRetr |= min(count, max_count);
-
-    writeRegister(SETUP_RETR, setupRetr);
+    Register::SETUP_RETR setupRetr;
+    setupRetr.raw = readRegister(SETUP_RETR);
+    setupRetr.ARC = min(count, MAX_RT_COUNT);
+    writeRegister(SETUP_RETR, setupRetr.raw);
 }
 
 uint8_t NRF24::Driver::getAutoRtCount()
 {
-    return readRegister(SETUP_RETR) & 0x0F;
+    Register::SETUP_RETR setupRetr;
+    setupRetr.raw = readRegister(SETUP_RETR);
+    return setupRetr.ARC;
 }
 
 void NRF24::Driver::enableAckPayload()
 {
-    writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_ACK_PAY));
+    Register::FEATURE feature;
+    feature.raw = readRegister(FEATURE);
+    feature.EN_ACK_PAY = true;
+    writeRegister(FEATURE, feature.raw);
 }
 
 void NRF24::Driver::disableAckPayload()
 {
-    writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_ACK_PAY));
+    Register::FEATURE feature;
+    feature.raw = readRegister(FEATURE);
+    feature.EN_ACK_PAY = false;
+    writeRegister(FEATURE, feature.raw);
 }
 
 bool NRF24::Driver::isAckPayloadEnabled()
 {
-    return (bool)(readRegister(FEATURE) & _BV(EN_ACK_PAY));
+    Register::FEATURE feature;
+    feature.raw = readRegister(FEATURE);
+    return feature.EN_ACK_PAY;
 }
 
 void NRF24::Driver::enableDynamicAck()
 {
-    writeRegister(FEATURE, readRegister(FEATURE) | _BV(EN_DYN_ACK));
+    Register::FEATURE feature;
+    feature.raw = readRegister(FEATURE);
+    feature.EN_DYN_ACK = true;
+    writeRegister(FEATURE, feature.raw);
 }
 
 void NRF24::Driver::disableDynamicAck()
 {
-    writeRegister(FEATURE, readRegister(FEATURE) & ~_BV(EN_DYN_ACK));
+    Register::FEATURE feature;
+    feature.raw = readRegister(FEATURE);
+    feature.EN_DYN_ACK = false;
+    writeRegister(FEATURE, feature.raw);
 }
 
 bool NRF24::Driver::isDynamicAckEnabled()
 {
-    return (bool)(readRegister(FEATURE) & _BV(EN_DYN_ACK));
+    Register::FEATURE feature;
+    feature.raw = readRegister(FEATURE);
+    return feature.EN_DYN_ACK;
 }
 
 //endregion

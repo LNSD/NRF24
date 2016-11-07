@@ -28,6 +28,9 @@ namespace NRF24
 
     const static uint8_t MAX_PAYLOAD_SIZE = 32;
     const static uint8_t MAX_RF_CHANNEL = 127;
+    const static uint16_t MIN_RT_DELAY = 250;
+    const static uint16_t MAX_RT_DELAY = 4000;
+    const static uint8_t MAX_RT_COUNT = 15;
 
     /**
      * @name Register definitions
@@ -247,9 +250,9 @@ namespace NRF24
      */
     typedef enum {
         OutputPower_M18dBm = 0,	// -18dBm MIN
-        OutputPower_M12dBm,		// -12dBm LOW
-        OutputPower_M6dBm,		// -6dBm HIGH
-        OutputPower_0dBm,		// 	0dBm MAX
+        OutputPower_M12dBm = 1,	// -12dBm LOW
+        OutputPower_M6dBm  = 2,	// -6dBm HIGH
+        OutputPower_0dBm   = 3	// 	0dBm MAX
     } OutputPower;
 
     /**
@@ -840,9 +843,9 @@ namespace NRF24
 
         /**
          * Check which inout pipe dynamic payloads are enabled
-         * @param dynamicPayloads RX pipe dynamic payloads status
+         * TODO return
          */
-        void whichRxPipeDynamicPayloadsAreEnabled(bool *dynamicPayloads);
+        Register::DYNPD whichRxPipeDynamicPayloadsAreEnabled();
 
         /**
          * Enable CRC and set length
@@ -875,9 +878,9 @@ namespace NRF24
 
         /**
          * Get which input pipes have auto ACK enabled
-         * @param autoAck Boolean array holding status of RX pipes auto ACK
+         * TODO return
          */
-        void whichRxPipeAutoAckAreEnabled(bool *autoAck);
+        Register::EN_AA whichRxPipeAutoAckAreEnabled();
 
         /**
          * Set autoretransmission delay
