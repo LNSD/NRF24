@@ -1005,7 +1005,7 @@ namespace NRF24
          * Get list of RX pipes status
          * @param pipes Boolean array holding status of all the RX pipes
          */
-        void whichRxPipeAddrAreEnabled(bool *enabledAddr);
+        Register::EN_RXADDR whichRxPipeAddrAreEnabled();
 
         /**
          * Set destination address (TX address)
