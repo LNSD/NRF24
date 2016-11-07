@@ -83,6 +83,9 @@ void NRF24::Driver::configure()
     // Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
     // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
     delay( 5 ) ;
+
+    // Transfer default configuration to nRF24
+    transferConfiguration(Configuration());
 }
 
 void NRF24::Driver::configure(Configuration configuration)
@@ -111,86 +114,36 @@ void NRF24::Driver::configure(Configuration configuration)
     // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
     delay( 5 ) ;
 
-    // Set configuration to NRF24
-    setTransceiverMode(configuration._mode);
-    setOutputRFPower(configuration._outputPower);
-    setDataRate(configuration._dataRate);
-    setRFChannel(configuration._rfCh);
+    // Transfer configuration to NRF24
+    transferConfiguration(configuration);
+}
 
-    if (configuration._constCarrier) {
-        enableConstantCarrier();
-    } else {
-        disableConstantCarrier();
+void NRF24::Driver::transferConfiguration(Configuration config)
+{
+    writeRegister(CONFIG, config._config.raw);
+    writeRegister(EN_AA, config._enAA.raw);
+    writeRegister(EN_RXADDR, config._enRxAddr.raw);
+    writeRegister(SETUP_AW, config._setupAw.raw);
+    writeRegister(SETUP_RETR, config._setupRetr.raw);
+    writeRegister(RF_CH, config._rfCh.raw);
+    writeRegister(RF_SETUP, config._rfSetup.raw);
+
+    for (int p = 0; p < 6; ++p) {
+        writeRegister(RX_PW_P0+p, config._rxPwPN[p].raw);
     }
 
-    if (configuration._pllLock) {
-        forcePllLock();
-    } else {
-        disablePllLock();
-    }
-
-    setAddressWidth(configuration._addressWidth);
-
-    for (int p = 0; p < 6; p++) {
-        if (configuration._rxPipeAddressStatus[p]) {
-            enableRxPipeAddress((NRF24::RxPipe) p);
-        } else {
-            disableRxPipeAddress((NRF24::RxPipe) p);
-        }
-    }
-
-    for (int p = 0; p < 6; p++) {
-        setRxPipePayloadSize((NRF24::RxPipe) p, configuration._rxPipePayloadSize[p]);
-    }
+    writeRegister(DYNPD, config._dynpd.raw);
+    writeRegister(FEATURE, config._feature.raw);
 
     for (int p = 0; p < 6; p++) {
         if (p < 2) {
-            setRxPipeAddress((NRF24::RxPipe) p, configuration._rxPipeAddrLong[p], configuration._addressWidth);
+            setRxPipeAddress((RxPipe) p, config._rxPipeAddrLong[p], config._setupAw.AW);
         } else {
-            setRxPipeAddress((NRF24::RxPipe) p, &configuration._rxPipeAddrShort[p - 2], 1);
+            setRxPipeAddress((RxPipe) p, &config._rxPipeAddrShort[p - 2], 1);
         }
     }
 
-    setTxAddress(configuration._txAddr, configuration._addressWidth);
-
-    for(int p = 0; p < 6; p++)
-    {
-        if (configuration._autoAck) {
-            enableRxPipeAutoAck((NRF24::RxPipe) p);
-        } else {
-            disableRxPipeAutoAck((NRF24::RxPipe) p);
-        }
-    }
-
-    if (configuration._crc != CRC_DISABLED) {
-        enableCRC(configuration._crc);
-    } else {
-        disableCRC();
-    }
-
-    setAutoRtDelay(configuration._autoRtDelay);
-    setAutoRtCount(configuration._autoRtCount);
-
-    for (int p = 0; p < 6; p++) {
-        if (configuration._dynamicPayload[p]) {
-            enableRxPipeDynamicPayloads((NRF24::RxPipe) p);
-        } else {
-            disableRxPipeDynamicPayloads((NRF24::RxPipe) p);
-        }
-    }
-
-    if (configuration._ackPayload) {
-        enableAckPayload();
-    } else {
-        disableAckPayload();
-    }
-
-    if (configuration._dynamicAck) {
-        enableDynamicAck();
-    } else {
-        disableDynamicAck();
-    }
-
+    setTxAddress(config._txAddr, config._setupAw.AW);
 }
 
 //endregion
@@ -270,16 +223,7 @@ void NRF24::Driver::setTransceiverMode(TransceiverMode mode)
 {
     Register::CONFIG config;
     config.raw = readRegister(CONFIG);
-
-    if(mode == Mode_PTX)
-    {
-        config.PRIM_RX = false;
-    }
-    else
-    {
-        config.PRIM_RX = true;
-    }
-
+    config.PRIM_RX = (mode != Mode_PTX);
     writeRegister(CONFIG, config.raw);
 }
 
@@ -359,12 +303,12 @@ NRF24::OutputPower NRF24::Driver::getOutputRFPower()
     return (OutputPower) rfSetup.RF_PWR;
 }
 
-void NRF24::Driver::setDataRate(DataRate rate)
+void NRF24::Driver::setDataRate(DataRate dataRate)
 {
     Register::RF_SETUP rfSetup;
     rfSetup.raw = readRegister(RF_SETUP);
 
-    switch(rate)
+    switch(dataRate)
     {
         case DataRate_250kbps:
             rfSetup.RF_DR_LOW = true;
@@ -417,17 +361,14 @@ uint8_t NRF24::Driver::getRFChannel()
     return readRegister(RF_CH);
 }
 
-void NRF24::Driver::setAddressWidth(uint8_t width)
+void NRF24::Driver::setAddressWidth(AddressWidth width)
 {
-    if(width >= 3  && width <= 5)
-    {
-        writeRegister(SETUP_AW, width-2);
-    }
+    writeRegister(SETUP_AW, width);
 }
 
-uint8_t NRF24::Driver::getAddressWidth()
+NRF24::AddressWidth NRF24::Driver::getAddressWidth()
 {
-    return readRegister(SETUP_AW) + 2;
+    return (AddressWidth) readRegister(SETUP_AW);
 }
 
 void NRF24::Driver::enableRxPipeAddress(RxPipe pipe)
@@ -440,13 +381,11 @@ void NRF24::Driver::disableRxPipeAddress(RxPipe pipe)
     writeRegister(EN_RXADDR, readRegister(EN_RXADDR) & ~_BV(pipe));
 }
 
-void NRF24::Driver::whichRxPipeAddrAreEnabled(bool *enabledAddr)
+NRF24::Register::EN_RXADDR NRF24::Driver::whichRxPipeAddrAreEnabled()
 {
-    uint8_t enRxAddr = readRegister(EN_RXADDR);
-    for (int p = 0; p < 6; ++p)
-    {
-        enabledAddr[p] = (bool) (enRxAddr & _BV(p));
-    }
+    Register::EN_RXADDR enRxAddr;
+    enRxAddr.raw = readRegister(EN_RXADDR);
+    return enRxAddr;
 }
 
 void NRF24::Driver::setTxAddress(uint8_t *addr, uint8_t len)
@@ -459,42 +398,98 @@ void NRF24::Driver::getTxAddress(uint8_t *addr, uint8_t len)
     readRegister(TX_ADDR, addr, len);
 }
 
-const uint8_t pipeRx[6] = {NRF24::RX_ADDR_P0, NRF24::RX_ADDR_P1, NRF24::RX_ADDR_P2, NRF24::RX_ADDR_P3, NRF24::RX_ADDR_P4, NRF24::RX_ADDR_P5};
-
 void NRF24::Driver::setRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
 {
-    if(pipe < 2)
+    switch (pipe)
     {
-        writeRegister(pipeRx[pipe], addr, len);
-    }
-    else
-    {
-        writeRegister(pipeRx[pipe], addr[0]);
+        case RX_P0:
+            writeRegister(RX_ADDR_P0, addr, len);
+            break;
+        case RX_P1:
+            writeRegister(RX_ADDR_P1, addr, len);
+            break;
+        case RX_P2:
+            writeRegister(RX_ADDR_P2, addr[0]);
+            break;
+        case RX_P3:
+            writeRegister(RX_ADDR_P3, addr[0]);
+            break;
+        case RX_P4:
+            writeRegister(RX_ADDR_P4, addr[0]);
+            break;
+        case RX_P5:
+            writeRegister(RX_ADDR_P5, addr[0]);
+            break;
     }
 }
 
 void NRF24::Driver::getRxPipeAddress(RxPipe pipe, uint8_t *addr, uint8_t len)
 {
-    if(pipe < 2)
+    switch (pipe)
     {
-        readRegister(pipeRx[pipe], addr, len);
-    }
-    else
-    {
-        addr[0] = readRegister(pipeRx[pipe]);
+        case RX_P0:
+            readRegister(RX_ADDR_P0, addr, len);
+            break;
+        case RX_P1:
+            readRegister(RX_ADDR_P1, addr, len);
+            break;
+        case RX_P2:
+            addr[0] = readRegister(RX_ADDR_P2);
+            break;
+        case RX_P3:
+            addr[0] = readRegister(RX_ADDR_P3);
+            break;
+        case RX_P4:
+            addr[0] = readRegister(RX_ADDR_P4);
+            break;
+        case RX_P5:
+            addr[0] = readRegister(RX_ADDR_P5);
+            break;
     }
 }
 
-const uint8_t pipe_payload[6] = {NRF24::RX_PW_P0, NRF24::RX_PW_P1, NRF24::RX_PW_P2, NRF24::RX_PW_P3, NRF24::RX_PW_P4, NRF24::RX_PW_P5};
-
 void NRF24::Driver::setRxPipePayloadSize(RxPipe pipe, uint8_t size)
 {
-    writeRegister(pipe_payload[pipe], min(size, MAX_PAYLOAD_SIZE));
+    switch (pipe)
+    {
+        case RX_P0:
+            writeRegister(RX_PW_P0, min(size, MAX_PAYLOAD_SIZE));
+            break;
+        case RX_P1:
+            writeRegister(RX_PW_P1, min(size, MAX_PAYLOAD_SIZE));
+            break;
+        case RX_P2:
+            writeRegister(RX_PW_P2, min(size, MAX_PAYLOAD_SIZE));
+            break;
+        case RX_P3:
+            writeRegister(RX_PW_P3, min(size, MAX_PAYLOAD_SIZE));
+            break;
+        case RX_P4:
+            writeRegister(RX_PW_P4, min(size, MAX_PAYLOAD_SIZE));
+            break;
+        case RX_P5:
+            writeRegister(RX_PW_P5, min(size, MAX_PAYLOAD_SIZE));
+            break;
+    }
 }
 
 uint8_t NRF24::Driver::getRxPipePayloadSize(RxPipe pipe)
 {
-    return readRegister(pipe_payload[pipe]);
+    switch (pipe)
+    {
+        case RX_P0:
+            return readRegister(RX_PW_P0);
+        case RX_P1:
+            return readRegister(RX_PW_P1);
+        case RX_P2:
+            return readRegister(RX_PW_P2);
+        case RX_P3:
+            return readRegister(RX_PW_P3);
+        case RX_P4:
+            return readRegister(RX_PW_P4);
+        case RX_P5:
+            return readRegister(RX_PW_P5);
+    }
 }
 
 void NRF24::Driver::enableRxPipeDynamicPayloads(RxPipe pipe)
