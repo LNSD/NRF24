@@ -1,5 +1,5 @@
 /**
- * NRF24.cpp
+ * @file NRF24.cpp
  *
  * Copyright (C) 2016 Lorenzo Delgado <lorenzo.delgado@lnsd.es>
  * All rights reserved.

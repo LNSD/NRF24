@@ -18,7 +18,7 @@
     #include "WProgram.h"
 #endif
 
-#include "NRF24L01.h"
+#include "NRF24L01P.h"
 
 namespace NRF24
 {
