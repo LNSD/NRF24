@@ -31,6 +31,7 @@ namespace NRF24
     const static uint16_t MIN_RT_DELAY = 250;
     const static uint16_t MAX_RT_DELAY = 4000;
     const static uint8_t MAX_RT_COUNT = 15;
+    const static uint8_t RX_PIPE_NOT_USED = 0;
 
     /**
      * @name Enum definitions
@@ -525,27 +526,27 @@ namespace NRF24
             {
                 case RX_P0:
                     _enRxAddr.ERX_P0 = false;
-                    _rxPwPN[0].RX_PW_PN = 0;
+                    _rxPwPN[0].RX_PW_PN = RX_PIPE_NOT_USED;
                     break;
                 case RX_P1:
                     _enRxAddr.ERX_P1 = false;
-                    _rxPwPN[1].RX_PW_PN = 0;
+                    _rxPwPN[1].RX_PW_PN = RX_PIPE_NOT_USED;
                     break;
                 case RX_P2:
                     _enRxAddr.ERX_P2 = false;
-                    _rxPwPN[2].RX_PW_PN = 0;
+                    _rxPwPN[2].RX_PW_PN = RX_PIPE_NOT_USED;
                     break;
                 case RX_P3:
                     _enRxAddr.ERX_P3 = false;
-                    _rxPwPN[3].RX_PW_PN = 0;
+                    _rxPwPN[3].RX_PW_PN = RX_PIPE_NOT_USED;
                     break;
                 case RX_P4:
                     _enRxAddr.ERX_P4 = false;
-                    _rxPwPN[4].RX_PW_PN = 0;
+                    _rxPwPN[4].RX_PW_PN = RX_PIPE_NOT_USED;
                     break;
                 case RX_P5:
                     _enRxAddr.ERX_P5 = false;
-                    _rxPwPN[5].RX_PW_PN = 0;
+                    _rxPwPN[5].RX_PW_PN = RX_PIPE_NOT_USED;
                     break;
             }
         }
@@ -558,7 +559,7 @@ namespace NRF24
             _enRxAddr.raw = 0x00;
             for (int p = 0; p < sizeof(_rxPwPN); ++p)
             {
-                _rxPwPN[p].RX_PW_PN = 0;
+                _rxPwPN[p].RX_PW_PN = RX_PIPE_NOT_USED;
             }
         }
 
