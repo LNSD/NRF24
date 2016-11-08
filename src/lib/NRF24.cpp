@@ -697,7 +697,7 @@ void NRF24::Driver::writeTxPayload(uint8_t* data, uint8_t len)
 
 void NRF24::Driver::writePipeACKPayload(RxPipe pipe, uint8_t* data, uint8_t len)
 {
-    spiCmdTransfer((uint8_t) (W_ACK_PAYLOAD | (pipe & 0x07)), data, len);
+    spiCmdTransfer((uint8_t) (W_ACK_PAYLOAD | (pipe & W_ACK_PAYLOAD_MASK)), data, len);
 }
 
 void NRF24::Driver::disableAAforPayload()
@@ -866,6 +866,7 @@ void NRF24::Driver::end()
 
 void NRF24::Driver::getCommStatus(bool *status)
 {
+
     // No Operation. Might be used to read the STATUS register.
     csn(LOW);
     uint8_t reg = SPI.transfer(NOP);
@@ -886,19 +887,19 @@ void NRF24::Driver::getCommStatus(bool *status)
 
 bool NRF24::Driver::isPVariant()
 {
-    uint8_t setup = readRegister(RF_SETUP);
-    uint8_t aux = setup;
+    Register::RF_SETUP rfSetup, aux;
+    rfSetup.raw = readRegister(RF_SETUP);
 
-    aux &= ~_BV(RF_DR_HIGH);
-    aux |= _BV(RF_DR_LOW);
-
-    writeRegister(RF_SETUP, aux);
-    aux = readRegister(RF_SETUP);
+    aux = rfSetup;
+    aux.RF_DR_HIGH = false;
+    aux.RF_DR_LOW = true;
+    writeRegister(RF_SETUP, aux.raw);
+    aux.raw = readRegister(RF_SETUP);
 
     // Restore RF_SETUP original content
-    writeRegister(RF_SETUP, setup);
+    writeRegister(RF_SETUP, rfSetup.raw);
 
-    return (bool)(aux & _BV(RF_DR_LOW));
+    return aux.RF_DR_LOW;
 }
 
 //endregion
