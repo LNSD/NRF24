@@ -1290,6 +1290,12 @@ namespace NRF24
         void resetCurrentStatus();
 
         /**
+         * Get current communication status
+         * @param status
+         */
+        Register::STATUS getCommStatus();
+
+        /**
          * @name Driver functions
          */
 
@@ -1326,12 +1332,6 @@ namespace NRF24
         /**
          * @name Interrupt related functions
          */
-
-        /**
-         * Get current communication status
-         * @param status
-         */
-        void getCommStatus(bool* status);
 
         /**
          * @name Util functions

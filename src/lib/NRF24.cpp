@@ -793,6 +793,18 @@ void NRF24::Driver::resetCurrentStatus()
     writeRegister(STATUS, status.raw);
 }
 
+NRF24::Register::STATUS NRF24::Driver::getCommStatus()
+{
+    Register::STATUS status;
+
+    // No Operation. Might be used to read the STATUS register.
+    csn(LOW);
+    status.raw = SPI.transfer(NOP);
+    csn(HIGH);
+
+    return status;
+}
+
 //endregion
 
 /**
@@ -863,19 +875,6 @@ void NRF24::Driver::end()
  */
 
 //region Interrupt related functions
-
-void NRF24::Driver::getCommStatus(bool *status)
-{
-
-    // No Operation. Might be used to read the STATUS register.
-    csn(LOW);
-    uint8_t reg = SPI.transfer(NOP);
-    csn(HIGH);
-
-    status[0] = (bool) (reg & _BV(RX_DR));
-    status[1] = (bool) (reg & _BV(TX_DS));
-    status[2] = (bool) (reg & _BV(MAX_RT));
-}
 
 //endregion
 
