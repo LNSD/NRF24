@@ -730,49 +730,67 @@ void NRF24::Driver::flushRxFifo()
 
 uint8_t NRF24::Driver::getLostPacketsCount()
 {
-    return (readRegister(OBSERVE_TX) & 0xF0) >> 4;
+    Register::OBSERVE_TX observeTx;
+    observeTx.raw = readRegister(OBSERVE_TX);
+    return observeTx.PLOS_CNT;
 }
 
 uint8_t NRF24::Driver::getRtCount()
 {
-    return readRegister(OBSERVE_TX) & 0x0F;
+    Register::OBSERVE_TX observeTx;
+    observeTx.raw = readRegister(OBSERVE_TX);
+    return observeTx.ARC_CNT;
 }
 
 bool NRF24::Driver::isCarrierDetected()
 {
-    return (bool) (readRegister(RPD) & 0x01);
+    Register::RPD rpd;
+    rpd.raw = readRegister(RPD);
+    return rpd.RPD;
 }
 
 bool NRF24::Driver::isReuseTxPayloadActive()
 {
-    return (bool) (readRegister(FIFO_STATUS) & _BV(TX_REUSE));
+    Register::FIFO_STATUS fifoStatus;
+    fifoStatus.raw = readRegister(FIFO_STATUS);
+    return fifoStatus.TX_REUSE;
 }
 
 NRF24::FifoStatus NRF24::Driver::getTxFifoStatus()
 {
-    uint8_t fifo_status = readRegister(FIFO_STATUS);
-    if(fifo_status & _BV(TX_FULL))
+    Register::FIFO_STATUS fifoStatus;
+    fifoStatus.raw = readRegister(FIFO_STATUS);
+
+    if (fifoStatus.TX_FULL) {
         return FIFO_STATUS_FULL;
-    else if(fifo_status & _BV(TX_EMPTY))
-        return  FIFO_STATUS_EMPTY;
-    else
+    } else if (fifoStatus.TX_EMPTY) {
+        return FIFO_STATUS_EMPTY;
+    } else {
         return FIFO_STATUS_OK;
+    }
 }
 
 NRF24::FifoStatus NRF24::Driver::getRxFifoStatus()
 {
-    uint8_t fifo_status = readRegister(FIFO_STATUS);
-    if(fifo_status & _BV(RX_FULL))
+    Register::FIFO_STATUS fifoStatus;
+    fifoStatus.raw = readRegister(FIFO_STATUS);
+
+    if (fifoStatus.RX_FULL) {
         return FIFO_STATUS_FULL;
-    else if(fifo_status & _BV(RX_EMPTY))
-        return  FIFO_STATUS_EMPTY;
-    else
+    } else if (fifoStatus.RX_EMPTY) {
+        return FIFO_STATUS_EMPTY;
+    } else {
         return FIFO_STATUS_OK;
+    }
 }
 
 void NRF24::Driver::resetCurrentStatus()
 {
-    writeRegister(STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT));
+    Register::STATUS status;
+    status.RX_DR = true;
+    status.TX_DS = true;
+    status.MAX_RT = true;
+    writeRegister(STATUS, status.raw);
 }
 
 //endregion
