@@ -373,13 +373,18 @@ NRF24::AddressWidth NRF24::Driver::getAddressWidth()
 
 void NRF24::Driver::enableRxPipeAddress(RxPipe pipe)
 {
-    writeRegister(EN_RXADDR, readRegister(EN_RXADDR) | _BV(pipe));
+    Register::EN_RXADDR enRxAddr;
+    enRxAddr.raw = readRegister(EN_RXADDR);
+    enRxAddr.raw |= _BV(pipe);
+    writeRegister(EN_RXADDR, enRxAddr.raw);
 }
 
 void NRF24::Driver::disableRxPipeAddress(RxPipe pipe)
 {
-    writeRegister(EN_RXADDR, readRegister(EN_RXADDR) & ~_BV(pipe));
-}
+    Register::EN_RXADDR enRxAddr;
+    enRxAddr.raw = readRegister(EN_RXADDR);
+    enRxAddr.raw &= ~_BV(pipe);
+    writeRegister(EN_RXADDR, enRxAddr.raw);}
 
 NRF24::Register::EN_RXADDR NRF24::Driver::whichRxPipeAddrAreEnabled()
 {
@@ -494,29 +499,33 @@ uint8_t NRF24::Driver::getRxPipePayloadSize(RxPipe pipe)
 
 void NRF24::Driver::enableRxPipeDynamicPayloads(RxPipe pipe)
 {
-    uint8_t dynpd = readRegister(DYNPD);
-    dynpd |= _BV(pipe);
+    Register::DYNPD dynpd;
+    dynpd.raw = readRegister(DYNPD);
+    dynpd.raw |= _BV(pipe);
 
     Register::FEATURE feature;
     feature.raw = readRegister(FEATURE);
     feature.EN_DPL = true;
     writeRegister(FEATURE, feature.raw);
 
-    writeRegister(DYNPD, dynpd);
+    writeRegister(DYNPD, dynpd.raw);
 }
 
 void NRF24::Driver::disableRxPipeDynamicPayloads(RxPipe pipe)
 {
-    uint8_t dynpd = readRegister(DYNPD);
+    Register::DYNPD dynpd;
+    dynpd.raw = readRegister(DYNPD);
+    dynpd.raw &= ~_BV(pipe);
 
-    if(!(dynpd & ~_BV(pipe))) {
+    if(!(dynpd.raw & ~_BV(pipe)))
+    {
         Register::FEATURE feature;
         feature.raw = readRegister(FEATURE);
         feature.EN_DPL = false;
         writeRegister(FEATURE, feature.raw);
     }
 
-    writeRegister(DYNPD, dynpd & ~_BV(pipe));
+    writeRegister(DYNPD, dynpd.raw);
 }
 
 void NRF24::Driver::disableDynamicPayloads()
@@ -577,12 +586,18 @@ NRF24::CRCLength NRF24::Driver::getCRCConfig()
 
 void NRF24::Driver::enableRxPipeAutoAck(RxPipe pipe)
 {
-    writeRegister(EN_AA, readRegister(EN_AA) | _BV(pipe));
+    Register::EN_AA enAA;
+    enAA.raw = readRegister(EN_AA);
+    enAA.raw |= _BV(pipe);
+    writeRegister(EN_AA, enAA.raw);
 }
 
 void NRF24::Driver::disableRxPipeAutoAck(RxPipe pipe)
 {
-    writeRegister(EN_AA, readRegister(EN_AA) & ~_BV(pipe));
+    Register::EN_AA enAA;
+    enAA.raw = readRegister(EN_AA);
+    enAA.raw &= ~_BV(pipe);
+    writeRegister(EN_AA, enAA.raw);
 }
 
 NRF24::Register::EN_AA NRF24::Driver::whichRxPipeAutoAckAreEnabled()
@@ -815,11 +830,18 @@ NRF24::Register::STATUS NRF24::Driver::getCommStatus()
 
 void NRF24::Driver::powerUp()
 {
-    writeRegister(CONFIG, readRegister(CONFIG) | _BV(PWR_UP));
+    Register::CONFIG config;
+    config.raw = readRegister(CONFIG);
+    config.PWR_UP = true;
+    writeRegister(CONFIG, config.raw);
 }
 
-void NRF24::Driver::powerDown() {
-    writeRegister(CONFIG, readRegister(CONFIG) & ~_BV(PWR_UP));
+void NRF24::Driver::powerDown()
+{
+    Register::CONFIG config;
+    config.raw = readRegister(CONFIG);
+    config.PWR_UP = false;
+    writeRegister(CONFIG, config.raw);
 }
 
 void NRF24::Driver::begin()
