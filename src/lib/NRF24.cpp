@@ -596,23 +596,15 @@ void NRF24::Driver::setAutoRtDelay(uint16_t delay)
 {
     Register::SETUP_RETR setupRetr;
     setupRetr.raw = readRegister(SETUP_RETR);
-
-    if (delay < MIN_RT_DELAY) {
-        setupRetr.ARD = 0x0;
-    } else if (delay > MAX_RT_DELAY) {
-        setupRetr.ARD = 0xF;
-    } else {
-        setupRetr.ARD = (delay/250 - 1);
-    }
-
+    setupRetr.ARD = constrain(delay, MIN_RT_DELAY, MAX_RT_DELAY)/250 - 1;
     writeRegister(SETUP_RETR, setupRetr.raw);
 }
 
-uint8_t NRF24::Driver::getAutoRtDelay()
+uint16_t NRF24::Driver::getAutoRtDelay()
 {
     Register::SETUP_RETR setupRetr;
     setupRetr.raw = readRegister(SETUP_RETR);
-    return setupRetr.ARD;
+    return 250*(setupRetr.ARD + 1);
 }
 
 void NRF24::Driver::setAutoRtCount(uint8_t count)

@@ -696,13 +696,7 @@ namespace NRF24
          */
         void setAutoRtDelay(uint16_t delay)
         {
-            if (delay < MIN_RT_DELAY) {
-                _setupRetr.ARD = 0x0;
-            } else if (delay > MAX_RT_DELAY) {
-                _setupRetr.ARD = 0xF;
-            } else {
-                _setupRetr.ARD = (delay/250 - 1);
-            }
+            _setupRetr.ARD = constrain(delay, MIN_RT_DELAY, MAX_RT_DELAY)/250 - 1;
         }
 
         /**
@@ -1147,9 +1141,9 @@ namespace NRF24
 
         /**
          * Get current autoretransmission delay
-         * @return Current autoretranmission delay
+         * @return Current autoretranmission delay (ms)
          */
-        uint8_t getAutoRtDelay();
+        uint16_t getAutoRtDelay();
 
         /**
          * Set max autoretransmission retries
