@@ -35,7 +35,7 @@ NRF24::Driver nRF24(CSN, CE);
 const uint8_t NUM_CHANNELS = NRF24::MAX_RF_CHANNEL+1;
 uint8_t values[NUM_CHANNELS];
 
-const int NUM_REPS = 250;
+const int NUM_REPS = 25;
 
 /**
  * Setup
@@ -143,8 +143,9 @@ void loop()
     unsigned long end = millis();
 
     // Print out channel measurements, clamped to a single hex digit
-    for (int i = 0; i < NUM_CHANNELS; ++i) {
-        Serial.print(min(0xF, values[i] & 0xF), HEX);
+    for (int i = 0; i < NUM_CHANNELS; ++i) 
+    {
+        Serial.print((values[i] > 0xF)? 0xF : values[i], HEX);
     }
 
     // Print scan elapsed time
