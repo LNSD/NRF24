@@ -925,8 +925,6 @@ bool NRF24::Driver::isPVariant()
 
 //endregion
 
-#ifdef NRF24_DEBUG_ENABLED
-
 /**
  * Debug functions
  */
@@ -1337,5 +1335,3 @@ void NRF24::Debug::debugFeatureRegister(uint8_t content)
 }
 
 //endregion
-
-#endif

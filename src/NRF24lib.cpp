@@ -10,7 +10,6 @@
  */
 
 #include "NRF24.h"
-#define NRF24_DEBUG_ENABLED
 
 /**
  * Hardware configuration

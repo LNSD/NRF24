@@ -1379,8 +1379,6 @@ namespace NRF24
 
     };
 
-    #ifdef NRF24_DEBUG_ENABLED
-
     /**
      * Debug class
      */
@@ -1486,8 +1484,6 @@ namespace NRF24
          */
         static void debugFeatureRegister(uint8_t content);
     };
-
-    #endif
 }
 
 #endif //NRF24_H
