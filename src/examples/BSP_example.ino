@@ -1,5 +1,5 @@
 /**
- * BSP_example.ino -- Board Support Package example
+ * @file BSP_example.ino -- Board Support Package example
  *
  * Copyright (C) 2016 Lorenzo Delgado <lorenzo.delgado@lnsd.es>
  * All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * NRF24lib_ConstantCarrier.ino -- Constant carrierr example sketch
+ * @file NRF24lib_ConstantCarrier.ino -- Constant carrierr example sketch
  *
  * Copyright (C) 2016 Lorenzo Delgado <lorenzo.delgado@lnsd.es>
  * All rights reserved.
@@ -22,7 +22,7 @@
 #define CSN 7
 #define IRQ 2
 
-#define LED 4
+#define LD 4
 #define PB 3
 
 // Set up nRF24L01 radio on SPI bus plus pins 7 & 8
@@ -42,7 +42,7 @@ void setup() {
 
     // Print preamble
     Serial.begin(115200);
-    Serial.println("nRF24lib Constant carrier test sketch");
+    Serial.println("nRF24lib: Constant carrier test sketch");
 
     // RF radio configuration
     NRF24::Configuration config(NRF24::Mode_PTX);
