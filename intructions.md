@@ -9,8 +9,8 @@ In short you can get up and running using the following commands::
     cd build
     cmake ..
     make
-    make upload              # to upload all firmware images             [optional]
-    make blink-serial  # to get a serial terminal to wire_serial   [optional]
+    make upload          # to upload all firmware images             [optional]
+    make blink-serial    # to get a serial terminal to wire_serial   [optional]
 
 For a more detailed explanation, please read on...
 
