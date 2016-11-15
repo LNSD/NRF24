@@ -18,8 +18,8 @@
 #define PB 3
 #define LD 4
 
-LED led(LD); // Set up a LED on pin 4
-PushButton button(PB); // Set up a button on pin 3
+BSP::LED led(LD); // Set up a LED on pin 4
+BSP::PushButton button(PB); // Set up a button on pin 3
 
 /**
  * Setup

@@ -20,114 +20,117 @@
     #include "WProgram.h"
 #endif
 
-/**
- * LED driver class
- */
-class LED {
-public:
+namespace BSP {
 
     /**
-     * @name Arduino Constructor
+     * LED driver class
      */
+    class LED {
+    public:
+
+        /**
+         * @name Arduino Constructor
+         */
+
+        /**
+         * Arduino constructor
+         *
+         * Creates a new instance of this driver. Before using, create an instance and pass
+         * the unique pin where is the LED connected.
+         *
+         * @param pin Pin where the LED is attached
+         */
+        LED(uint8_t pin) : _pin(pin) {
+            pinMode(_pin, OUTPUT);
+        }
+
+        /**
+         * @name State setters and getters
+         */
+
+        /**
+         * Set LED state
+         * @param state LED state
+         */
+        void setState(boolean state) {
+            _state = state;
+            digitalWrite(_pin, (_state) ? HIGH : LOW);
+        }
+
+        /**
+         * Get current LED state
+         * @return LED status
+         */
+        boolean getState() {
+            return _state;
+        }
+
+        /**
+         * @name Driver functions
+         */
+
+        /**
+         * Turn LED on
+         */
+        void turnOn() {
+            setState(true);
+        }
+
+        /**
+         * Turn LED off
+         */
+        void turnOff() {
+            setState(false);
+        }
+
+        /**
+         * Toggle LED state
+         */
+        void toggleState() {
+            setState(!getState());
+        }
+
+    private:
+        uint8_t _pin = 4;
+        bool _state = false;
+    };
 
     /**
-     * Arduino constructor
-     *
-     * Creates a new instance of this driver. Before using, create an instance and pass
-     * the unique pin where is the LED connected.
-     *
-     * @param pin Pin where the LED is attached
+     * Push button driver class
      */
-    LED(uint8_t pin) : _pin(pin) {
-        pinMode(_pin, OUTPUT);
-    }
+    class PushButton {
+    public:
 
-    /**
-     * @name State setters and getters
-     */
+        /**
+         * @name Arduino Constructor
+         */
 
-    /**
-     * Set LED state
-     * @param state LED state
-     */
-    void setState(boolean state) {
-        _state = state;
-        digitalWrite(_pin, (_state) ? HIGH : LOW);
-    }
+        /**
+         * Arduino constructor
+         *
+         * Creates a new instance of this driver. Before using, create an instance and pass
+         * the unique pin where is the Push button connected.
+         *
+         * @param pin Pin where the Push Button is attached
+         */
+        PushButton(uint8_t pin) : _pin(pin) {
+            pinMode(_pin, INPUT_PULLUP);
+        }
 
-    /**
-     * Get current LED state
-     * @return LED status
-     */
-    boolean getState() {
-        return _state;
-    }
+        /**
+         * @name Driver functions
+         */
 
-    /**
-     * @name Driver functions
-     */
+        /**
+         * Check if the push button is pushed or not.
+         */
+        bool isPushed() {
+            return !digitalRead(_pin);
+        }
 
-    /**
-     * Turn LED on
-     */
-    void turnOn() {
-        setState(true);
-    }
-
-    /**
-     * Turn LED off
-     */
-    void turnOff() {
-        setState(false);
-    }
-
-    /**
-     * Toggle LED state
-     */
-    void toggleState() {
-        setState(!getState());
-    }
-
-private:
-    uint8_t _pin = 4;
-    bool _state = false;
-};
-
-/**
- * Push button driver class
- */
-class PushButton {
-public:
-
-    /**
-     * @name Arduino Constructor
-     */
-
-    /**
-     * Arduino constructor
-     *
-     * Creates a new instance of this driver. Before using, create an instance and pass
-     * the unique pin where is the Push button connected.
-     *
-     * @param pin Pin where the Push Button is attached
-     */
-    PushButton(uint8_t pin) : _pin(pin) {
-        pinMode(_pin, INPUT_PULLUP);
-    }
-
-    /**
-     * @name Driver functions
-     */
-
-    /**
-     * Check if the push button is pushed or not.
-     */
-    bool isPushed() {
-        return !digitalRead(_pin);
-    }
-
-private:
-    uint8_t _pin;
-};
+    private:
+        uint8_t _pin;
+    };
+}
 
 #endif //BSP_H
