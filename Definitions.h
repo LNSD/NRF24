@@ -44,6 +44,11 @@ namespace NRF24
     const static uint8_t MAX_RT_COUNT = 15;
 
     /**
+     * Automatic Retransmission diabled
+     */
+    const static uint8_t AUTO_RT_DISABLED = 0;
+
+    /**
      * Numbet of bytes in RX payload in data pipe: 0 - Pipe not used
      */
     const static uint8_t PIPE_NOT_USED = 0;

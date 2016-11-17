@@ -25,9 +25,6 @@ set(PROJECT_NAME NRF24)
 # Define your project and language
 project(${PROJECT_NAME} C CXX)
 
-print_board_list()
-print_programmer_list()
-
 # Add Arduino libraries to project
 link_directories(${ARDUINO_SDK}/libraries)
 
