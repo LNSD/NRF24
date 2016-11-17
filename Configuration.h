@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include "Arduino.h"
+
 #include "Definitions.h"
 
 namespace NRF24
