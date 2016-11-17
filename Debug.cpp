@@ -9,7 +9,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "NRF24.h"
 #include "Debug.h"
 
 void NRF24::Debug::debugConfigRegister(uint8_t content)

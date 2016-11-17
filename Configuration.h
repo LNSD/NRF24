@@ -12,6 +12,8 @@
 #ifndef NRF24_CONFIGURATION_H
 #define NRF24_CONFIGURATION_H
 
+#include <stdint.h>
+#include "Arduino.h"
 #include "Definitions.h"
 
 namespace NRF24
@@ -32,9 +34,29 @@ namespace NRF24
          *
          * Empty constructor. Creates a new instance of this configuration holder.
          * @note Uses default configuration (TX transceiver mode);
+         *
+         * @note Default configuration:
+         *
+         *      setTransceiverMode(Mode_PTX);
+         *      setCRC(CRC_16);
+         *      for (int p = 0; p < 6; ++p)
+         *      {
+         *          enableRxPipeAutoAck((RxPipe) p);
+         *      }
+         *      disableAllRxPipeAddresses();
+         *      setAddressWidth(Width_5Bytes);
+         *      setAutoRtCount(MAX_RT_COUNT);
+         *      setAutoRtDelay(1500);
+         *      setRFChannel(2);
+         *      setOutputPower(OutputPower_0dBm);
+         *      setDataRate(DataRate_1Mbps);
+         *      disableConstantCarrier();
+         *      disablePllLock();
+         *      disableDynamicPayloads();
+         *      disableAckPayload();
+         *      disableDynamicAck();
          */
         Configuration();
-
 
         /**
          * Arduino Constructor
@@ -221,24 +243,23 @@ namespace NRF24
 
     private:
 
-        Register::CONFIG _config;
-        Register::EN_AA _enAA;
-        Register::EN_RXADDR _enRxAddr;
-        Register::SETUP_AW _setupAw;
-        Register::SETUP_RETR _setupRetr;
-        Register::RF_CH _rfCh;
-        Register::RF_SETUP _rfSetup;
-        Register::RX_PW_PN _rxPwPN[6];
-        Register::DYNPD _dynpd;
-        Register::FEATURE _feature;
+        Register::CONFIG _config = {.raw = 0x0C};
+        Register::EN_AA _enAA = {.raw = 0x3F};
+        Register::EN_RXADDR _enRxAddr = {.raw = 0x00};
+        Register::SETUP_AW _setupAw = {.raw = 0x3};
+        Register::SETUP_RETR _setupRetr = {.raw = 0x5F} ;
+        Register::RF_CH _rfCh = {.raw = 0x02};
+        Register::RF_SETUP _rfSetup = {.raw = 0x06};
+        Register::RX_PW_PN _rxPwPN[6] = {{.raw = 0x00}, {.raw = 0x00}, {.raw = 0x00}, {.raw = 0x00}, {.raw = 0x00}, {.raw = 0x00}};
+        Register::DYNPD _dynpd = {.raw = 0x00};
+        Register::FEATURE _feature = {.raw = 0x00};
 
-        uint8_t _txAddr[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 };
-        uint8_t _rxPipeAddrLong[2][5] = {{ 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 },
-                                         { 0xC2, 0xC2, 0xC2, 0xC2, 0xC2 }};
-        uint8_t _rxPipeAddrShort[4] = { 0xC3, 0xC4, 0xC5, 0xC6 };
+        uint8_t _txAddr[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
+        uint8_t _rxPipeAddrLong[2][5] = {{ 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 }, { 0xC2, 0xC2, 0xC2, 0xC2, 0xC2 }};
+        uint8_t _rxPipeAddrShort[4] = { 0xC3, 0xC4, 0xC5, 0xC6};
 
         friend class Driver;
-    };
+   };
 }
 
 #endif //NRF24_CONFIGURATION_H

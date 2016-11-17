@@ -12,12 +12,12 @@
 #ifndef NRF24_DEBUG_H
 #define NRF24_DEBUG_H
 
+#include <stdint.h>
 #include "Arduino.h"
 #include "Definitions.h"
 
-
-namespace NRF24 {
-
+namespace NRF24
+{
     /**
      * @name Debug helper class
      */
@@ -29,68 +29,68 @@ namespace NRF24 {
          * Parse CONFIG register content and show debug info
          * @param content Register content
          */
-        static void debugConfigRegister(unsigned int content);
+        static void debugConfigRegister(uint8_t content);
 
         /**
          * Parse EN_AA register content and show debug info
          * @param content Register content
          */
-        static void debugEnAARegister(unsigned int content);
+        static void debugEnAARegister(uint8_t content);
 
         /**
          * Parse EN_RXADDR register content and show debug info
          * @param content Register content
          */
-        static void debugEnRxAddrRegister(unsigned int content);
+        static void debugEnRxAddrRegister(uint8_t content);
 
         /**
          * Parse SETUP_AW register content and show debug info
          * @param content Register content
          */
-        static void debugSetupAWRegister(unsigned int content);
+        static void debugSetupAWRegister(uint8_t content);
 
         /**
          * Parse SETUP_RETR register content and show debug info
          * @param content Register content
          */
-        static void debugSetupRetrRegister(unsigned int content);
+        static void debugSetupRetrRegister(uint8_t content);
 
         /**
          * Parse RF_CH register content and show debug info
          * @param content Register content
          */
-        static void debugRFChRegister(unsigned int content);
+        static void debugRFChRegister(uint8_t content);
 
         /**
          * Parse RF_SETUP register content and show debug info
          * @param content Register content
          */
-        static void debugRFSetupRegister(unsigned int content);
+        static void debugRFSetupRegister(uint8_t content);
 
         /**
          * Parse STATUS register content and show debug info
          * @param content Register content
          */
-        static void debugStatusRegister(unsigned int content);
+        static void debugStatusRegister(uint8_t content);
 
         /**
          * Parse OBSERVE_TX register content and show debug info
          * @param content Register content
          */
-        static void debugObserveTxRegister(unsigned int content);
+        static void debugObserveTxRegister(uint8_t content);
 
         /**
          * Parse RPD register content and show debug info
          * @param content Register content
          */
-        static void debugRpdRegister(unsigned int content);
+        static void debugRpdRegister(uint8_t content);
 
         /**
          * Parse RX_ADDR_P# register content and show debug info. Long address (5 bytes max)
          * @param content Register content
          * @param pipe Pipe number
          */
-        static void debugRxPipeAddressRegister(unsigned int *content, NRF24::RxPipe pipe, uint8_t len);
+        static void debugRxPipeAddressRegister(uint8_t *content, NRF24::RxPipe pipe, uint8_t len);
 
         /**
          * Parse TX_ADDR register content and show debug info

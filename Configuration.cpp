@@ -9,74 +9,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <stdint.h>
 #include "Configuration.h"
 
-NRF24::Configuration::Configuration()
-{
-    this->setTransceiverMode(Mode_PTX);
-    this->setCRC(CRC_16);
-    for (int p = 0; p < 6; ++p)
-    {
-        this->enableRxPipeAutoAck((RxPipe) p);
-    }
-    this->disableAllRxPipeAddresses();
-    this->setAddressWidth(Width_5Bytes);
-    this->setAutoRtCount(MAX_RT_COUNT);
-    this->setAutoRtDelay(1500);
-    this->setRFChannel(2);
-    this->setOutputPower(OutputPower_0dBm);
-    this->setDataRate(DataRate_1Mbps);
-    this->disableConstantCarrier();
-    this->disablePllLock();
-    this->disableDynamicPayloads();
-    this->disableAckPayload();
-    this->disableDynamicAck();
-}
+NRF24::Configuration::Configuration() {}
 
 NRF24::Configuration::Configuration(TransceiverMode mode)
 {
     this->setTransceiverMode(mode);
-
-    this->setCRC(CRC_16);
-    for (int p = 0; p < 6; ++p)
-    {
-        this->enableRxPipeAutoAck((RxPipe) p);
-    }
-    this->disableAllRxPipeAddresses();
-    this->setAddressWidth(Width_5Bytes);
-    this->setAutoRtCount(MAX_RT_COUNT);
-    this->setAutoRtDelay(1500);
-    this->setRFChannel(2);
-    this->setOutputPower(OutputPower_0dBm);
-    this->setDataRate(DataRate_1Mbps);
-    this->disableConstantCarrier();
-    this->disablePllLock();
-    this->disableDynamicPayloads();
-    this->disableAckPayload();
-    this->disableDynamicAck();
 }
 
 NRF24::Configuration::Configuration(TransceiverMode mode, OutputPower level, DataRate dataRate)
 {
     this->setTransceiverMode(mode);
-    this->setCRC(CRC_16);
-    for (int p = 0; p < 6; ++p)
-    {
-        this->enableRxPipeAutoAck((RxPipe) p);
-    }
-    this->disableAllRxPipeAddresses();
-    this->setAddressWidth(Width_5Bytes);
-    this->setAutoRtCount(MAX_RT_COUNT);
-    this->setAutoRtDelay(1500);
-    this->setRFChannel(2);
     this->setOutputPower(level);
     this->setDataRate(dataRate);
-    this->disableConstantCarrier();
-    this->disablePllLock();
-    this->disableDynamicPayloads();
-    this->disableAckPayload();
-    this->disableDynamicAck();
 };
 
 void NRF24::Configuration::setTransceiverMode(TransceiverMode mode)
