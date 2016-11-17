@@ -13,8 +13,7 @@
 
 void NRF24::Debug::debugConfigRegister(uint8_t content)
 {
-    Register::CONFIG config;
-    config.raw = content;
+    Register::CONFIG config = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: CONFIG register content (0x");
@@ -52,8 +51,7 @@ void NRF24::Debug::debugConfigRegister(uint8_t content)
 
 void NRF24::Debug::debugEnAARegister(uint8_t content)
 {
-    Register::EN_AA enAA;
-    enAA.raw = content;
+    Register::EN_AA enAA = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: EN_AA register content (0x");
@@ -87,8 +85,7 @@ void NRF24::Debug::debugEnAARegister(uint8_t content)
 
 void NRF24::Debug::debugEnRxAddrRegister(uint8_t content)
 {
-    Register::EN_RXADDR enRxAddr;
-    enRxAddr.raw = content;
+    Register::EN_RXADDR enRxAddr = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: EN_RXADDR register content (0x");
@@ -122,8 +119,7 @@ void NRF24::Debug::debugEnRxAddrRegister(uint8_t content)
 
 void NRF24::Debug::debugSetupAWRegister(uint8_t content)
 {
-    Register::SETUP_AW setupAw;
-    setupAw.raw = content;
+    Register::SETUP_AW setupAw = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: SETUP_AW register content (0x");
@@ -139,8 +135,7 @@ void NRF24::Debug::debugSetupAWRegister(uint8_t content)
 
 void NRF24::Debug::debugSetupRetrRegister(uint8_t content)
 {
-    Register::SETUP_RETR setupRetr;
-    setupRetr.raw = content;
+    Register::SETUP_RETR setupRetr = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: SETUP_RETR register content (0x");
@@ -162,8 +157,7 @@ void NRF24::Debug::debugSetupRetrRegister(uint8_t content)
 
 void NRF24::Debug::debugRFChRegister(uint8_t content)
 {
-    Register::RF_CH rfCh;
-    rfCh.raw = content;
+    Register::RF_CH rfCh = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: RF_CH register content (0x");
@@ -179,8 +173,7 @@ void NRF24::Debug::debugRFChRegister(uint8_t content)
 
 void NRF24::Debug::debugRFSetupRegister(uint8_t content)
 {
-    Register::RF_SETUP rfSetup;
-    rfSetup.raw = content;
+    Register::RF_SETUP rfSetup = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: RF_SETUP register content (0x");
@@ -212,8 +205,7 @@ void NRF24::Debug::debugRFSetupRegister(uint8_t content)
 
 void NRF24::Debug::debugStatusRegister(uint8_t content)
 {
-    Register::STATUS status;
-    status.raw = content;
+    Register::STATUS status = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: STATUS register content (0x");
@@ -245,8 +237,7 @@ void NRF24::Debug::debugStatusRegister(uint8_t content)
 
 void NRF24::Debug::debugObserveTxRegister(uint8_t content)
 {
-    Register::OBSERVE_TX observeTx;
-    observeTx.raw = content;
+    Register::OBSERVE_TX observeTx = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: OBSERVE_TX register content (0x");
@@ -268,8 +259,7 @@ void NRF24::Debug::debugObserveTxRegister(uint8_t content)
 
 void NRF24::Debug::debugRpdRegister(uint8_t content)
 {
-    Register::RPD rpd;
-    rpd.raw = content;
+    Register::RPD rpd = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: RPD register content (0x");
@@ -315,8 +305,7 @@ void NRF24::Debug::debugTxAddressRegister(uint8_t *content, uint8_t len)
 
 void NRF24::Debug::debugRxPipePayloadWidthRegister(uint8_t content, RxPipe pipe)
 {
-    Register::RX_PW_PN rxPwPN;
-    rxPwPN.raw = content;
+    Register::RX_PW_PN rxPwPN = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: RX_PW_P");
@@ -327,8 +316,7 @@ void NRF24::Debug::debugRxPipePayloadWidthRegister(uint8_t content, RxPipe pipe)
 
 void NRF24::Debug::debugFifoStatusRegister(uint8_t content)
 {
-    Register::FIFO_STATUS fifoStatus;
-    fifoStatus.raw = content;
+    Register::FIFO_STATUS fifoStatus = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: FIFO_STATUS register content (0x");
@@ -358,8 +346,7 @@ void NRF24::Debug::debugFifoStatusRegister(uint8_t content)
 
 void NRF24::Debug::debugDynpdRegister(uint8_t content)
 {
-    Register::DYNPD dynpd;
-    dynpd.raw = content;
+    Register::DYNPD dynpd = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: DYNPD register content (0x");
@@ -393,8 +380,7 @@ void NRF24::Debug::debugDynpdRegister(uint8_t content)
 
 void NRF24::Debug::debugFeatureRegister(uint8_t content)
 {
-    Register::FEATURE feature;
-    feature.raw = content;
+    Register::FEATURE feature = { .raw = content };
 
     // Debug info header
     Serial.print(" - DEBUG: FEATURE register content (0x");
