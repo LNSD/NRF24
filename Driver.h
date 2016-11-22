@@ -425,7 +425,7 @@ namespace NRF24
         /**
          * Read RX payload width for the top R_RX_PAYLOAD in the Rx FIFO (R_RX_PL_WID command)
          * @Note Flush RX FIFO if the read value is larger than 32 bytes
-         * @return RX payload width
+         * @return Payload length
          */
         uint8_t readRxPayloadLength();
 
