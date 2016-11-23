@@ -18,7 +18,7 @@
 namespace NRF24
 {
     /**
-     * @name Debug helper class
+     * Debug helper class
      */
     class Debugger
     {

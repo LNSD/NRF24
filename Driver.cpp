@@ -22,14 +22,14 @@
 
 //region Low level signals control
 
-inline void NRF24::Driver::csn(uint8_t val)
+inline void NRF24::Driver::csn(uint8_t level)
 {
-    digitalWrite(_csn, val);
+    digitalWrite(_csn, level);
 }
 
-inline void NRF24::Driver::ce(uint8_t val)
+inline void NRF24::Driver::ce(uint8_t level)
 {
-    digitalWrite(_ce, val);
+    digitalWrite(_ce, level);
 }
 
 //endregion
