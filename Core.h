@@ -14,10 +14,102 @@
 
 #include "Arduino.h"
 #include "Driver.h"
-#include "Configuration.h"
 
 namespace NRF24
 {
+    /**
+     * @name Constants
+     */
+
+    /**
+     * Max Payload Size. Max size: 32 bytes wide
+     */
+    const static uint8_t MAX_PAYLOAD_SIZE = 32;
+
+    /**
+     * Max RF cCannel. 128 channels available
+     */
+    const static uint8_t MAX_RF_CHANNEL = 127;
+
+    /**
+     * Min Automatic Retransmission delay: Wait 250us
+     */
+    const static uint16_t MIN_RT_DELAY = 250;
+
+    /**
+     * Max Automatic Retransmission delay: Wait 4000us
+     */
+    const static uint16_t MAX_RT_DELAY = 4000;
+
+    /**
+     * Max Automatic Retransmission count: Up to 15 Re-Transmit on fail of AA
+     */
+    const static uint8_t MAX_RT_COUNT = 15;
+
+    /**
+     * Automatic Retransmission diabled
+     */
+    const static uint8_t AUTO_RT_DISABLED = 0;
+
+    /**
+     * Numbet of bytes in RX payload in data pipe: 0 - Pipe not used
+     */
+    const static uint8_t PIPE_NOT_USED = 0;
+
+
+    /**
+     * @name Enum definitions
+     */
+
+    /**
+     * Transmision mode
+     * @note For use with {@link setTransceiverMode()}
+     */
+    typedef enum {
+        Mode_PTX = 0,
+        Mode_PRX = 1
+    } TransceiverMode;
+
+    /**
+     * Power Amplifier output level
+     * @note For use with {@link setOutputRfPower()}
+     */
+    typedef enum {
+        OutputPower_M18dBm = 0,	// -18dBm MIN
+        OutputPower_M12dBm = 1,	// -12dBm LOW
+        OutputPower_M6dBm  = 2,	// -6dBm HIGH
+        OutputPower_0dBm   = 3	// 	0dBm MAX
+    } OutputPower;
+
+    /**
+    * Data rate. How fast data moves through the air.
+    * @note For use with {@link setDataRate()}
+    */
+    typedef enum {
+        DataRate_1Mbps = 0,	// 1Mbps
+        DataRate_2Mbps,		// 2Mbps
+        DataRate_250kbps	// 250kbps
+    } DataRate;
+
+    /**
+    * CRC Length. How big (if any) of a CRC is included.
+    * @note For use with {@link enableCRC()}
+    */
+    typedef enum {
+        CRC_8 = 0,
+        CRC_16,
+        CRC_DISABLED
+    } CRCLength;
+
+    /**
+     * Fifo status definition
+     */
+    typedef enum {
+        FIFO_STATUS_EMPTY = 0,
+        FIFO_STATUS_OK,
+        FIFO_STATUS_FULL
+    } FifoStatus;
+
     /**
      * Higher level Driver for nRF24L01(+) 2.4GHz Wireless Transceiver
      */
@@ -97,7 +189,7 @@ namespace NRF24
 
 
         /**
-         * @name Configuration
+         * @name Hardware setup
          */
 
         /**
@@ -105,20 +197,6 @@ namespace NRF24
          */
         void configure();
 
-        /**
-         * Setup the hardware
-         * @param configuration Configuration holder
-         */
-        void configure(Configuration configuration);
-
-    private:
-
-        /**
-         * Transfer configuration parameters
-         */
-        inline void transferConfiguration(Configuration config);
-
-    public:
 
         /**
          * @name Configuration getters and setters
