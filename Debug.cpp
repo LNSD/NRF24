@@ -10,6 +10,7 @@
  */
 
 #include "Debug.h"
+#include "Registers.h"
 
 void NRF24::Debug::debugConfigRegister(uint8_t content)
 {
@@ -271,7 +272,7 @@ void NRF24::Debug::debugRpdRegister(uint8_t content)
     Serial.println(rpd.RPD);
 }
 
-void NRF24::Debug::debugRxPipeAddressRegister(uint8_t *content, RxPipe pipe, uint8_t len)
+void NRF24::Debug::debugRxPipeAddressRegister(uint8_t* content, uint8_t pipe, uint8_t len)
 {
     uint8_t length = (pipe<2)? len:1;
 
@@ -289,7 +290,7 @@ void NRF24::Debug::debugRxPipeAddressRegister(uint8_t *content, RxPipe pipe, uin
     }
 }
 
-void NRF24::Debug::debugTxAddressRegister(uint8_t *content, uint8_t len)
+void NRF24::Debug::debugTxAddressRegister(uint8_t* content, uint8_t len)
 {
     // Debug info header
     Serial.print(" - DEBUG: TX_ADDR (");
@@ -303,7 +304,7 @@ void NRF24::Debug::debugTxAddressRegister(uint8_t *content, uint8_t len)
     }
 }
 
-void NRF24::Debug::debugRxPipePayloadWidthRegister(uint8_t content, RxPipe pipe)
+void NRF24::Debug::debugRxPipePayloadWidthRegister(uint8_t content, uint8_t pipe)
 {
     Register::RX_PW_PN rxPwPN = { .raw = content };
 

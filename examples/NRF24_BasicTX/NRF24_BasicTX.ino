@@ -10,7 +10,7 @@
  */
 
 #include "Arduino.h"
-#include "NRF24.h"
+#include "Core.h"
 
 /**
  * Hardware configuration
@@ -27,7 +27,7 @@
 #define PB 3
 
 // Set up nRF24L01 radio on SPI bus plus pins 7 & 8
-NRF24::Driver nRF24(CSN, CE);
+NRF24::Radio nRF24(CSN, CE);
 
 /**
  * Transmitter configuraton
@@ -42,7 +42,7 @@ uint8_t buffer[PAYLOAD_SIZE] = {'S', 'U', 'P', '!'};
  * Send buffer content
  * @return If transmission successful
  */
-bool send(uint8_t *buffer, uint8_t len);
+bool send(uint8_t* buffer, uint8_t len);
 
 /**
  * Setup
@@ -53,27 +53,28 @@ void setup()
     Serial.begin(115200);
     Serial.println("nRF24lib: Basic transmitter example sketch");
 
+    Serial.print(" - Configuring: ");
+    nRF24.configure();
+
     // RF radio configuration
-    NRF24::Configuration config(NRF24::Mode_PTX);
+    nRF24.setTransceiverMode(NRF24::TX_Mode);
 
-    config.setRFChannel(0x70);
+    nRF24.setRFChannel(0x70);
 
-    config.setTxAddress(addr);
+    nRF24.setTxAddress(addr, sizeof(addr));
 
     // Wait NO ACK
-    config.disableAutoAck();
-    config.setAutoRtCount(NRF24::AUTO_RT_DISABLED);
+    nRF24.disableAutoAck();
+    nRF24.setAutoRetransmitCount(NRF24::AUTO_RT_DISABLED);
 
-    Serial.print(" - Configuring: ");
-    nRF24.configure(config);
     Serial.println("DONE");
 
     // RF radio setup
     nRF24.begin(); // "Power Down" -> "Standby-I"
 
-    // Reset current status
-    // Notice reset and flush is the last thing we do
-    nRF24.resetCurrentStatus();
+    // Clear current status
+    // Notice clear and flush is the last thing we do
+    nRF24.clearStatus();
 
     // Flush buffers
     nRF24.flushTxFifo();
@@ -99,10 +100,10 @@ void loop() {
     delay(2500); // Wait 2.5 seconds
 }
 
-bool send(uint8_t *buffer, uint8_t len)
+bool send(uint8_t* buffer, uint8_t len)
 {
     // Write data to the TX FIFO
-    nRF24.writeTxPayload(buffer, len);
+    nRF24.writePayload(buffer, len);
 
     // Start transmission
     nRF24.start();
@@ -128,7 +129,7 @@ bool send(uint8_t *buffer, uint8_t len)
      *  - There is an ack packet waiting (RX_DR)
      */
 
-    NRF24::Register::STATUS status;
+    bool dataReady, dataSent, maxRt;
 
     /* Monitor the transmission. Block here until we get TX_DS (transmission completed and ACK'd)
      * or MAX_RT (maximum retries, transmission failed).  Also, we'll timeout in case the radio
@@ -139,12 +140,12 @@ bool send(uint8_t *buffer, uint8_t len)
     unsigned long sentAt = millis();
 
     do {
-        status = nRF24.getCommStatus();
-    } while(!status.TX_DS && !status.MAX_RT && (millis() - sentAt < timeout));
+        nRF24.getStatus(&dataReady, &dataSent, &maxRt);
+    } while(!dataSent && !maxRt && (millis() - sentAt < timeout));
 
     // Clear status
-    nRF24.resetCurrentStatus();
+    nRF24.clearStatus();
 
     // Return if TX data was sent
-    return status.TX_DS;
+    return dataSent;
 }

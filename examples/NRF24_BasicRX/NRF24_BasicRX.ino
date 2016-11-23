@@ -1,5 +1,6 @@
 /**
- * @file NRF24_BasicRX.ino -- Basic receiver example sketch
+ * @file NRF24_BasicRX.ino
+ * @brief Basic receiver example sketch
  *
  * Copyright (C) 2016 Lorenzo Delgado <lorenzo.delgado@lnsd.es>
  * All rights reserved.
@@ -9,8 +10,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "NRF24.h"
+#include "Arduino.h"
 #include "BSP.h"
+#include "Core.h"
 
 /**
  * Hardware configuration
@@ -27,7 +29,7 @@
 #define PB 3
 
 // Set up nRF24L01 radio on SPI bus plus pins 7 & 8
-NRF24::Driver nRF24(CSN, CE);
+NRF24::Radio nRF24(CSN, CE);
 
 // Setup board LED on pin 4
 BSP::LED led(LD);
@@ -38,7 +40,7 @@ BSP::LED led(LD);
 
 uint8_t addr[5] = { 0x3F, 0x54, 0xC2, 0x7A, 0x11 };
 
-const uint8_t PAYLOAD_SIZE = 4; // 4 bytes
+const size_t PAYLOAD_SIZE = 4; // 4 bytes
 unsigned char buffer[PAYLOAD_SIZE];
 
 /**
@@ -55,28 +57,30 @@ void setup() {
     Serial.begin(115200);
     Serial.println("nRF24lib: Basic receiver example sketch");
 
+    Serial.print(" - Configuring: ");
+    nRF24.configure();
+
     // RF radio configuration
-    NRF24::Configuration config(NRF24::Mode_PRX);
+    nRF24.setTransceiverMode(NRF24::RX_Mode);
 
-    config.setRFChannel(0x70);
+    nRF24.setRFChannel(0x70);
 
-    config.setRxPipeAddress(NRF24::RX_P0, addr);
-    config.setRxPipePayloadSize(NRF24::RX_P0, PAYLOAD_SIZE);
-    config.enableRxPipeAddress(NRF24::RX_P0);
+    nRF24.setRxPipeAddress(0, addr, sizeof(addr));
+    nRF24.setRxPipePayloadLength(0, PAYLOAD_SIZE);
+    nRF24.enableRxPipeAddress(0);
 
     // Send NO ACK
-    config.disableAutoAck();
+    nRF24.disableAutoAck();
 
-    Serial.print(" - Configuring: ");
-    nRF24.configure(config);
+
     Serial.println("DONE");
 
     // RF radio setup
     nRF24.begin(); // "Power Down" -> "Standby-I"
 
-    // Reset current status
-    // Notice reset and flush is the last thing we do
-    nRF24.resetCurrentStatus();
+    // Clear current status
+    // Notice clear and flush is the last thing we do
+    nRF24.clearStatus();
 
     // Flush buffers
     nRF24.flushTxFifo();
@@ -106,9 +110,9 @@ void loop()
 
         Serial.print(" - Received packet: ");
 
-        nRF24.readRxPayload(buffer, PAYLOAD_SIZE);
+        nRF24.readPayload((uint8_t *) buffer, PAYLOAD_SIZE);
 
-        nRF24.resetCurrentStatus();
+        nRF24.clearStatus();
         nRF24.flushRxFifo();
 
         for (int b = 0; b < PAYLOAD_SIZE; ++b) {
