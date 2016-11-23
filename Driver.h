@@ -35,13 +35,13 @@ namespace NRF24
          * Low-level CSN signal enable/disable
          * @param level Output signal level
          */
-        inline void csn(uint8_t val);
+        inline void csn(uint8_t level);
 
         /**
          * Low-level CE signal enable/disable
          * @param level Output signal level
          */
-        inline void ce(uint8_t val);
+        inline void ce(uint8_t level);
 
 
         /**
@@ -129,7 +129,7 @@ namespace NRF24
         * Creates a new instance of this driver. Before using, create an instance and pass
         * the unique pins that this chip is attached to.
         *
-        * Instantiates a new {@link DeviceControllerDriver} class using Arduino UNO's hardware SPI.
+        * Instantiates a new {@link Driver} class using Arduino UNO's hardware SPI.
         *
         * @param csn SPI chip select pin (CS/SSEL)
         * @param ce SPI chip enable pin (CE)
@@ -142,12 +142,13 @@ namespace NRF24
          * Creates a new instance of this driver. Before using, create an instance and pass
          * the unique pins that this chip is attached to.
          *
-         * Instantiates a new {@link DeviceControllerDriver} class using hardware SPI.
+         * Instantiates a new {@link Driver} class using hardware SPI.
          *
          * @param sck SPI clock signal
          * @param mosi SPI Master Output - Slave Input
          * @param miso SPI Master Input - Slave Output
          * @param csn SPI chip select pin (CS/SSEL)
+         * @param ce SPI chip enable pin (CE)
          */
         Driver(uint8_t sck, uint8_t mosi, uint8_t miso, uint8_t csn, uint8_t ce);
 
@@ -425,7 +426,7 @@ namespace NRF24
 
         /**
          * Read RX payload width for the top R_RX_PAYLOAD in the Rx FIFO (R_RX_PL_WID command)
-         * @Note Flush RX FIFO if the read value is larger than 32 bytes
+         * @note Flush RX FIFO if the read value is larger than 32 bytes
          * @return Payload length
          */
         uint8_t readRxPayloadLength();

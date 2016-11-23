@@ -62,8 +62,6 @@ namespace NRF24
 
     /**
      * Transceiver mode.
-     *
-     * @note For use with {@link setTransceiverMode()}
      */
     typedef enum TransceiverMode
     {
@@ -80,8 +78,6 @@ namespace NRF24
 
     /**
      * Power amplifier output level.
-     *
-     * @note For use with {@link setOutputRfPower()}
      */
     typedef enum OutputPower
     {
@@ -108,8 +104,6 @@ namespace NRF24
 
     /**
      * Datarate.
-     *
-     * @note For use with {@link setDataRate()}
      */
     typedef enum DataRate
     {
@@ -131,8 +125,6 @@ namespace NRF24
 
     /**
      * CRC Length.
-     *
-     * @note For use with {@link enableCRC()}
      */
     typedef enum CRCLength
     {
@@ -403,7 +395,7 @@ namespace NRF24
 
         /**
          * Set transceiver's datarate
-         * @param rate Datarate
+         * @param dataRate Datarate
          */
         void setDataRate(DataRate dataRate);
 
@@ -519,7 +511,7 @@ namespace NRF24
 
         /**
          * Read RX payload width for the top Payload in the RX FIFO
-         * @Note Flush RX FIFO if the read value is larger than 32 bytes
+         * @note Flush RX FIFO if the read value is larger than 32 bytes
          *
          * @return Payload length
          */

@@ -155,7 +155,7 @@ namespace NRF24
     const static uint8_t ACTIVATE = 0x50;
 
     /**
-     * @Name Command Masks
+     * @name Command Masks
      */
 
     const static uint8_t REGISTER_MASK 		= 0x1F;
