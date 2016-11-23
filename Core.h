@@ -182,6 +182,8 @@ namespace NRF24
         Driver _driver;
         int8_t _irq;
 
+        friend class Debugger;
+
     public:
 
         /**

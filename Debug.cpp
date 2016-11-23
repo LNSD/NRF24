@@ -10,11 +10,19 @@
  */
 
 #include "Debug.h"
-#include "Registers.h"
+#include "Arduino.h"
 
-void NRF24::Debug::debugConfigRegister(uint8_t content)
+NRF24::Debugger::Debugger(Driver* driver):
+        _driver(driver)
+{}
+
+NRF24::Debugger::Debugger(Radio* radio):
+        _driver(&(radio->_driver))
+{}
+
+void NRF24::Debugger::parseConfigRegisterContent()
 {
-    Register::CONFIG config = { .raw = content };
+    Register::CONFIG config = _driver->readConfigRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: CONFIG register content (0x");
@@ -50,9 +58,9 @@ void NRF24::Debug::debugConfigRegister(uint8_t content)
     Serial.println(config.PRIM_RX);
 }
 
-void NRF24::Debug::debugEnAARegister(uint8_t content)
+void NRF24::Debugger::parseEnAARegisterContent()
 {
-    Register::EN_AA enAA = { .raw = content };
+    Register::EN_AA enAA = _driver->readEnAARegister();
 
     // Debug info header
     Serial.print(" - DEBUG: EN_AA register content (0x");
@@ -84,9 +92,9 @@ void NRF24::Debug::debugEnAARegister(uint8_t content)
     Serial.println(enAA.ENAA_P0);
 }
 
-void NRF24::Debug::debugEnRxAddrRegister(uint8_t content)
+void NRF24::Debugger::parseEnRxAddrRegisterContent()
 {
-    Register::EN_RXADDR enRxAddr = { .raw = content };
+    Register::EN_RXADDR enRxAddr = _driver->readEnRxAddrRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: EN_RXADDR register content (0x");
@@ -118,9 +126,9 @@ void NRF24::Debug::debugEnRxAddrRegister(uint8_t content)
     Serial.println(enRxAddr.ERX_P0);
 }
 
-void NRF24::Debug::debugSetupAWRegister(uint8_t content)
+void NRF24::Debugger::parseSetupAWRegisterContent()
 {
-    Register::SETUP_AW setupAw = { .raw = content };
+    Register::SETUP_AW setupAw = _driver->readSetupAWRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: SETUP_AW register content (0x");
@@ -134,9 +142,9 @@ void NRF24::Debug::debugSetupAWRegister(uint8_t content)
     Serial.println(setupAw.AW, BIN);
 }
 
-void NRF24::Debug::debugSetupRetrRegister(uint8_t content)
+void NRF24::Debugger::parseSetupRetrRegisterContent()
 {
-    Register::SETUP_RETR setupRetr = { .raw = content };
+    Register::SETUP_RETR setupRetr = _driver->readSetupRetrRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: SETUP_RETR register content (0x");
@@ -156,9 +164,9 @@ void NRF24::Debug::debugSetupRetrRegister(uint8_t content)
     Serial.println(setupRetr.ARC, BIN);
 }
 
-void NRF24::Debug::debugRFChRegister(uint8_t content)
+void NRF24::Debugger::parseRFChRegisterContent()
 {
-    Register::RF_CH rfCh = { .raw = content };
+    Register::RF_CH rfCh = _driver->readRFChannelRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: RF_CH register content (0x");
@@ -172,9 +180,9 @@ void NRF24::Debug::debugRFChRegister(uint8_t content)
     Serial.println(rfCh.RF_CH, BIN);
 }
 
-void NRF24::Debug::debugRFSetupRegister(uint8_t content)
+void NRF24::Debugger::parseRFSetupRegisterContent()
 {
-    Register::RF_SETUP rfSetup = { .raw = content };
+    Register::RF_SETUP rfSetup = _driver->readRFSetupRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: RF_SETUP register content (0x");
@@ -204,9 +212,9 @@ void NRF24::Debug::debugRFSetupRegister(uint8_t content)
     Serial.println(rfSetup.RF_PWR, BIN);
 }
 
-void NRF24::Debug::debugStatusRegister(uint8_t content)
+void NRF24::Debugger::parseStatusRegisterContent()
 {
-    Register::STATUS status = { .raw = content };
+    Register::STATUS status = _driver->readStatusRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: STATUS register content (0x");
@@ -236,9 +244,9 @@ void NRF24::Debug::debugStatusRegister(uint8_t content)
     Serial.println(status.TX_FULL);
 }
 
-void NRF24::Debug::debugObserveTxRegister(uint8_t content)
+void NRF24::Debugger::parseObserveTxRegisterContent()
 {
-    Register::OBSERVE_TX observeTx = { .raw = content };
+    Register::OBSERVE_TX observeTx = _driver->readObserveTxRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: OBSERVE_TX register content (0x");
@@ -258,9 +266,9 @@ void NRF24::Debug::debugObserveTxRegister(uint8_t content)
     Serial.println(observeTx.ARC_CNT, DEC);
 }
 
-void NRF24::Debug::debugRpdRegister(uint8_t content)
+void NRF24::Debugger::parseRPDRegisterContent()
 {
-    Register::RPD rpd = { .raw = content };
+    Register::RPD rpd = _driver->readRPDRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: RPD register content (0x");
@@ -272,9 +280,12 @@ void NRF24::Debug::debugRpdRegister(uint8_t content)
     Serial.println(rpd.RPD);
 }
 
-void NRF24::Debug::debugRxPipeAddressRegister(uint8_t* content, uint8_t pipe, uint8_t len)
+void NRF24::Debugger::parseRxPipeAddressRegisterContent(uint8_t pipe, size_t len)
 {
+    uint8_t address[5];
     uint8_t length = (pipe<2)? len:1;
+
+    _driver->readRxPipeAddrRegister(pipe, address, length);
 
     // Debug info header
     Serial.print(" - DEBUG: RX_ADDR_P");
@@ -284,29 +295,32 @@ void NRF24::Debug::debugRxPipeAddressRegister(uint8_t* content, uint8_t pipe, ui
     Serial.print((length>1) ? " bytes): ":" byte): ");
 
     for (int i = 0; i < length; ++i) {
-        if (content[i]<=0xF) Serial.print(0, HEX);
-        Serial.print(content[i], HEX);
+        if (address[i]<=0xF) Serial.print(0, HEX);
+        Serial.print(address[i], HEX);
         Serial.print((i<length-1) ? ":":"\n");
     }
 }
 
-void NRF24::Debug::debugTxAddressRegister(uint8_t* content, uint8_t len)
+void NRF24::Debugger::parseTxAddressRegisterContent(size_t len)
 {
+    uint8_t address[5];
+    _driver->readTxAddrRegister(address, len);
+
     // Debug info header
     Serial.print(" - DEBUG: TX_ADDR (");
     Serial.print(len, DEC);
     Serial.print(" bytes): ");
 
     for (int i = 0; i < len; ++i) {
-        if (content[i] <= 0xF) Serial.print(0, HEX);
-        Serial.print(content[i], HEX);
+        if (address[i] <= 0xF) Serial.print(0, HEX);
+        Serial.print(address[i], HEX);
         Serial.print((i<len-1) ? ":":"\n");
     }
 }
 
-void NRF24::Debug::debugRxPipePayloadWidthRegister(uint8_t content, uint8_t pipe)
+void NRF24::Debugger::parseRxPipePayloadWidthRegisterContent(uint8_t pipe)
 {
-    Register::RX_PW_PN rxPwPN = { .raw = content };
+    Register::RX_PW_PN rxPwPN = _driver->readRxPWRegister(pipe);
 
     // Debug info header
     Serial.print(" - DEBUG: RX_PW_P");
@@ -315,9 +329,9 @@ void NRF24::Debug::debugRxPipePayloadWidthRegister(uint8_t content, uint8_t pipe
     Serial.println(rxPwPN.RX_PW_PN, DEC);
 }
 
-void NRF24::Debug::debugFifoStatusRegister(uint8_t content)
+void NRF24::Debugger::parseFifoStatusRegisterContent()
 {
-    Register::FIFO_STATUS fifoStatus = { .raw = content };
+    Register::FIFO_STATUS fifoStatus = _driver->readFifoStatusRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: FIFO_STATUS register content (0x");
@@ -345,9 +359,9 @@ void NRF24::Debug::debugFifoStatusRegister(uint8_t content)
     Serial.println(fifoStatus.RX_EMPTY);
 }
 
-void NRF24::Debug::debugDynpdRegister(uint8_t content)
+void NRF24::Debugger::parseDYNPDRegisterContent()
 {
-    Register::DYNPD dynpd = { .raw = content };
+    Register::DYNPD dynpd = _driver->readDYNPDRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: DYNPD register content (0x");
@@ -379,9 +393,9 @@ void NRF24::Debug::debugDynpdRegister(uint8_t content)
     Serial.println(dynpd.DPL_P5);
 }
 
-void NRF24::Debug::debugFeatureRegister(uint8_t content)
+void NRF24::Debugger::parseFeatureRegisterContent()
 {
-    Register::FEATURE feature = { .raw = content };
+    Register::FEATURE feature = _driver->readFeatureRegister();
 
     // Debug info header
     Serial.print(" - DEBUG: FEATURE register content (0x");
