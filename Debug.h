@@ -12,114 +12,127 @@
 #ifndef NRF24_DEBUG_H
 #define NRF24_DEBUG_H
 
-#include "Arduino.h"
+#include <stdint.h>
+#include "Core.h"
 
 namespace NRF24
 {
     /**
      * @name Debug helper class
      */
-    class Debug
+    class Debugger
     {
+    private:
+        Driver* _driver;
+        
     public:
 
         /**
-         * Parse CONFIG register content and show debug info
-         * @param content Register content
+         * @name Constructors
          */
-        static void debugConfigRegister(uint8_t content);
 
         /**
-         * Parse EN_AA register content and show debug info
-         * @param content Register content
+         * Constructor
+         *
+         * @param driver Pointer to driver object
          */
-        static void debugEnAARegister(uint8_t content);
+        Debugger(Driver* driver);
 
         /**
-         * Parse EN_RXADDR register content and show debug info
-         * @param content Register content
+         * Constructor
+         *
+         * @param radio Pointer to radio object
          */
-        static void debugEnRxAddrRegister(uint8_t content);
+        Debugger(Radio* radio);
+
 
         /**
-         * Parse SETUP_AW register content and show debug info
-         * @param content Register content
+         * @name Register parsing
          */
-        static void debugSetupAWRegister(uint8_t content);
 
         /**
-         * Parse SETUP_RETR register content and show debug info
-         * @param content Register content
+         * Parse CONFIG register content
          */
-        static void debugSetupRetrRegister(uint8_t content);
+        void parseConfigRegisterContent();
 
         /**
-         * Parse RF_CH register content and show debug info
-         * @param content Register content
+         * Parse EN_AA register content
          */
-        static void debugRFChRegister(uint8_t content);
+        void parseEnAARegisterContent();
 
         /**
-         * Parse RF_SETUP register content and show debug info
-         * @param content Register content
+         * Parse EN_RXADDR register content
          */
-        static void debugRFSetupRegister(uint8_t content);
+        void parseEnRxAddrRegisterContent();
 
         /**
-         * Parse STATUS register content and show debug info
-         * @param content Register content
+         * Parse SETUP_AW register content
          */
-        static void debugStatusRegister(uint8_t content);
+        void parseSetupAWRegisterContent();
 
         /**
-         * Parse OBSERVE_TX register content and show debug info
-         * @param content Register content
+         * Parse SETUP_RETR register content
          */
-        static void debugObserveTxRegister(uint8_t content);
+        void parseSetupRetrRegisterContent();
 
         /**
-         * Parse RPD register content and show debug info
-         * @param content Register content
+         * Parse RF_CH register content
          */
-        static void debugRpdRegister(uint8_t content);
+        void parseRFChRegisterContent();
 
         /**
-         * Parse RX_ADDR_P# register content and show debug info. Long address (5 bytes max)
-         * @param content Register content
+         * Parse RF_SETUP register content
+         */
+        void parseRFSetupRegisterContent();
+
+        /**
+         * Parse STATUS register content
+         */
+        void parseStatusRegisterContent();
+
+        /**
+         * Parse OBSERVE_TX register content
+         */
+        void parseObserveTxRegisterContent();
+
+        /**
+         * Parse RPD register content
+         */
+        void parseRPDRegisterContent();
+
+        /**
+         * Parse RX_ADDR_P# register content. Long address (5 bytes max)
+         * @param pipe Pipe number
+         * @param len Address width
+         */
+        void parseRxPipeAddressRegisterContent(uint8_t pipe, size_t len);
+
+        /**
+         * Parse TX_ADDR register content
+         * @param len Address width
+         */
+        void parseTxAddressRegisterContent(size_t len);
+
+        /**
+         * Parse RX_PW_P# registers content
          * @param pipe Pipe number
          */
-        static void debugRxPipeAddressRegister(uint8_t *content, uint8_t pipe, uint8_t len);
+        void parseRxPipePayloadWidthRegisterContent(uint8_t pipe);
 
         /**
-         * Parse TX_ADDR register content and show debug info
-         * @param content Register content
+         * Parse FIFO_STATUS register content
          */
-        static void debugTxAddressRegister(uint8_t *content, uint8_t len);
+        void parseFifoStatusRegisterContent();
 
         /**
-         * Parse RX_PW_P# registers content and show debug info
-         * @param content Register content
-         * @param pipe Pipe number
+         * Parse DYNPD register content
          */
-        static void debugRxPipePayloadWidthRegister(uint8_t content, uint8_t pipe);
+        void parseDYNPDRegisterContent();
 
         /**
-         * Parse FIFO_STATUS register content and show debug info
-         * @param content Register content
+         * Parse FEATURE register content
          */
-        static void debugFifoStatusRegister(uint8_t content);
-
-        /**
-         * Parse DYNPD register content and show debug info
-         * @param content Register content
-         */
-        static void debugDynpdRegister(uint8_t content);
-
-        /**
-         * Parse FEATURE register content and show debug info
-         * @param content Register content
-         */
-        static void debugFeatureRegister(uint8_t content);
+        void parseFeatureRegisterContent();
     };
 }
 
