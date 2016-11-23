@@ -12,7 +12,8 @@
 #ifndef NRF24_REGISTERS_H
 #define NRF24_REGISTERS_H
 
-#include "Arduino.h"
+
+#include <stdint.h>
 
 namespace NRF24
 {

@@ -57,7 +57,7 @@ void setup()
     nRF24.configure();
 
     // RF radio configuration
-    nRF24.setTransceiverMode(NRF24::Mode_PTX);
+    nRF24.setTransceiverMode(NRF24::TX_Mode);
 
     nRF24.setRFChannel(0x70);
 

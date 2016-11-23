@@ -10,9 +10,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include "Arduino.h"
 #include "BSP.h"
 #include "Core.h"
-#include "../../Core.h"
 
 /**
  * Hardware configuration
@@ -40,7 +40,7 @@ BSP::LED led(LD);
 
 uint8_t addr[5] = { 0x3F, 0x54, 0xC2, 0x7A, 0x11 };
 
-const uint8_t PAYLOAD_SIZE = 4; // 4 bytes
+const size_t PAYLOAD_SIZE = 4; // 4 bytes
 unsigned char buffer[PAYLOAD_SIZE];
 
 /**
@@ -61,7 +61,7 @@ void setup() {
     nRF24.configure();
 
     // RF radio configuration
-    nRF24.setTransceiverMode(NRF24::Mode_PRX);
+    nRF24.setTransceiverMode(NRF24::RX_Mode);
 
     nRF24.setRFChannel(0x70);
 

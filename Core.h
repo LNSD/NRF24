@@ -12,7 +12,6 @@
 #ifndef NRF24_H
 #define NRF24_H
 
-#include "Arduino.h"
 #include "Driver.h"
 
 namespace NRF24
@@ -22,12 +21,12 @@ namespace NRF24
      */
 
     /**
-     * Max Payload Size. Max size: 32 bytes wide
+     * Max Payload Size: 32 bytes wide
      */
-    const static uint8_t MAX_PAYLOAD_SIZE = 32;
+    const static uint8_t MAX_PAYLOAD_LENGTH = 32;
 
     /**
-     * Max RF cCannel. 128 channels available
+     * Max RF Cannel (128 channels available)
      */
     const static uint8_t MAX_RF_CHANNEL = 127;
 
@@ -52,7 +51,7 @@ namespace NRF24
     const static uint8_t AUTO_RT_DISABLED = 0;
 
     /**
-     * Numbet of bytes in RX payload in data pipe: 0 - Pipe not used
+     * Number of bytes in RX payload in data pipe: 0 - Pipe not used
      */
     const static uint8_t PIPE_NOT_USED = 0;
 
@@ -62,53 +61,117 @@ namespace NRF24
      */
 
     /**
-     * Transmision mode
+     * Transceiver mode.
+     *
      * @note For use with {@link setTransceiverMode()}
      */
-    typedef enum {
-        Mode_PTX = 0,
-        Mode_PRX = 1
-    } TransceiverMode;
+    typedef enum TransceiverMode
+    {
+        /**
+         * TX transceiver mode
+         */
+                TX_Mode = 0,
+
+        /**
+         * RX transceiver mode
+         */
+                RX_Mode = 1
+    };
 
     /**
-     * Power Amplifier output level
+     * Power amplifier output level.
+     *
      * @note For use with {@link setOutputRfPower()}
      */
-    typedef enum {
-        OutputPower_M18dBm = 0,	// -18dBm MIN
-        OutputPower_M12dBm = 1,	// -12dBm LOW
-        OutputPower_M6dBm  = 2,	// -6dBm HIGH
-        OutputPower_0dBm   = 3	// 	0dBm MAX
-    } OutputPower;
+    typedef enum OutputPower
+    {
+        /**
+         * MIN output power level (-18dBm)
+         */
+                OutputPower_MIN = 0,
+
+        /**
+         * LOW output power level (-12dBm)
+         */
+                OutputPower_LOW = 1,
+
+        /**
+         * HIGH output power level (-6dBm)
+         */
+                OutputPower_HIGH  = 2,
+
+        /**
+         * MAX output power level (0dBm)
+         */
+                OutputPower_MAX   = 3
+    } ;
 
     /**
-    * Data rate. How fast data moves through the air.
-    * @note For use with {@link setDataRate()}
-    */
-    typedef enum {
-        DataRate_1Mbps = 0,	// 1Mbps
-        DataRate_2Mbps,		// 2Mbps
-        DataRate_250kbps	// 250kbps
-    } DataRate;
-
-    /**
-    * CRC Length. How big (if any) of a CRC is included.
-    * @note For use with {@link enableCRC()}
-    */
-    typedef enum {
-        CRC_8 = 0,
-        CRC_16,
-        CRC_DISABLED
-    } CRCLength;
-
-    /**
-     * Fifo status definition
+     * Datarate.
+     *
+     * @note For use with {@link setDataRate()}
      */
-    typedef enum {
-        FIFO_STATUS_EMPTY = 0,
-        FIFO_STATUS_OK,
-        FIFO_STATUS_FULL
-    } FifoStatus;
+    typedef enum DataRate
+    {
+        /**
+         * 1Mbps datarate
+         */
+                DataRate_1Mbps = 0,
+
+        /**
+         * 2Mbps datarate
+         */
+                DataRate_2Mbps,
+
+        /**
+         * 250kbps datarate
+         */
+                DataRate_250kbps
+    };
+
+    /**
+     * CRC Length.
+     *
+     * @note For use with {@link enableCRC()}
+     */
+    typedef enum CRCLength
+    {
+        /**
+         * 8 bits CRC length
+         */
+                CRC_8 = 0,
+
+        /**
+         * 16 bits CRC length
+         */
+                CRC_16,
+
+        /**
+         * CRC disabled
+         */
+                CRC_DISABLED
+    };
+
+    /**
+     * Fifo Status
+     */
+    typedef enum FifoStatus
+    {
+        /**
+         * FIFO status empty
+         */
+                FIFO_STATUS_EMPTY = 0,
+
+        /**
+         * FIFO status ok
+         */
+                FIFO_STATUS_OK,
+
+        /**
+         * FIFO status full
+         */
+                FIFO_STATUS_FULL
+    };
 
     /**
      * Higher level Driver for nRF24L01(+) 2.4GHz Wireless Transceiver
@@ -367,7 +430,7 @@ namespace NRF24
          * @param addr Pipe address
          * @param len Address length
          */
-        void setRxPipeAddress(uint8_t pipe, uint8_t* addr, uint8_t len);
+        void setRxPipeAddress(uint8_t pipe, uint8_t* addr, size_t len);
 
         /**
          * Get current input pipe address (RX pipe address)
@@ -375,7 +438,7 @@ namespace NRF24
          * @param addr Pipe address
          * @param len Address length
          */
-        void getRxPipeAddress(uint8_t pipe, uint8_t* addr, uint8_t len);
+        void getRxPipeAddress(uint8_t pipe, uint8_t* addr, size_t len);
 
 
         /**
@@ -383,14 +446,14 @@ namespace NRF24
          * @param addr Address
          * @param len Address length
          */
-        void setTxAddress(uint8_t* addr, uint8_t len);
+        void setTxAddress(uint8_t* addr, size_t len);
 
         /**
          * Get current destination address (TX address)
          * @param addr Current address
          * @param len Adress length
          */
-        void getTxAddress(uint8_t* addr, uint8_t len);
+        void getTxAddress(uint8_t* addr, size_t len);
 
 
         /**
@@ -399,7 +462,7 @@ namespace NRF24
          * @param pipe RX pipe
          * @param len Payload length
          */
-        void setRxPipePayloadLength(uint8_t pipe, uint8_t len);
+        void setRxPipePayloadLength(uint8_t pipe, size_t len);
 
         /**
          * Get current input pipe payload length
@@ -468,7 +531,7 @@ namespace NRF24
          * @param data Payload buffer
          * @param len Payload length
          */
-        void readPayload(uint8_t* data, uint8_t len);
+        void readPayload(uint8_t* data, size_t len);
 
         /**
          * Write TX payload
@@ -477,7 +540,7 @@ namespace NRF24
          * @param data Payload buffer
          * @param len Payload length
          */
-        void writePayload(uint8_t* data, uint8_t len);
+        void writePayload(uint8_t* data, size_t len);
 
         /**
          * Write TX payload to be transmitted together with ACK packet on chosen pipe.
@@ -490,7 +553,7 @@ namespace NRF24
          * @param data Payload buffer
          * @param len Payload length
          */
-        void writePipeAckPayload(uint8_t pipe, uint8_t* data, uint8_t len);
+        void writePipeAckPayload(uint8_t pipe, uint8_t* data, size_t len);
 
         /**
          * Write TX payload and disable AUTOACK on this specific packet.
@@ -499,7 +562,7 @@ namespace NRF24
          * @param data Payload buffer
          * @param len Payload length
          */
-        void writePayloadNoAckPacket(uint8_t* data, uint8_t len);
+        void writePayloadNoAckPacket(uint8_t* data, size_t len);
 
         /**
          * Reuse last transmitted payload.

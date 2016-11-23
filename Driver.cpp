@@ -10,6 +10,7 @@
  */
 
 #include "Driver.h"
+#include "Arduino.h"
 #include <SPI.h>
 #include "NRF24L01P.h"
 
@@ -98,7 +99,7 @@ uint8_t NRF24::Driver::readRegister(uint8_t reg)
     return data;
 }
 
-void NRF24::Driver::readRegister(uint8_t reg, uint8_t *buf, uint8_t len)
+void NRF24::Driver::readRegister(uint8_t reg, uint8_t *buf, size_t len)
 {
     spiCmdTransfer(R_REGISTER | (REGISTER_MASK & reg), buf, len);
 }
@@ -108,7 +109,7 @@ void NRF24::Driver::writeRegister(uint8_t reg, uint8_t value)
     spiCmdTransfer(W_REGISTER | (REGISTER_MASK & reg), &value, 1);
 }
 
-void NRF24::Driver::writeRegister(uint8_t reg, uint8_t *buf, uint8_t len)
+void NRF24::Driver::writeRegister(uint8_t reg, uint8_t *buf, size_t len)
 {
     spiCmdTransfer(W_REGISTER | (REGISTER_MASK & reg), buf, len);
 }
@@ -318,22 +319,22 @@ void NRF24::Driver::writeRPDRegister(Register::RPD reg)
     writeRegister(RPD, reg.raw);
 }
 
-void NRF24::Driver::readRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, uint8_t len)
+void NRF24::Driver::readRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, size_t len)
 {
     readRegister(RX_ADDR_P0 + min(pipe,5), addr, len);
 }
 
-void NRF24::Driver::writeRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, uint8_t len)
+void NRF24::Driver::writeRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, size_t len)
 {
     writeRegister(RX_ADDR_P0 + min(pipe,5), addr, len);
 }
 
-void NRF24::Driver::readTxAddrRegister(uint8_t* addr, uint8_t len)
+void NRF24::Driver::readTxAddrRegister(uint8_t* addr, size_t len)
 {
     readRegister(TX_ADDR, addr, len);
 }
 
-void NRF24::Driver::writeTxAddrRegister(uint8_t* addr, uint8_t len)
+void NRF24::Driver::writeTxAddrRegister(uint8_t* addr, size_t len)
 {
     writeRegister(TX_ADDR, addr, len);
 }
@@ -386,12 +387,12 @@ void NRF24::Driver::writeFeatureRegister(Register::FEATURE reg)
 
 //region Commands
 
-void NRF24::Driver::readRxPayload(uint8_t* data, uint8_t len)
+void NRF24::Driver::readRxPayload(uint8_t* data, size_t len)
 {
     spiCmdTransfer(R_RX_PAYLOAD, data, len);
 }
 
-void NRF24::Driver::writeTxPayload(uint8_t* data, uint8_t len)
+void NRF24::Driver::writeTxPayload(uint8_t* data, size_t len)
 {
     spiCmdTransfer(W_TX_PAYLOAD, data, len);
 }
@@ -420,12 +421,12 @@ uint8_t NRF24::Driver::readRxPayloadLength()
     return width;
 }
 
-void NRF24::Driver::writeACKPayload(uint8_t pipe, uint8_t* data, uint8_t len)
+void NRF24::Driver::writeACKPayload(uint8_t pipe, uint8_t* data, size_t len)
 {
     spiCmdTransfer((uint8_t) (W_ACK_PAYLOAD | (pipe & W_ACK_PAYLOAD_MASK)), data, len);
 }
 
-void NRF24::Driver::writeTxPayloadNOACK(uint8_t *data, uint8_t len)
+void NRF24::Driver::writeTxPayloadNOACK(uint8_t *data, size_t len)
 {
     spiCmdTransfer(W_TX_PAYLOAD_NOACK, data, len);
 }

@@ -12,7 +12,8 @@
 #ifndef NRF24_DRIVER_H
 #define NRF24_DRIVER_H
 
-#include "Arduino.h"
+
+#include <stddef.h>
 #include "Registers.h"
 
 namespace NRF24
@@ -99,7 +100,7 @@ namespace NRF24
          * @param buf Array of data received
          * @param len Array length
         */
-        void readRegister(uint8_t reg, uint8_t *buf, uint8_t len);
+        void readRegister(uint8_t reg, uint8_t *buf, size_t len);
 
         /**
          * Write nRF24 register
@@ -114,7 +115,7 @@ namespace NRF24
          * @param buf Array of data to write
          * @param len Array length
          */
-        void writeRegister(uint8_t reg, uint8_t *buf, uint8_t len);
+        void writeRegister(uint8_t reg, uint8_t *buf, size_t len);
 
     public:
 
@@ -312,7 +313,7 @@ namespace NRF24
          * @param addr Pipe address buffer
          * @param len Address length
          */
-        void readRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, uint8_t len);
+        void readRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, size_t len);
 
         /**
          * Write RX_ADDR_Pn register
@@ -320,21 +321,21 @@ namespace NRF24
          * @param addr Pipe address
          * @param len Address length
          */
-        void writeRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, uint8_t len);
+        void writeRxPipeAddrRegister(uint8_t pipe, uint8_t* addr, size_t len);
 
         /**
          * Read TX_ADDR register
          * @param addr Current address
          * @param len Adress length
          */
-        void readTxAddrRegister(uint8_t* addr, uint8_t len);
+        void readTxAddrRegister(uint8_t* addr, size_t len);
 
         /**
          * Write TX_ADDR register
          * @param addr Address
          * @param len Address length
          */
-        void writeTxAddrRegister(uint8_t* addr, uint8_t len);
+        void writeTxAddrRegister(uint8_t* addr, size_t len);
 
         /**
          * Read RX_PW_Pn register content
@@ -396,14 +397,14 @@ namespace NRF24
          * @param data Payload buffer
          * @param len Payload length
          */
-        void readRxPayload(uint8_t* data, uint8_t len);
+        void readRxPayload(uint8_t* data, size_t len);
 
         /**
          * Write TX-payload (W_TX_PAYLOAD command)
          * @param data Payload buffer
          * @param len Payload length
          */
-        void writeTxPayload(uint8_t* data, uint8_t len);
+        void writeTxPayload(uint8_t* data, size_t len);
 
         /**
          * Flush Tx FIFO (FLUSH_TX command)
@@ -436,14 +437,14 @@ namespace NRF24
          * @param data Payload buffer
          * @param len Payload length
          */
-        void writeACKPayload(uint8_t pipe, uint8_t* data, uint8_t len);
+        void writeACKPayload(uint8_t pipe, uint8_t* data, size_t len);
 
         /**
          * Write Payload to be transmitted and disable AUTOACK on this specific packet (W_TX_PAYLOAD_NOACK command)
          * @param data Payload buffer
          * @param len Payload length
          */
-        void writeTxPayloadNOACK(uint8_t *data, uint8_t len);
+        void writeTxPayloadNOACK(uint8_t *data, size_t len);
     };
 }
 

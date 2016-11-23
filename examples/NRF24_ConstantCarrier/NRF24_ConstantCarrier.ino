@@ -50,8 +50,8 @@ void setup() {
     nRF24.configure();
 
     // RF radio configuration
-    nRF24.setTransceiverMode(NRF24::Mode_PTX);
-    nRF24.setOutputRFPower(NRF24::OutputPower_0dBm);
+    nRF24.setTransceiverMode(NRF24::TX_Mode);
+    nRF24.setOutputRFPower(NRF24::OutputPower_MAX);
     nRF24.enableConstantCarrier();
     nRF24.forcePllLock();
     nRF24.setRFChannel(rfChannel);

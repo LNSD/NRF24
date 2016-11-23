@@ -10,6 +10,7 @@
  */
 
 #include "Core.h"
+#include "Arduino.h"
 
 /**
  * Constructors
@@ -73,7 +74,7 @@ void NRF24::Radio::configure()
 void NRF24::Radio::setTransceiverMode(TransceiverMode mode)
 {
     Register::CONFIG config = _driver.readConfigRegister();
-    config.PRIM_RX = (mode != Mode_PTX);
+    config.PRIM_RX = (mode != TX_Mode);
     _driver.writeConfigRegister(config);
 }
 
@@ -83,11 +84,11 @@ NRF24::TransceiverMode NRF24::Radio::getTransceiverMode()
 
     if(config.PRIM_RX)
     {
-        return Mode_PRX;
+        return RX_Mode;
     }
     else
     {
-        return Mode_PTX;
+        return TX_Mode;
     }
 }
 
@@ -297,7 +298,7 @@ NRF24::OutputPower NRF24::Radio::getOutputRFPower()
 }
 
 
-void NRF24::Radio::setRxPipeAddress(uint8_t pipe, uint8_t* addr, uint8_t len)
+void NRF24::Radio::setRxPipeAddress(uint8_t pipe, uint8_t* addr, size_t len)
 {
     if (pipe < 2)
     {
@@ -309,7 +310,7 @@ void NRF24::Radio::setRxPipeAddress(uint8_t pipe, uint8_t* addr, uint8_t len)
     }
 }
 
-void NRF24::Radio::getRxPipeAddress(uint8_t pipe, uint8_t* addr, uint8_t len)
+void NRF24::Radio::getRxPipeAddress(uint8_t pipe, uint8_t* addr, size_t len)
 {
     if (pipe < 2)
     {
@@ -322,20 +323,20 @@ void NRF24::Radio::getRxPipeAddress(uint8_t pipe, uint8_t* addr, uint8_t len)
 }
 
 
-void NRF24::Radio::setTxAddress(uint8_t* addr, uint8_t len)
+void NRF24::Radio::setTxAddress(uint8_t* addr, size_t len)
 {
     _driver.writeTxAddrRegister(addr, len);
 }
 
-void NRF24::Radio::getTxAddress(uint8_t* addr, uint8_t len)
+void NRF24::Radio::getTxAddress(uint8_t* addr, size_t len)
 {
     _driver.readTxAddrRegister(addr, len);
 }
 
 
-void NRF24::Radio::setRxPipePayloadLength(uint8_t pipe, uint8_t size)
+void NRF24::Radio::setRxPipePayloadLength(uint8_t pipe, size_t len)
 {
-    Register::RX_PW_PN rxPwPn = { .RX_PW_PN = min(size, MAX_PAYLOAD_SIZE) };
+    Register::RX_PW_PN rxPwPn = { .RX_PW_PN = min(len, MAX_PAYLOAD_LENGTH) };
      _driver.writeRxPWRegister(pipe, rxPwPn);
 }
 
@@ -426,22 +427,22 @@ uint8_t NRF24::Radio::getPayloadLength()
     return _driver.readRxPayloadLength();
 }
 
-void NRF24::Radio::readPayload(uint8_t* data, uint8_t len)
+void NRF24::Radio::readPayload(uint8_t* data, size_t len)
 {
     _driver.readRxPayload(data, len);
 }
 
-void NRF24::Radio::writePayload(uint8_t* data, uint8_t len)
+void NRF24::Radio::writePayload(uint8_t* data, size_t len)
 {
     _driver.writeTxPayload(data,len);
 }
 
-void NRF24::Radio::writePipeAckPayload(uint8_t pipe, uint8_t* data, uint8_t len)
+void NRF24::Radio::writePipeAckPayload(uint8_t pipe, uint8_t* data, size_t len)
 {
     _driver.writeACKPayload(pipe, data, len);
 }
 
-void NRF24::Radio::writePayloadNoAckPacket(uint8_t *data, uint8_t len)
+void NRF24::Radio::writePayloadNoAckPacket(uint8_t *data, size_t len)
 {
     _driver.writeTxPayloadNOACK(data, len);
 }
@@ -572,8 +573,8 @@ void NRF24::Radio::start()
     _driver.chipEnable();
 
     /* State:
-     *  if (Mode_PRX) -> "RX Mode"
-     *  if (Mode_PTX):
+     *  if (RX_Mode) -> "RX Mode"
+     *  if (TX_Mode):
      *      if (TX_FIFO_EMPTY) -> "Standby-II"
      *      else -(130us)-> "TX Mode"
      */

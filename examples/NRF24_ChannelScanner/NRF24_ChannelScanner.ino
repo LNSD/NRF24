@@ -51,7 +51,7 @@ void setup() {
     nRF24.configure();
 
     // RF radio configuration
-    nRF24.setTransceiverMode(NRF24::Mode_PRX);
+    nRF24.setTransceiverMode(NRF24::RX_Mode);
     nRF24.disableAutoAck();
     nRF24.disableDynamicPayloads();
     Serial.println("DONE");
