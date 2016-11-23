@@ -490,7 +490,7 @@ namespace NRF24
          * @param data Payload buffer
          * @param len Payload length
          */
-        void writePipeAckPayload(RxPipe pipe, uint8_t* data, uint8_t len);
+        void writePipeAckPayload(uint8_t pipe, uint8_t* data, uint8_t len);
 
         /**
          * Write TX payload and disable AUTOACK on this specific packet.

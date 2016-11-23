@@ -12,10 +12,7 @@
 #ifndef NRF24_DEBUG_H
 #define NRF24_DEBUG_H
 
-#include <stdint.h>
 #include "Arduino.h"
-
-#include "Definitions.h"
 
 namespace NRF24
 {
@@ -91,7 +88,7 @@ namespace NRF24
          * @param content Register content
          * @param pipe Pipe number
          */
-        static void debugRxPipeAddressRegister(uint8_t *content, NRF24::RxPipe pipe, uint8_t len);
+        static void debugRxPipeAddressRegister(uint8_t *content, uint8_t pipe, uint8_t len);
 
         /**
          * Parse TX_ADDR register content and show debug info
@@ -104,7 +101,7 @@ namespace NRF24
          * @param content Register content
          * @param pipe Pipe number
          */
-        static void debugRxPipePayloadWidthRegister(uint8_t content, RxPipe pipe);
+        static void debugRxPipePayloadWidthRegister(uint8_t content, uint8_t pipe);
 
         /**
          * Parse FIFO_STATUS register content and show debug info

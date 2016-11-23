@@ -9,7 +9,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "NRF24.h"
+#include "Arduino.h"
+#include "Core.h"
 
 /**
  * Hardware configuration
@@ -26,7 +27,7 @@
 #define PB 3
 
 // Set up nRF24L01 radio on SPI bus plus pins 7 & 8
-NRF24::Driver nRF24(CSN, CE);
+NRF24::Radio nRF24(CSN, CE);
 
 /**
  * RF Channel configuration
@@ -44,22 +45,21 @@ void setup() {
     Serial.begin(115200);
     Serial.println("nRF24lib: Constant carrier test sketch");
 
-    // RF radio configuration
-    NRF24::Configuration config(NRF24::Mode_PTX);
-    config.setOutputPower(NRF24::OutputPower_0dBm);
-
-    config.enableConstantCarrier();
-    config.forcePllLock();
-
-    config.setRFChannel(rfChannel);
 
     Serial.print(" - Configuring: ");
-    nRF24.configure(config);
+    nRF24.configure();
+
+    // RF radio configuration
+    nRF24.setTransceiverMode(NRF24::Mode_PTX);
+    nRF24.setOutputRFPower(NRF24::OutputPower_0dBm);
+    nRF24.enableConstantCarrier();
+    nRF24.forcePllLock();
+    nRF24.setRFChannel(rfChannel);
     Serial.println("DONE");
 
-    // Reset current status
-    // Notice reset and flush is the last thing we do
-    nRF24.resetCurrentStatus();
+    // Clear current status
+    // Notice clear and flush is the last thing we do
+    nRF24.clearStatus();
 
     // Flush buffers
     nRF24.flushTxFifo();
@@ -141,7 +141,7 @@ void loop()
         nRF24.setRFChannel(rfChannel);
 
         // Start listening
-        nRF24.resetCurrentStatus();
+        nRF24.clearStatus();
         nRF24.flushRxFifo();
         nRF24.flushTxFifo();
 

@@ -436,7 +436,7 @@ void NRF24::Radio::writePayload(uint8_t* data, uint8_t len)
     _driver.writeTxPayload(data,len);
 }
 
-void NRF24::Radio::writePipeAckPayload(RxPipe pipe, uint8_t* data, uint8_t len)
+void NRF24::Radio::writePipeAckPayload(uint8_t pipe, uint8_t* data, uint8_t len)
 {
     _driver.writeACKPayload(pipe, data, len);
 }

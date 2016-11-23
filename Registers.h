@@ -25,7 +25,7 @@ namespace NRF24
         /**
          * Configuration register
          */
-        union CONFIG
+        typedef union
         {
             struct
             {
@@ -87,13 +87,13 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } CONFIG;
 
         /**
          * Enable 'Auto Acknowledgement' Function register
          * @note Disable this functionality to be compatible with nRF2401
          */
-        union EN_AA
+        typedef union
         {
             struct
             {
@@ -135,12 +135,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } EN_AA;
 
         /**
          * Enable RX Address register
          */
-        union EN_RXADDR
+        typedef union
         {
             struct
             {
@@ -184,13 +184,13 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } EN_RXADDR;
 
         /**
          * Address Widths setup register
          * @note Common for all data pipes
          */
-        union SETUP_AW
+        typedef union
         {
             struct
             {
@@ -216,12 +216,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } SETUP_AW;
 
         /**
          * Automatic Retransmission setup register
          */
-        union SETUP_RETR
+        typedef union
         {
             struct
             {
@@ -253,12 +253,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } SETUP_RETR;
 
         /**
          * RF Channel register
          */
-        union RF_CH
+        typedef union
         {
             struct
             {
@@ -277,12 +277,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } RF_CH;
 
         /**
          * RF Setup register
          */
-        union RF_SETUP
+        typedef union
         {
             struct
             {
@@ -363,12 +363,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } RF_SETUP;
 
         /**
          * Status register
          */
-        union STATUS
+        typedef union
         {
             struct
             {
@@ -424,12 +424,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } STATUS;
 
         /**
          * Transmit Observe register
          */
-        union OBSERVE_TX
+        typedef union
         {
             struct
             {
@@ -455,12 +455,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } OBSERVE_TX;
 
         /**
          * Received Power Detector (Carrier Detect)
          */
-        union RPD
+        typedef union
         {
             struct
             {
@@ -483,12 +483,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } RPD;
 
         /**
          * Rx Pipe Payload Width register
          */
-        union RX_PW_PN
+        typedef union
         {
             struct
             {
@@ -509,12 +509,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } RX_PW_PN;
 
         /**
          * FIFO Status register
          */
-        union FIFO_STATUS
+        typedef union
         {
             struct
             {
@@ -574,12 +574,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } FIFO_STATUS;
 
         /**
          * Enable Dynamic Payload Length register
          */
-        union DYNPD
+        typedef union
         {
             struct
             {
@@ -635,12 +635,12 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } DYNPD;
 
         /**
          * Feature register
          */
-        union FEATURE
+        typedef union
         {
             struct
             {
@@ -669,7 +669,7 @@ namespace NRF24
              * Raw register content
              */
             uint8_t raw;
-        };
+        } FEATURE;
     }
 }
 
