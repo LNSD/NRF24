@@ -1560,13 +1560,13 @@ MAN_LINKS = NO
 # If the GENERATE_XML tag is set to YES Doxygen will  generate an XML file that
 # captures the structure of the code including all documentation.
 
-GENERATE_XML = NO
+GENERATE_XML = YES
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `xml' will be used as the default path.
 
-XML_OUTPUT = $DESKTOP/xml
+XML_OUTPUT = xml
 
 # If the XML_PROGRAMLISTING tag is set to YES Doxygen will
 # dump the program listings (including syntax highlighting
