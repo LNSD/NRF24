@@ -11,7 +11,7 @@
 # particular cmake subdirectory
 # set(ARDUINO_CPU 16MHzatmega328)
 
-set(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake) # Arduino Toolchain
+set(CMAKE_TOOLCHAIN_FILE arduino-cmake/cmake/ArduinoToolchain.cmake) # Arduino Toolchain
 
 cmake_minimum_required(VERSION 2.8)
 
@@ -49,12 +49,12 @@ if(BUILD_DOCUMENTATION)
         message(FATAL_ERROR "Doxygen is needed to build the documentation.")
     endif()
 
-    set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
-    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/docs/doxyfile.in)
+    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
 
     configure_file(${doxyfile_in} ${doxyfile})
 
-    add_custom_target(doc
+    add_custom_target(docs
             COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Generating API documentation with Doxygen"
