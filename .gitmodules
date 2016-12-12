@@ -1,6 +1,6 @@
 [submodule "docs"]
 	path = docs
 	url = git@github.com:LNSD/NRF24-docs.git
-[submodule "arduino-cmake"]
-	path = arduino-cmake
+[submodule "cmake/arduino"]
+	path = cmake/arduino
 	url = git@github.com:LNSD/arduino-cmake.git
